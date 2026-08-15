@@ -118,3 +118,69 @@ def chat(request):
         return JsonResponse({
             'error': f"Xatolik yuz berdi: {str(e)}",
         }, status=500)
+
+from google.genai import types
+
+@csrf_exempt
+@require_POST
+def voice_chat(request):
+    """
+    Receive an audio file, transcribe it with Gemini, and process the question.
+    """
+    if 'audio' not in request.FILES:
+        return JsonResponse({'error': "Audio fayl topilmadi"}, status=400)
+        
+    audio_file = request.FILES['audio']
+    audio_bytes = audio_file.read()
+    
+    try:
+        # Transcribe audio using Gemini
+        transcribe_prompt = "Iltimos, ushbu audioda nima deyilganini aniq matnga o'giring. Faqatgina aytilgan gapni qaytaring, boshqa hech narsa qo'shmang. O'zbek tilida yozing."
+        response = gemini_client.models.generate_content(
+            model='gemini-3.6-flash',
+            contents=[
+                types.Part.from_bytes(data=audio_bytes, mime_type='audio/webm'),
+                transcribe_prompt
+            ]
+        )
+        question = response.text.strip()
+        
+        if not question:
+             return JsonResponse({'error': "Audiodan matn ajratib olinmadi"}, status=400)
+             
+        # Now do the RAG flow with the transcribed text
+        collection = _get_collection()
+        query_embedding = _get_embedding(question)
+        
+        results = collection.query(
+            query_embeddings=[query_embedding],
+            n_results=3,
+        )
+        
+        documents = results.get('documents', [[]])[0]
+        distances = results.get('distances', [[]])[0]
+        
+        relevant_chunks = []
+        if documents:
+            for doc, dist in zip(documents, distances):
+                similarity = 1 - dist
+                if similarity > 0.2:
+                    relevant_chunks.append(doc.strip())
+                
+        if not relevant_chunks:
+            return JsonResponse({
+                'question': question,
+                'answer': "Kechirasiz, savolingizga mos ma'lumot topilmadi. Iltimos, savolni boshqacha shaklda bering."
+            })
+            
+        answer = _generate_answer(question, relevant_chunks)
+        
+        return JsonResponse({
+            'question': question,
+            'answer': answer
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'error': f"Ovozni ishlashda xatolik yuz berdi: {str(e)}",
+        }, status=500)

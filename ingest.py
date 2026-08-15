@@ -1,5 +1,5 @@
 """
-Script to ingest the grant/contract distribution document into ChromaDB.
+Script to ingest all markdown documents into ChromaDB.
 Uses Google Gemini embedding API (google.genai).
 
 Usage:
@@ -9,6 +9,7 @@ Usage:
 import os
 import re
 import sys
+import glob
 
 # Fix Windows console encoding
 if sys.platform == 'win32':
@@ -24,7 +25,7 @@ load_dotenv()
 
 # ── Config ───────────────────────────────────────────────────────────────────
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DOC_PATH = os.path.join(BASE_DIR, 'documents', 'grand_kontrakt_taqsimoti.md')
+DOCS_DIR = os.path.join(BASE_DIR, 'documents')
 CHROMA_DIR = os.path.join(BASE_DIR, 'chroma_db')
 
 GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY', '')
@@ -40,16 +41,37 @@ def get_embedding(text: str) -> list[float]:
     return result.embeddings[0].values
 
 
+import time
 def get_embeddings_batch(texts: list[str]) -> list[list[float]]:
     """Get embeddings for a batch of texts."""
     embeddings = []
-    batch_size = 10
+    # Gemini free tier limits to 100 inputs per minute total, even in batches.
+    batch_size = 90
     for i in range(0, len(texts), batch_size):
         batch = texts[i:i + batch_size]
-        for text in batch:
-            emb = get_embedding(text)
-            embeddings.append(emb)
-        print(f"   -> {min(i + batch_size, len(texts))}/{len(texts)} chunk embedding tayyor")
+        
+        success = False
+        while not success:
+            try:
+                result = client.models.embed_content(
+                    model="models/gemini-embedding-001",
+                    contents=batch,
+                )
+                for emb in result.embeddings:
+                    embeddings.append(emb.values)
+                print(f"   -> {min(i + batch_size, len(texts))}/{len(texts)} chunk embedding tayyor")
+                success = True
+                
+                # If there are more chunks left, we MUST sleep for a minute to reset the quota
+                if i + batch_size < len(texts):
+                    print("   -> Kvota limitini kutish (65 soniya)...")
+                    time.sleep(65)
+                    
+            except Exception as e:
+                print(f"Xato (API limiti): {e}")
+                print("   -> 65 soniya kutib, qayta urinib ko'riladi...")
+                time.sleep(65)
+
     return embeddings
 
 
@@ -104,19 +126,9 @@ def split_into_chunks(text: str, max_chars: int = 800) -> list[str]:
 def ingest():
     if not GOOGLE_API_KEY:
         print("[XATO] GOOGLE_API_KEY .env faylda topilmadi!")
-        print("   .env fayliga quyidagini qo'shing:")
-        print("   GOOGLE_API_KEY=sizning_api_kalitingiz")
         return
 
-    print(f"[1/4] Hujjatni o'qish: {DOC_PATH}")
-    with open(DOC_PATH, 'r', encoding='utf-8') as f:
-        text = f.read()
-
-    print("[2/4] Chunklarga bo'lish...")
-    chunks = split_into_chunks(text)
-    print(f"   -> {len(chunks)} ta chunk yaratildi")
-
-    print(f"[3/4] ChromaDB yaratish: {CHROMA_DIR}")
+    print(f"[1/4] ChromaDB yaratish: {CHROMA_DIR}")
     chroma_client = chromadb.PersistentClient(path=CHROMA_DIR)
 
     try:
@@ -130,23 +142,46 @@ def ingest():
         metadata={"hnsw:space": "cosine"},
     )
 
-    print("[4/4] Google Gemini orqali embeddinglarni hisoblash...")
-    embeddings = get_embeddings_batch(chunks)
+    md_files = glob.glob(os.path.join(DOCS_DIR, '*.md'))
+    if not md_files:
+        print("[XATO] Hujjatlar topilmadi (.md fayllar)")
+        return
+        
+    all_chunks = []
+    all_metadatas = []
+    
+    print(f"[2/4] Hujjatlarni o'qish va chunklarga bo'lish...")
+    for file_path in md_files:
+        filename = os.path.basename(file_path)
+        print(f"   -> O'qilyapti: {filename}")
+        
+        with open(file_path, 'r', encoding='utf-8') as f:
+            text = f.read()
+            
+        chunks = split_into_chunks(text)
+        print(f"      {len(chunks)} ta chunk yaratildi")
+        
+        for i, chunk in enumerate(chunks):
+            all_chunks.append(chunk)
+            all_metadatas.append({"source": filename, "chunk_index": i})
 
-    ids = [f"chunk_{i}" for i in range(len(chunks))]
-    metadatas = [{"source": "grand_kontrakt_taqsimoti.md", "chunk_index": i} for i in range(len(chunks))]
+    print(f"[3/4] Jami {len(all_chunks)} ta chunk uchun Gemini orqali embeddinglarni hisoblash...")
+    all_embeddings = get_embeddings_batch(all_chunks)
 
+    print("[4/4] ChromaDB ga saqlash...")
+    ids = [f"chunk_{i}" for i in range(len(all_chunks))]
+    
     collection.add(
         ids=ids,
-        documents=chunks,
-        embeddings=embeddings,
-        metadatas=metadatas,
+        documents=all_chunks,
+        embeddings=all_embeddings,
+        metadatas=all_metadatas,
     )
 
-    print(f"[TAYYOR] {len(chunks)} ta chunk ChromaDB ga saqlandi.")
+    print(f"[TAYYOR] {len(all_chunks)} ta chunk ChromaDB ga muvaffaqiyatli saqlandi.")
 
     # Quick test
-    test_query = "GPA qancha bo'lishi kerak?"
+    test_query = "Talabalar o'qishini ko'chirish qanday amalga oshiriladi?"
     test_embedding = get_embedding(test_query)
     results = collection.query(query_embeddings=[test_embedding], n_results=2)
     print(f"\n[TEST] So'rov: '{test_query}'")
