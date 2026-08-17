@@ -551,6 +551,36 @@
             position: relative;
         }
 
+        .error-message {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+        .feedback-btns {
+            margin-top: 10px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 10px;
+        }
+        
+        .feedback-btns button {
+            background-color: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 5px 10px;
+            margin-right: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+        
+        .feedback-btns button:hover {
+            background-color: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
         .audio-btn {
             background: none;
             border: none;
@@ -894,7 +924,7 @@
                 </div>
                 <div class="chat-title-text">
                     <strong>RAG Chatbot</strong>
-                    <small>Onlayn yordamchi</small>
+                    <small>Onlayn AI yordamchi</small>
                 </div>
             </div>
             <button class="close-chat" onclick="toggleChat()" aria-label="Yopish">
@@ -903,7 +933,7 @@
         </div>
         <div class="chat-messages" id="chatMessages">
             <div class="chat-message bot-message">
-                Assalomu alaykum! Oliy ta'lim, xususan <strong>davlat grantlari va kontrakt taqsimoti</strong> bo'yicha savollaringizga javob berishga tayyorman. 🎓
+                Assalomu alaykum! Oliy ta'lim bo'yicha barcha savollaringizga javob berishga tayyorman. 🎓
             </div>
         </div>
         <div class="chat-input-area">
@@ -958,6 +988,65 @@
         function handleKeyPress(e) {
             if (e.key === 'Enter') {
                 sendMessage();
+            }
+        }
+
+        // Ticket polling
+        let pendingTickets = [];
+
+        function checkPendingTickets() {
+            if (pendingTickets.length === 0) return;
+            
+            pendingTickets.forEach(async (ticket, index) => {
+                try {
+                    const res = await fetch('/api/check-ticket/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ticket_id: ticket.id, password: ticket.pwd })
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.status === 'answered' && data.answer) {
+                            pendingTickets.splice(index, 1);
+                            showTicketAnswer(ticket.id, ticket.pwd, data.answer);
+                        }
+                    }
+                } catch(e) {}
+            });
+        }
+        setInterval(checkPendingTickets, 15000); // Har 15 soniyada tekshiradi
+
+        function showTicketAnswer(id, pwd, answer) {
+            const msgText = `🎫 **${id}** raqamli murojaatingizga operator javob berdi:\n\n${answer}`;
+            const msgEl = addMessage(msgText, true);
+            
+            const btnContainer = document.createElement('div');
+            btnContainer.className = 'feedback-btns';
+            btnContainer.innerHTML = `
+                <p style="margin: 0 0 8px 0; font-size: 0.9em; color: var(--text-secondary);">Operator javobidan qoniqdingizmi?</p>
+                <button onclick="submitFeedback('${id}', '${pwd}', 'yes', this.parentNode)">Ha</button>
+                <button onclick="submitFeedback('${id}', '${pwd}', 'partially', this.parentNode)">Qisman</button>
+                <button onclick="submitFeedback('${id}', '${pwd}', 'no', this.parentNode)">Yo'q</button>
+            `;
+            msgEl.appendChild(btnContainer);
+        }
+
+        async function submitFeedback(id, pwd, feedback, container) {
+            container.innerHTML = '<span style="font-size: 0.9em; color: var(--primary);">Bahoingiz yuborilmoqda...</span>';
+            try {
+                const res = await fetch('/api/submit-feedback/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ticket_id: id, password: pwd, feedback: feedback })
+                });
+                if (res.ok) {
+                    container.innerHTML = '<span style="font-size: 0.9em; color: green;">Rahmat, bahoingiz qabul qilindi!</span>';
+                    setTimeout(() => { container.remove(); }, 3000);
+                } else {
+                    container.innerHTML = '<span style="font-size: 0.9em; color: red;">Xatolik yuz berdi.</span>';
+                }
+            } catch(e) {
+                container.innerHTML = '<span style="font-size: 0.9em; color: red;">Xatolik yuz berdi.</span>';
             }
         }
 
@@ -1080,14 +1169,19 @@
 
                 if (!response.ok) {
                     const errData = await response.json().catch(() => ({}));
-                    addMessage(errData.error || 'Server xatoligi. Qayta urinib koʻring.', true);
+                    const errorMsg = addMessage(errData.error || '⚠️ Texnik xatolik yuz berdi. Mutaxassis xodimlarimiz muammoni ko\'rib chiqishmoqda va tez orada hal qilishadi. Iltimos, biroz vaqtdan so\'ng qayta urinib ko\'ring.', true);
+                    errorMsg.classList.add('error-message');
                 } else {
                     const data = await response.json();
                     addMessage(data.answer, true);
+                    if (data.ticket_id && data.password) {
+                        pendingTickets.push({ id: data.ticket_id, pwd: data.password });
+                    }
                 }
             } catch (err) {
                 removeTypingIndicator();
-                addMessage('Internet bilan muammo yuz berdi. Qayta urinib koʻring.', true);
+                const errorMsg = addMessage('⚠️ Internet bilan muammo yuz berdi. Mutaxassis xodimlarimiz muammoni ko\'rib chiqishmoqda va tez orada hal qilishadi. Iltimos, internet ulanishingizni tekshirib, qayta urinib ko\'ring.', true);
+                errorMsg.classList.add('error-message');
             } finally {
                 chatInput.disabled = false;
                 sendBtn.disabled = false;
@@ -1157,7 +1251,8 @@
 
                 if (!response.ok) {
                     const errData = await response.json().catch(() => ({}));
-                    addMessage(errData.error || 'Server xatoligi. Qayta urinib koʻring.', true);
+                    const errorMsg = addMessage(errData.error || '⚠️ Texnik xatolik yuz berdi. Mutaxassis xodimlarimiz muammoni ko\'rib chiqishmoqda va tez orada hal qilishadi. Iltimos, biroz vaqtdan so\'ng qayta urinib ko\'ring.', true);
+                    errorMsg.classList.add('error-message');
                 } else {
                     const data = await response.json();
                     if (data.question) {
@@ -1167,7 +1262,8 @@
                 }
             } catch (err) {
                 removeTypingIndicator();
-                addMessage('Internet bilan muammo yuz berdi. Qayta urinib koʻring.', true);
+                const errorMsg = addMessage('⚠️ Internet bilan muammo yuz berdi. Mutaxassis xodimlarimiz muammoni ko\'rib chiqishmoqda va tez orada hal qilishadi. Iltimos, internet ulanishingizni tekshirib, qayta urinib ko\'ring.', true);
+                errorMsg.classList.add('error-message');
             } finally {
                 chatInput.disabled = false;
                 sendBtn.disabled = false;

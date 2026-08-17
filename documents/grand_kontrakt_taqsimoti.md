@@ -121,7 +121,7 @@ Bunda talabgorlar oʻz arizalari bilan har yili 20-iyulga qadar oliy taʼlim tas
 
 ## 4-bob. Moliyaviy mustaqillik berilgan oliy taʼlim tashkilotlarida talabalarga grant taqdim etish tartibi
 
-30. Moliyaviy mustaqillik berilgan oliy taʼlim tashkilotining bakalavriat taʼlim yoʻnalishiga 2024/2025 oʻquv yilidan oʻqishga kirib, muayyan oʻquv yili boʻyicha GPA koʻrsatkichi 3,3 dan 4 gacha boʻlgan belgilangan toifadagi talabalarga navbatdagi oʻquv yili uchun oliy taʼlim tashkiloti granti taqdim etiladi.
+30. Moliyaviy mustaqillik berilgan oliy taʼlim tashkilotining bakalavriat taʼlim yoʻnalishiga 2024/2025 oʻquv yilidan oʻqishga kirib, muayyan oʻquv yili boʻyicha GPA koʻrsatkichi **3,3 dan 4 gacha** boʻlgan belgilangan toifadagi talabalarga navbatdagi oʻquv yili uchun oliy taʼlim tashkiloti granti taqdim etiladi.
 Bunda moliyaviy mustaqillik berilgan oliy taʼlim tashkilotlari har yili oʻzlarining budjetdan tashqari mablagʻlari hisobidan 1 mlrd soʻmgacha boʻlgan miqdorda oliy taʼlim tashkiloti grantini taqdim etadi.
 
 31. Oliy taʼlim tashkiloti grantiga talabgorlar oʻz arizalari bilan har yili 20-iyulga qadar oliy taʼlim tashkilotining rasmiy veb-sayti orqali roʻyxatdan oʻtadi.

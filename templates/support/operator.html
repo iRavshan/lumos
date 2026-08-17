@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>Operator Paneli</title>
+    <style>
+        body { font-family: sans-serif; margin: 2rem; background: #f9fafb; }
+        .card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 1rem; }
+        .ticket-id { font-weight: bold; color: #4F46E5; }
+        .date { color: #6b7280; font-size: 0.9rem; }
+        a.btn { display: inline-block; padding: 8px 16px; background: #4F46E5; color: white; text-decoration: none; border-radius: 4px; margin-top: 10px; }
+        a.btn:hover { background: #4338CA; }
+    </style>
+</head>
+<body>
+    <h1>Operator Paneli</h1>
+    <p>Kutib turgan savollar ro'yxati:</p>
+
+    {% for q in questions %}
+    <div class="card">
+        <div><span class="ticket-id">{{ q.ticket_id }}</span> &mdash; <span class="date">{{ q.timestamp|date:"Y-m-d H:i" }}</span></div>
+        <p><strong>Savol:</strong> {{ q.question }}</p>
+        <p><small>Platforma: {{ q.platform }}</small></p>
+        <a href="{% url 'operator_answer' q.pk %}" class="btn">Javob yozish</a>
+    </div>
+    {% empty %}
+    <p>Javob berilmagan savollar yo'q. Yaxshi ishlayapsiz! 🎉</p>
+    {% endfor %}
+</body>
+</html>

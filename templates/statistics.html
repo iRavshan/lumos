@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Statistikasi</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg-main: #F3F4F6;
+            --bg-card: #FFFFFF;
+            --text-main: #1F2937;
+            --text-secondary: #6B7280;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            margin: 0 0 0.5rem 0;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .stat-card .value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .chart-container {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .chart-container h3 {
+            margin-top: 0;
+            color: var(--text-main);
+            margin-bottom: 1.5rem;
+        }
+        
+        canvas {
+            max-width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Chatbot Statistikasi</h1>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Jami so'rovlar</h3>
+            <p class="value">{{ total_requests }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Noyob foydalanuvchilar (IP/ID)</h3>
+            <p class="value">{{ total_unique_users }}</p>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <h3>Platformalar bo'yicha taqsimot</h3>
+        <canvas id="platformChart"></canvas>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('platformChart').getContext('2d');
+        const platforms = {{ platforms|safe }};
+        const counts = {{ platform_counts|safe }};
+        
+        // Use a nice color palette
+        const colors = [
+            '#4F46E5', '#10B981', '#F59E0B', '#EF4444', 
+            '#8B5CF6', '#EC4899', '#14B8A6', '#F97316'
+        ];
+
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: platforms,
+                datasets: [{
+                    data: counts,
+                    backgroundColor: colors.slice(0, platforms.length),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

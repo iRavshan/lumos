@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>Supervisor Paneli</title>
+    <style>
+        body { font-family: sans-serif; margin: 2rem; background: #f9fafb; color: #1f2937; }
+        h1 { color: #4F46E5; }
+        .section { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .ticket { padding: 10px; border-bottom: 1px solid #e5e7eb; }
+        .ticket:last-child { border-bottom: none; }
+        .badge-red { background: #fee2e2; color: #991b1b; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        .badge-yellow { background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Supervisor Paneli</h1>
+
+    <div class="section">
+        <h2>⚠️ 3 kundan beri javob berilmagan savollar</h2>
+        {% for q in overdue_questions %}
+        <div class="ticket">
+            <strong>{{ q.ticket_id }}</strong> - {{ q.timestamp|date:"Y-m-d" }} <span class="badge-red">Muddati o'tgan</span>
+            <p>{{ q.question }}</p>
+        </div>
+        {% empty %}
+        <p>Barcha savollarga o'z vaqtida javob berilmoqda.</p>
+        {% endfor %}
+    </div>
+
+    <div class="section">
+        <h2>👎 Qoniqarsiz baholangan javoblar</h2>
+        {% for q in bad_feedback %}
+        <div class="ticket">
+            <strong>{{ q.ticket_id }}</strong> - Operator: {{ q.answered_by.username }} 
+            {% if q.feedback == 'no' %}
+                <span class="badge-red">Qoniqmadi</span>
+            {% else %}
+                <span class="badge-yellow">Qisman qoniqdi</span>
+            {% endif %}
+            <p><strong>Savol:</strong> {{ q.question }}</p>
+            <p><strong>Javob:</strong> {{ q.answer }}</p>
+        </div>
+        {% empty %}
+        <p>Qoniqarsiz baholangan javoblar yo'q.</p>
+        {% endfor %}
+    </div>
+
+    <div class="section">
+        <h2>👥 Operatorlar Ro'yxati</h2>
+        <ul>
+            {% for op in operators %}
+            <li><strong>{{ op.user.username }}</strong> ({{ op.user.first_name }} {{ op.user.last_name }}) - Email: {{ op.user.email }}</li>
+            {% empty %}
+            <li>Operatorlar topilmadi.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
