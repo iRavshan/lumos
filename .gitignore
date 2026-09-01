@@ -1,0 +1,80 @@
+# ==========================================
+# Django & Python Core
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+develop-eggs/
+dist/
+downloads/
+eggs/
+.installed.cfg
+*.egg
+*.manifest
+*.spec
+
+# ==========================================
+# Virtual Environments (Local setups)
+# ==========================================
+venv/
+.venv/
+env/
+.env/
+ENV/
+pip-selfcheck.json
+
+# ==========================================
+# Environments, Secrets, and Keys
+# ==========================================
+.env
+.env.*
+!.env.example
+secrets.json
+*.pot
+
+# ==========================================
+# Databases (Local development only)
+# ==========================================
+*.sqlite3
+*.sqlite3-journal
+
+# ==========================================
+# Logs and Celery
+# ==========================================
+*.log
+celerybeat-schedule
+celerybeat-schedule.bak
+
+# ==========================================
+# Testing and Coverage
+# ==========================================
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# ==========================================
+# IDEs and Editors
+# ==========================================
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*~
+
+# ==========================================
+# System files
+# ==========================================
+.DS_Store
+Thumbs.db

@@ -1,0 +1,54 @@
+<header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200/80 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16 sm:h-20">
+            <!-- Brand Logo -->
+            <div class="flex items-center space-x-3">
+                <a href="{% url 'home' %}" class="flex items-center space-x-2 group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-200">
+                        <i class="fa-solid fa-bolt text-lg"></i>
+                    </div>
+                    <span class="text-xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent tracking-tight">Lumos</span>
+                </a>
+            </div>
+
+            <!-- Navigation Links / Actions -->
+            <div class="flex items-center space-x-3 sm:space-x-4">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'businesses:dashboard' %}" class="inline-flex items-center px-3.5 py-2 text-sm font-medium rounded-xl text-slate-700 hover:text-indigo-600 hover:bg-slate-100 transition duration-150">
+                        <i class="fa-solid fa-chart-pie mr-2"></i> Dashboard
+                    </a>
+                    
+                    <a href="{% url 'chatbot:inbox' %}" class="inline-flex items-center px-3.5 py-2 text-sm font-medium rounded-xl text-slate-700 hover:text-indigo-600 hover:bg-slate-100 transition duration-150">
+                        <i class="fa-solid fa-inbox mr-2"></i> Murojaatlar
+                    </a>
+
+                    <a href="{% url 'team:team_list' %}" class="inline-flex items-center px-3.5 py-2 text-sm font-medium rounded-xl text-slate-700 hover:text-indigo-600 hover:bg-slate-100 transition duration-150">
+                        <i class="fa-solid fa-users-gear mr-2"></i> Jamoa
+                    </a>
+
+                    <a href="{% url 'businesses:analytics' %}" class="inline-flex items-center px-3.5 py-2 text-sm font-medium rounded-xl text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition duration-150">
+                        <i class="fa-solid fa-chart-pie mr-2"></i> Analitika
+                    </a>
+                    
+                    <div class="hidden md:flex items-center space-x-2 text-sm text-slate-600 pl-2 border-l border-slate-200">
+                        <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
+                            {{ user.username|first|upper }}
+                        </div>
+                        <span class="font-medium text-slate-700">{{ user.username }}</span>
+                    </div>
+
+                    <a href="{% url 'accounts:logout' %}" class="inline-flex items-center px-3.5 py-2 text-sm font-medium rounded-xl text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition duration-150" title="Chiqish">
+                        <i class="fa-solid fa-arrow-right-from-bracket mr-1.5"></i> Chiqish
+                    </a>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="text-sm font-semibold text-slate-700 hover:text-indigo-600 px-3 py-2 transition duration-150">
+                        Kirish
+                    </a>
+                    <a href="{% url 'accounts:register' %}" class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm hover:shadow-indigo-500/25 transition duration-200">
+                        Ro'yxatdan o'tish
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</header>

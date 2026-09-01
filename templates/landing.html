@@ -1,0 +1,115 @@
+{% extends 'shared/_base.html' %}
+
+{% block title %}Lumos - Biznesingizni Onlayn Boshqaring{% endblock %}
+
+{% block content %}
+<div class="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-32">
+    <!-- Background glow decoration -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 w-[600px] h-[600px] bg-gradient-to-tr from-indigo-300/30 to-violet-300/30 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <!-- Badge -->
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-8">
+            <span class="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
+            O'zbekistondagi bizneslar uchun yangi imkoniyat
+        </div>
+
+        <!-- Hero Headline -->
+        <h1 class="text-4xl sm:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight max-w-4xl mx-auto">
+            Biznesingizni ro'yxatdan o'tkazing va <span class="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">shaxsiy dashboard</span>ga ega bo'ling
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="mt-6 text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Biznesingiz nomi, rasmiy vebsayti, Telegram va Instagram kanallaringiz hamda xizmatlaringiz haqidagi to'liq ma'lumotlarni bir joyda to'plang va boshqaring.
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="{% url 'accounts:register' %}" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-2xl shadow-lg shadow-indigo-600/25 hover:shadow-indigo-600/40 transition duration-200">
+                <i class="fa-solid fa-rocket mr-2.5"></i> Biznesni ro'yxatdan o'tkazish
+            </a>
+            <a href="{% url 'accounts:login' %}" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl shadow-sm transition duration-200">
+                <i class="fa-solid fa-right-to-bracket mr-2.5 text-slate-500"></i> Tizimga kirish
+            </a>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition duration-200">
+                <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl mb-6">
+                    <i class="fa-solid fa-building"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 mb-2">Biznes Profili</h3>
+                <p class="text-slate-600 leading-relaxed text-sm">
+                    Biznesingiz haqida to'liq ma'lumot, rasmiy vebsayt va aloqa ma'lumotlarini qulay tarzda kiriting.
+                </p>
+            </div>
+
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition duration-200">
+                <div class="w-12 h-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center text-xl mb-6">
+                    <i class="fa-solid fa-share-nodes"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 mb-2">Ijtimoiy Tarmoqlar</h3>
+                <p class="text-slate-600 leading-relaxed text-sm">
+                    Telegram kanalingiz va Instagram sahifangizni bog'lang, mijozlar sizni tezda topishsin.
+                </p>
+            </div>
+
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition duration-200">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl mb-6">
+                    <i class="fa-solid fa-gauge-high"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 mb-2">Qulay Dashboard</h3>
+                <p class="text-slate-600 leading-relaxed text-sm">
+                    Har bir foydalanuvchiga taqdim etiladigan shaxsiy boshqaruv paneli orqali ma'lumotlaringizni doimo yangilab turing.
+                </p>
+            </div>
+        </div>
+
+        {% if recent_businesses %}
+        <!-- Recent Registered Businesses Showcase -->
+        <div class="mt-24 text-left">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Ro'yxatdan o'tgan bizneslar</h2>
+                    <p class="text-slate-500 text-sm mt-1">Platformamizga qo'shilgan so'nggi bizneslar</p>
+                </div>
+                <span class="text-sm font-semibold text-indigo-600 bg-indigo-50 px-3.5 py-1.5 rounded-full">
+                    Jami: {{ total_businesses }} ta biznes
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {% for b in recent_businesses %}
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs hover:border-indigo-200 hover:shadow-md transition duration-200 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-bold text-slate-900 text-lg">{{ b.name }}</h4>
+                            {% if b.category %}
+                            <span class="text-xs px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 font-medium">
+                                {{ b.category }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <p class="text-slate-600 text-sm line-clamp-3 mb-4">{{ b.description }}</p>
+                    </div>
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-100 text-xs">
+                        <div class="flex space-x-3 text-slate-400">
+                            {% if b.website %}<a href="{{ b.website }}" target="_blank" class="hover:text-indigo-600"><i class="fa-solid fa-globe"></i></a>{% endif %}
+                            {% if b.telegram_link %}<a href="{{ b.telegram_link }}" target="_blank" class="hover:text-sky-500"><i class="fa-brands fa-telegram"></i></a>{% endif %}
+                            {% if b.instagram_link %}<a href="{{ b.instagram_link }}" target="_blank" class="hover:text-pink-500"><i class="fa-brands fa-instagram"></i></a>{% endif %}
+                        </div>
+                        <a href="{% url 'businesses:public_profile' b.slug %}" class="text-indigo-600 font-medium hover:underline inline-flex items-center">
+                            Profil <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

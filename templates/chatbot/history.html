@@ -1,0 +1,79 @@
+{% extends 'shared/_base.html' %}
+
+{% block title %}Suhbatlar Tarixi - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <!-- Header -->
+    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <a href="{% url 'businesses:dashboard' %}" class="inline-flex items-center text-xs font-semibold text-indigo-600 hover:text-indigo-800 mb-2">
+                <i class="fa-solid fa-arrow-left mr-1.5"></i> Dashboardga qaytish
+            </a>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                Mijozlar bilan suhbatlar tarixi
+            </h1>
+            <p class="text-slate-500 text-sm mt-1">
+                Saytingizdagi RAG chatbot orqali berilgan savollar va javoblar.
+            </p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <span class="px-4 py-2 bg-indigo-50 text-indigo-700 font-bold text-sm rounded-xl">
+                Jami: {{ total_messages }} ta xabar
+            </span>
+        </div>
+    </div>
+
+    {% if sessions %}
+    <div class="space-y-6">
+        {% for session in sessions %}
+        <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-sm">Sessiya: {{ session.session_id }}</h4>
+                        <span class="text-xs text-slate-400">{{ session.created_at|date:"d M Y, H:i" }}</span>
+                    </div>
+                </div>
+                <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium">
+                    {{ session.messages.count }} ta xabar
+                </span>
+            </div>
+
+            <!-- Messages list -->
+            <div class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                {% for msg in session.messages.all %}
+                <div class="flex flex-col {% if msg.role == 'user' %}items-end{% else %}items-start{% endif %}">
+                    <div class="text-[11px] text-slate-400 mb-1 px-1">
+                        {% if msg.role == 'user' %}Mijoz{% else %}{{ chatbot.bot_name }}{% endif %} &bull; {{ msg.created_at|date:"H:i" }}
+                    </div>
+                    <div class="max-w-[85%] p-3.5 rounded-2xl text-sm leading-relaxed whitespace-pre-line
+                        {% if msg.role == 'user' %}bg-indigo-600 text-white rounded-br-xs
+                        {% else %}bg-slate-50 text-slate-800 border border-slate-200/80 rounded-bl-xs{% endif %}">
+                        {{ msg.content }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white rounded-3xl p-12 text-center border border-slate-200/80 shadow-xs">
+        <div class="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl mx-auto mb-4">
+            <i class="fa-solid fa-comments"></i>
+        </div>
+        <h3 class="text-lg font-bold text-slate-800">Hozircha suhbatlar mavjud emas</h3>
+        <p class="text-slate-500 text-sm mt-1 max-w-md mx-auto">
+            Saytingizga vidjetni joylashtirganingizdan so'ng, mijozlarning savol-javoblari shu yerda ko'rinadi.
+        </p>
+        <a href="{% url 'chatbot:demo_page' chatbot.api_key %}" target="_blank" class="mt-6 inline-flex items-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition">
+            <i class="fa-solid fa-play mr-2"></i> Chatbotni sinab ko'rish
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

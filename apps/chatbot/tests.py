@@ -1,0 +1,182 @@
+import json
+from django.test import TestCase, Client
+from django.contrib.auth.models import User
+from django.urls import reverse
+from apps.businesses.models import Business
+from .models import ChatbotConfig, ChatMessage, ChatSession
+from .services import build_business_context, generate_rag_response
+
+
+class ChatbotTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username='jasur_ceo',
+            password='TestPassword123!',
+            first_name='Jasur'
+        )
+        self.business = Business.objects.create(
+            user=self.user,
+            name='Fast Delivery Express',
+            category='Yetkazib berish xizmati',
+            website='https://fastdelivery.uz',
+            telegram='@fastdelivery_bot',
+            instagram='fastdelivery_uz',
+            phone='+998712001122',
+            description='Toshkent shahri va viloyatlar bo\'yicha tezkor kuryerlik xizmati.'
+        )
+        self.chatbot = ChatbotConfig.objects.create(
+            business=self.business,
+            bot_name='Fast Delivery AI Bot',
+            extra_knowledge='Ish vaqti: Har kuni 24/7 ishlaymiz.\nToshkent bo\'yicha yetkazib berish narxi: 15 000 so\'m.'
+        )
+
+    def test_business_context_builder(self):
+        context = build_business_context(self.chatbot)
+        self.assertIn('Fast Delivery Express', context)
+        self.assertIn('Yetkazib berish xizmati', context)
+        self.assertIn('+998712001122', context)
+        self.assertIn('https://fastdelivery.uz', context)
+        self.assertIn('https://t.me/fastdelivery_bot', context)
+        self.assertIn('24/7', context)
+
+    def test_rag_response_generator(self):
+        # 1. Services question
+        reply_services = generate_rag_response(self.chatbot, "Qanday xizmatlar ko'rsatasizlar?")
+        self.assertIn("Fast Delivery Express", reply_services)
+        self.assertIn("tezkor kuryerlik", reply_services.lower())
+
+        # 2. Telegram question
+        reply_tg = generate_rag_response(self.chatbot, "Telegram bormi?")
+        self.assertIn("fastdelivery_bot", reply_tg)
+
+        # 3. Contact question
+        reply_contact = generate_rag_response(self.chatbot, "Telefon raqamingiz qanaqa?")
+        self.assertIn("712001122", reply_contact)
+
+        # 4. Extra knowledge question
+        reply_faq = generate_rag_response(self.chatbot, "Yetkazib berish narxi qancha?")
+        self.assertIn("15 000", reply_faq)
+
+    def test_api_config_endpoint(self):
+        url = reverse('chatbot:api_config', kwargs={'api_key': self.chatbot.api_key})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['status'], 'success')
+        self.assertEqual(data['bot_name'], 'Fast Delivery AI Bot')
+        self.assertEqual(data['business_name'], 'Fast Delivery Express')
+        self.assertEqual(response['Access-Control-Allow-Origin'], '*')
+
+    def test_api_chat_endpoint(self):
+        url = reverse('chatbot:api_chat', kwargs={'api_key': self.chatbot.api_key})
+        response = self.client.post(
+            url,
+            data=json.dumps({
+                'message': 'Xizmatlaringiz haqida aytib bering',
+                'session_id': 'test_session_123'
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['status'], 'success')
+        self.assertTrue(len(data['reply']) > 0)
+        self.assertEqual(data['bot_name'], 'Fast Delivery AI Bot')
+
+        # Check messages logged in database
+        self.assertEqual(ChatMessage.objects.filter(chatbot=self.chatbot).count(), 2)
+        user_msg = ChatMessage.objects.filter(chatbot=self.chatbot, role='user').first()
+        bot_msg = ChatMessage.objects.filter(chatbot=self.chatbot, role='assistant').first()
+        self.assertEqual(user_msg.content, 'Xizmatlaringiz haqida aytib bering')
+        self.assertEqual(bot_msg.content, data['reply'])
+
+    def test_api_chat_inactive_bot(self):
+        self.chatbot.is_active = False
+        self.chatbot.save()
+
+        url = reverse('chatbot:api_chat', kwargs={'api_key': self.chatbot.api_key})
+        response = self.client.post(
+            url,
+            data=json.dumps({'message': 'Salom'}),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_widget_views(self):
+        iframe_url = reverse('chatbot:widget_iframe', kwargs={'api_key': self.chatbot.api_key})
+        response = self.client.get(iframe_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Fast Delivery AI Bot')
+
+        demo_url = reverse('chatbot:demo_page', kwargs={'api_key': self.chatbot.api_key})
+        demo_res = self.client.get(demo_url)
+        self.assertEqual(demo_res.status_code, 200)
+        self.assertContains(demo_res, 'Fast Delivery Express')
+
+    def test_chatbot_settings_view(self):
+        self.client.login(username='jasur_ceo', password='TestPassword123!')
+        url = reverse('chatbot:settings')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        post_res = self.client.post(url, {
+            'bot_name': 'Yangilangan Bot',
+            'welcome_message': 'Salom! Qanday yordam beray?',
+            'theme_color': '#2563eb',
+            'is_active': 'on',
+            'suggested_questions': 'Savol 1\nSavol 2',
+            'extra_knowledge': 'Yangi bilim'
+        })
+        self.assertRedirects(post_res, reverse('businesses:dashboard'))
+        self.chatbot.refresh_from_db()
+        self.assertEqual(self.chatbot.bot_name, 'Yangilangan Bot')
+        self.assertEqual(self.chatbot.theme_color, '#2563eb')
+
+    def test_contact_auto_extraction_and_inbox_flow(self):
+        # Visitor sends a message with phone and name
+        url = reverse('chatbot:api_chat', kwargs={'api_key': self.chatbot.api_key})
+        session_id = 'lead_sess_999'
+        
+        self.client.post(
+            url,
+            data=json.dumps({
+                'message': 'Assalomu alaykum, mening ismim Temur. Telefonim: +998 90 123 45 67, xizmatlaringiz haqida ma\'lumot kerak.',
+                'session_id': session_id
+            }),
+            content_type='application/json'
+        )
+
+        session = ChatSession.objects.get(session_id=session_id)
+        self.assertEqual(session.visitor_name, 'Temur')
+        self.assertIn('+998 90 123 45 67', session.visitor_phone)
+        self.assertEqual(session.status, 'new')
+
+        # Business owner logs in and views Inbox
+        self.client.login(username='jasur_ceo', password='TestPassword123!')
+        inbox_res = self.client.get(reverse('chatbot:inbox'))
+        self.assertEqual(inbox_res.status_code, 200)
+        self.assertContains(inbox_res, 'Temur')
+        self.assertContains(inbox_res, '+998 90 123 45 67')
+
+        # Detail view for this session
+        detail_res = self.client.get(reverse('chatbot:inbox_detail', kwargs={'session_id': session_id}))
+        self.assertEqual(detail_res.status_code, 200)
+        self.assertContains(detail_res, 'Temur')
+
+        # Update lead status and note
+        update_url = reverse('chatbot:update_lead', kwargs={'session_id': session_id})
+        update_res = self.client.post(update_url, {
+            'visitor_name': 'Temur Mahmudov',
+            'visitor_phone': '+998 90 123 45 67',
+            'visitor_email': 'temur@example.com',
+            'status': 'in_progress',
+            'notes': 'Mijoz ertaga 10:00 da qo\'ng\'iroq qilishni so\'radi.'
+        })
+        self.assertRedirects(update_res, reverse('chatbot:inbox_detail', kwargs={'session_id': session_id}))
+
+        session.refresh_from_db()
+        self.assertEqual(session.visitor_name, 'Temur Mahmudov')
+        self.assertEqual(session.status, 'in_progress')
+        self.assertEqual(session.notes, 'Mijoz ertaga 10:00 da qo\'ng\'iroq qilishni so\'radi.')
+

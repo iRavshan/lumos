@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ chatbot.business.name }} - Jonli Vidjet Namoyishi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+    <!-- Demo Banner Top -->
+    <div class="bg-slate-900 text-white px-4 py-2.5 text-xs text-center flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span><strong>Jonli Sinov Sahifasi:</strong> Bu sahifa vidjetingiz mijoz saytida qanday ishlashini namoyish etadi.</span>
+        </div>
+        <a href="{% url 'businesses:dashboard' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-lg text-xs font-bold transition">
+            <i class="fa-solid fa-arrow-left mr-1"></i> Dashboardga qaytish
+        </a>
+    </div>
+
+    <!-- Mock Website Content -->
+    <div class="max-w-5xl mx-auto px-4 py-12">
+        <header class="bg-white rounded-2xl p-6 shadow-sm mb-8 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-lg">
+                    {{ chatbot.business.name|first }}
+                </div>
+                <h1 class="text-xl font-bold text-slate-900">{{ chatbot.business.name }}</h1>
+            </div>
+            <div class="text-sm text-slate-500 font-medium">
+                {{ chatbot.business.category|default:"Kompaniya" }}
+            </div>
+        </header>
+
+        <main class="bg-white rounded-3xl p-8 sm:p-12 shadow-sm border border-slate-200/80 mb-8 space-y-6">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold uppercase">
+                <i class="fa-solid fa-sparkles"></i> Namoyish Vebsayti
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                {{ chatbot.business.name }} ga xush kelibsiz!
+            </h2>
+            <p class="text-slate-600 leading-relaxed text-base">
+                {{ chatbot.business.description }}
+            </p>
+
+            <div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between flex-wrap gap-4">
+                <div>
+                    <h4 class="font-bold text-slate-800">Pastki o'ng burchakdagi AI tugmasini bosing!</h4>
+                    <p class="text-slate-500 text-xs mt-0.5">Vidjet sizning ma'lumotlaringiz asosida avtomatik javob berishini sinab ko'ring.</p>
+                </div>
+                <div class="flex items-center space-x-2 text-indigo-600 text-sm font-semibold">
+                    <span>Chatbot tayyor</span>
+                    <i class="fa-solid fa-arrow-turn-down"></i>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- The actual widget script embedded -->
+    <script src="/static/js/lumos-widget.js" data-business-key="{{ chatbot.api_key }}"></script>
+</body>
+</html>

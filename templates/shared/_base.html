@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="uz" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Biznes Portali - Lumos{% endblock %}</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="flex flex-col min-h-full text-slate-800 antialiased selection:bg-indigo-500 selection:text-white">
+
+    {% include 'shared/_header.html' %}
+
+    <!-- Django Messages (Toasts) -->
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 w-full">
+        {% for message in messages %}
+        <div class="flex items-center p-4 mb-3 text-sm rounded-2xl shadow-sm border transition-all duration-300
+            {% if message.tags == 'error' %}bg-rose-50 border-rose-200 text-rose-800
+            {% elif message.tags == 'success' %}bg-emerald-50 border-emerald-200 text-emerald-800
+            {% elif message.tags == 'warning' %}bg-amber-50 border-amber-200 text-amber-800
+            {% else %}bg-indigo-50 border-indigo-200 text-indigo-800{% endif %}" role="alert">
+            <div class="mr-3 text-lg">
+                {% if message.tags == 'error' %}<i class="fa-solid fa-circle-exclamation text-rose-500"></i>
+                {% elif message.tags == 'success' %}<i class="fa-solid fa-circle-check text-emerald-500"></i>
+                {% elif message.tags == 'warning' %}<i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
+                {% else %}<i class="fa-solid fa-circle-info text-indigo-500"></i>{% endif %}
+            </div>
+            <div class="font-medium flex-1">
+                {{ message }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'shared/_footer.html' %}
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

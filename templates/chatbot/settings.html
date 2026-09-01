@@ -1,0 +1,184 @@
+{% extends 'shared/_base.html' %}
+
+{% block title %}Chatbot Sozlamalari - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-xl shadow-slate-200/40 border border-slate-100">
+        
+        <!-- Header -->
+        <div class="mb-8 border-b border-slate-100 pb-6 flex items-center justify-between">
+            <div>
+                <a href="{% url 'businesses:dashboard' %}" class="inline-flex items-center text-xs font-semibold text-indigo-600 hover:text-indigo-800 mb-2">
+                    <i class="fa-solid fa-arrow-left mr-1.5"></i> Dashboardga qaytish
+                </a>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                    RAG Chatbot Sozlamalari
+                </h1>
+                <p class="text-slate-600 mt-1 text-sm">
+                    «{{ business.name }}» sayt vidjeti va AI javoblarini sozlang.
+                </p>
+            </div>
+            <a href="{% url 'chatbot:demo_page' chatbot.api_key %}" target="_blank" class="inline-flex items-center px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold text-xs transition">
+                <i class="fa-solid fa-play mr-1.5"></i> Jonli sinov
+            </a>
+        </div>
+
+        <form method="POST" class="space-y-6" novalidate>
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Bot Name -->
+                <div>
+                    <label for="{{ form.bot_name.id_for_label }}" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-robot text-indigo-500 mr-1.5"></i> Bot nomi
+                    </label>
+                    {{ form.bot_name }}
+                    {% if form.bot_name.errors %}<p class="text-rose-500 text-xs mt-1">{{ form.bot_name.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Theme Color with HEX code and visual palette -->
+                <div class="md:col-span-2 bg-slate-50/70 p-5 rounded-2xl border border-slate-200/80">
+                    <label for="themeColorHex" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-palette text-indigo-500 mr-1.5"></i> Vidjet asosiy rangi (HEX kodi yoki Palitra)
+                    </label>
+
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <!-- HEX Input + Native Color Picker -->
+                        <div class="flex items-center space-x-2">
+                            <!-- Visual color circle / picker -->
+                            <input type="color" id="themeColorPicker" value="{{ form.theme_color.value|default:'#4f46e5' }}" class="w-11 h-11 p-0.5 rounded-xl border border-slate-300 cursor-pointer bg-white">
+                            
+                            <!-- HEX text input -->
+                            <div class="relative">
+                                {{ form.theme_color }}
+                            </div>
+                        </div>
+
+                        <!-- Live Preview Bubble Badge -->
+                        <div class="flex items-center space-x-2 pl-2 sm:border-l border-slate-200">
+                            <span class="text-xs text-slate-500 font-medium">Ko'rinishi:</span>
+                            <div id="colorPreviewBadge" class="w-8 h-8 rounded-xl flex items-center justify-center text-white text-xs shadow-sm transition-all duration-200" style="background-color: {{ form.theme_color.value|default:'#4f46e5' }};">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preset Color Chips -->
+                    <div class="mt-4 pt-3 border-t border-slate-200/60">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Mashhur ranglar (bitta bosish bilan tanlash):</span>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" onclick="setColor('#4f46e5')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white border border-slate-200 hover:border-indigo-400 transition text-slate-700">
+                                <span class="w-3 h-3 rounded-full bg-[#4f46e5]"></span> Indigo (#4F46E5)
+                            </button>
+                            <button type="button" onclick="setColor('#2563eb')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white border border-slate-200 hover:border-blue-400 transition text-slate-700">
+                                <span class="w-3 h-3 rounded-full bg-[#2563eb]"></span> Ko'k (#2563EB)
+                            </button>
+                            <button type="button" onclick="setColor('#059669')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white border border-slate-200 hover:border-emerald-400 transition text-slate-700">
+                                <span class="w-3 h-3 rounded-full bg-[#059669]"></span> Yashil (#059669)
+                            </button>
+                            <button type="button" onclick="setColor('#7c3aed')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white border border-slate-200 hover:border-purple-400 transition text-slate-700">
+                                <span class="w-3 h-3 rounded-full bg-[#7c3aed]"></span> Binafsha (#7C3AED)
+                            </button>
+                            <button type="button" onclick="setColor('#e11d48')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white border border-slate-200 hover:border-rose-400 transition text-slate-700">
+                                <span class="w-3 h-3 rounded-full bg-[#e11d48]"></span> Qizil (#E11D48)
+                            </button>
+                            <button type="button" onclick="setColor('#d97706')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white border border-slate-200 hover:border-amber-400 transition text-slate-700">
+                                <span class="w-3 h-3 rounded-full bg-[#d97706]"></span> Zarg'aldoq (#D97706)
+                            </button>
+                            <button type="button" onclick="setColor('#0f172a')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white border border-slate-200 hover:border-slate-400 transition text-slate-700">
+                                <span class="w-3 h-3 rounded-full bg-[#0f172a]"></span> Qora (#0F172A)
+                            </button>
+                        </div>
+                    </div>
+                    {% if form.theme_color.errors %}<p class="text-rose-500 text-xs mt-2">{{ form.theme_color.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Welcome Message -->
+                <div class="md:col-span-2">
+                    <label for="{{ form.welcome_message.id_for_label }}" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-comment-dots text-indigo-500 mr-1.5"></i> Salomlashish xabari
+                    </label>
+                    {{ form.welcome_message }}
+                    {% if form.welcome_message.errors %}<p class="text-rose-500 text-xs mt-1">{{ form.welcome_message.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Suggested Questions -->
+                <div class="md:col-span-2">
+                    <label for="{{ form.suggested_questions.id_for_label }}" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-list-check text-indigo-500 mr-1.5"></i> Tavsiya etilgan tezkor savollar (Har bir qatorda 1 ta)
+                    </label>
+                    {{ form.suggested_questions }}
+                    {% if form.suggested_questions.errors %}<p class="text-rose-500 text-xs mt-1">{{ form.suggested_questions.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Extra Knowledge / FAQ -->
+                <div class="md:col-span-2">
+                    <label for="{{ form.extra_knowledge.id_for_label }}" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-brain text-indigo-500 mr-1.5"></i> Qo'shimcha bilimlar va FAQ (RAG bilimlari)
+                    </label>
+                    {{ form.extra_knowledge }}
+                    {% if form.extra_knowledge.errors %}<p class="text-rose-500 text-xs mt-1">{{ form.extra_knowledge.errors.0 }}</p>{% endif %}
+                    <p class="text-slate-400 text-xs mt-1">Ish vaqtlari, narxlar, manzillar, yetkazib berish va boshqa maxsus ma'lumotlarni yozing. Bot ushbu ma'lumotlar asosida mijozlarga javob beradi.</p>
+                </div>
+
+                <!-- Is Active -->
+                <div class="md:col-span-2 flex items-center space-x-3 p-4 bg-slate-50 rounded-2xl">
+                    {{ form.is_active }}
+                    <label for="{{ form.is_active.id_for_label }}" class="text-sm font-bold text-slate-800 cursor-pointer">
+                        Chatbot vebsaytda faol holatda tursin
+                    </label>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
+                <a href="{% url 'businesses:dashboard' %}" class="px-6 py-3 rounded-xl border border-slate-200 text-slate-700 font-semibold text-sm hover:bg-slate-50 transition">
+                    Bekor qilish
+                </a>
+                <button type="submit" class="inline-flex items-center justify-center px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition duration-150 text-sm">
+                    <i class="fa-solid fa-floppy-disk mr-2"></i> Sozlamalarni saqlash
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const hexInput = document.getElementById('themeColorHex');
+    const colorPicker = document.getElementById('themeColorPicker');
+    const previewBadge = document.getElementById('colorPreviewBadge');
+
+    function updateColor(color) {
+        if (!color.startsWith('#')) {
+            color = '#' + color;
+        }
+        hexInput.value = color.toUpperCase();
+        if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
+            colorPicker.value = color;
+            previewBadge.style.backgroundColor = color;
+        }
+    }
+
+    function setColor(hex) {
+        updateColor(hex);
+    }
+
+    // When picker changes
+    colorPicker.addEventListener('input', function (e) {
+        updateColor(e.target.value);
+    });
+
+    // When HEX text is typed
+    hexInput.addEventListener('input', function (e) {
+        let val = e.target.value.trim();
+        if (val && !val.startsWith('#')) {
+            val = '#' + val;
+        }
+        if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+            colorPicker.value = val;
+            previewBadge.style.backgroundColor = val;
+        }
+    });
+</script>
+{% endblock %}

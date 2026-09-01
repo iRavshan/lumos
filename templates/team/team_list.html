@@ -1,0 +1,181 @@
+{% extends 'shared/_base.html' %}
+
+{% block title %}Jamoa boshqaruvi - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+        <div>
+            <a href="{% url 'businesses:dashboard' %}" class="inline-flex items-center text-xs font-semibold text-indigo-600 hover:text-indigo-800 mb-2">
+                <i class="fa-solid fa-arrow-left mr-1.5"></i> Dashboardga qaytish
+            </a>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                <i class="fa-solid fa-users-gear text-indigo-600 mr-2"></i> Jamoa boshqaruvi
+            </h1>
+            <p class="text-slate-500 text-sm mt-1">Operatorlar va supervisorlarni yarating, TMA havolalarini ulashing</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <a href="{% url 'team:team_analytics' %}" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-violet-50 text-violet-700 hover:bg-violet-100 font-bold text-xs transition">
+                <i class="fa-solid fa-chart-bar mr-1.5"></i> Samaradorlik
+            </a>
+            <a href="{% url 'team:team_create' %}" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-lg shadow-indigo-500/20 transition">
+                <i class="fa-solid fa-user-plus mr-2"></i> Yangi xodim qo'shish
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="grid grid-cols-3 gap-4 mb-8">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 text-center">
+            <div class="text-2xl font-extrabold text-slate-900">{{ total_staff }}</div>
+            <div class="text-xs text-slate-500 font-medium mt-1">Jami xodimlar</div>
+        </div>
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 text-center">
+            <div class="text-2xl font-extrabold text-emerald-600">{{ operators|length }}</div>
+            <div class="text-xs text-slate-500 font-medium mt-1">Operatorlar</div>
+        </div>
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 text-center">
+            <div class="text-2xl font-extrabold text-violet-600">{{ supervisors|length }}</div>
+            <div class="text-xs text-slate-500 font-medium mt-1">Supervisorlar</div>
+        </div>
+    </div>
+
+    <!-- Operators Section -->
+    <div class="mb-10">
+        <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
+            <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm mr-2.5"><i class="fa-solid fa-headset"></i></span>
+            Operatorlar
+        </h2>
+
+        {% if operators %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for op in operators %}
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:shadow-md transition">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                            {{ op.name|first|upper }}
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800">{{ op.name }}</h3>
+                            <p class="text-xs text-slate-500">{{ op.clean_telegram|default:"Telegram kiritilmagan" }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <span class="w-2.5 h-2.5 rounded-full {% if op.is_online %}bg-emerald-500 animate-pulse{% else %}bg-slate-300{% endif %}"></span>
+                        <span class="text-[10px] font-bold {% if op.is_online %}text-emerald-600{% else %}text-slate-400{% endif %}">
+                            {% if op.is_online %}Onlayn{% else %}Oflayn{% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-3 gap-2 mb-3">
+                    <div class="bg-slate-50 rounded-xl p-2.5 text-center">
+                        <div class="text-sm font-extrabold text-slate-800">{{ op.total_handled }}</div>
+                        <div class="text-[10px] text-slate-400">Xizmatlar</div>
+                    </div>
+                    <div class="bg-slate-50 rounded-xl p-2.5 text-center">
+                        <div class="text-sm font-extrabold {% if op.on_time_rate >= 80 %}text-emerald-600{% elif op.on_time_rate >= 50 %}text-amber-600{% else %}text-rose-600{% endif %}">{{ op.on_time_rate }}%</div>
+                        <div class="text-[10px] text-slate-400">O'z vaqtida</div>
+                    </div>
+                    <div class="bg-slate-50 rounded-xl p-2.5 text-center">
+                        <div class="text-sm font-extrabold text-slate-800">{{ op.sla_minutes }} daq</div>
+                        <div class="text-[10px] text-slate-400">SLA muddat</div>
+                    </div>
+                </div>
+
+                <!-- TMA Link -->
+                <div class="bg-indigo-50/60 rounded-xl p-3 mb-3">
+                    <div class="text-[10px] font-bold text-indigo-600 uppercase mb-1"><i class="fa-brands fa-telegram mr-1"></i> Telegram Mini App havola:</div>
+                    <div class="flex items-center space-x-2">
+                        <code class="flex-1 text-[11px] bg-white border border-indigo-200 rounded-lg px-2.5 py-1.5 text-slate-700 truncate font-mono">{{ request.scheme }}://{{ request.get_host }}/tma/operator/{{ op.auth_token }}/</code>
+                        <button onclick="navigator.clipboard.writeText('{{ request.scheme }}://{{ request.get_host }}/tma/operator/{{ op.auth_token }}/')" class="px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white text-[10px] font-bold hover:bg-indigo-700 transition shrink-0">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center space-x-2">
+                    <a href="{% url 'team:team_edit' op.id %}" class="flex-1 text-center px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
+                        <i class="fa-solid fa-pen-to-square mr-1"></i> Tahrirlash
+                    </a>
+                    <a href="{% url 'team:team_delete' op.id %}" class="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold transition" onclick="return confirm('Rostdan o\'chirmoqchimisiz?')">
+                        <i class="fa-solid fa-trash"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="bg-white rounded-2xl p-8 text-center border border-slate-200">
+            <i class="fa-solid fa-headset text-3xl text-slate-300 mb-2"></i>
+            <p class="text-sm text-slate-400">Hali operatorlar qo'shilmagan. Birinchi operatorni qo'shing!</p>
+            <a href="{% url 'team:team_create' %}" class="inline-flex items-center mt-3 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold">
+                <i class="fa-solid fa-plus mr-1.5"></i> Operator qo'shish
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Supervisors Section -->
+    <div>
+        <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
+            <span class="w-8 h-8 rounded-lg bg-violet-100 text-violet-700 flex items-center justify-center text-sm mr-2.5"><i class="fa-solid fa-shield-halved"></i></span>
+            Supervisorlar
+        </h2>
+
+        {% if supervisors %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for sup in supervisors %}
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:shadow-md transition">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-11 h-11 rounded-xl bg-violet-100 text-violet-700 flex items-center justify-center font-bold">
+                            {{ sup.name|first|upper }}
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800">{{ sup.name }}</h3>
+                            <p class="text-xs text-slate-500">{{ sup.clean_telegram|default:"Telegram kiritilmagan" }}</p>
+                        </div>
+                    </div>
+                    <span class="px-2.5 py-0.5 rounded-lg text-[10px] font-bold bg-violet-100 text-violet-700">Supervisor</span>
+                </div>
+
+                <!-- TMA Link -->
+                <div class="bg-violet-50/60 rounded-xl p-3 mb-3">
+                    <div class="text-[10px] font-bold text-violet-600 uppercase mb-1"><i class="fa-brands fa-telegram mr-1"></i> Supervisor TMA havola:</div>
+                    <div class="flex items-center space-x-2">
+                        <code class="flex-1 text-[11px] bg-white border border-violet-200 rounded-lg px-2.5 py-1.5 text-slate-700 truncate font-mono">{{ request.scheme }}://{{ request.get_host }}/tma/supervisor/{{ sup.auth_token }}/</code>
+                        <button onclick="navigator.clipboard.writeText('{{ request.scheme }}://{{ request.get_host }}/tma/supervisor/{{ sup.auth_token }}/')" class="px-2.5 py-1.5 rounded-lg bg-violet-600 text-white text-[10px] font-bold hover:bg-violet-700 transition shrink-0">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <a href="{% url 'team:team_edit' sup.id %}" class="flex-1 text-center px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
+                        <i class="fa-solid fa-pen-to-square mr-1"></i> Tahrirlash
+                    </a>
+                    <a href="{% url 'team:team_delete' sup.id %}" class="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold transition" onclick="return confirm('Rostdan o\'chirmoqchimisiz?')">
+                        <i class="fa-solid fa-trash"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="bg-white rounded-2xl p-8 text-center border border-slate-200">
+            <i class="fa-solid fa-shield-halved text-3xl text-slate-300 mb-2"></i>
+            <p class="text-sm text-slate-400">Hali supervisor qo'shilmagan.</p>
+            <a href="{% url 'team:team_create' %}" class="inline-flex items-center mt-3 px-4 py-2 rounded-xl bg-violet-600 text-white text-xs font-bold">
+                <i class="fa-solid fa-plus mr-1.5"></i> Supervisor qo'shish
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

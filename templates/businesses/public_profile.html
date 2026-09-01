@@ -1,0 +1,98 @@
+{% extends 'shared/_base.html' %}
+
+{% block title %}{{ business.name }} - Lumos Biznes Profili{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-xl shadow-slate-200/40">
+        
+        <!-- Header Banner -->
+        <div class="bg-gradient-to-r from-indigo-800 to-violet-900 p-8 sm:p-12 text-white">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-indigo-100 text-xs font-semibold uppercase mb-3 backdrop-blur-sm border border-white/10">
+                        <i class="fa-solid fa-circle-check text-emerald-400"></i> Tasdiqlangan biznes
+                    </div>
+                    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">{{ business.name }}</h1>
+                    {% if business.category %}
+                        <p class="text-indigo-200 text-sm mt-1 font-medium"><i class="fa-solid fa-tag mr-1.5"></i> {{ business.category }}</p>
+                    {% endif %}
+                </div>
+
+                {% if user.is_authenticated and user == business.user %}
+                <div>
+                    <a href="{% url 'businesses:dashboard' %}" class="inline-flex items-center px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold backdrop-blur-md border border-white/20 transition">
+                        <i class="fa-solid fa-gauge mr-1.5"></i> Dashboardga o'tish
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="p-8 sm:p-12 space-y-8">
+            <!-- Business Description -->
+            <div>
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Biznes haqida</h3>
+                <div class="text-slate-700 text-base sm:text-lg leading-relaxed whitespace-pre-line bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                    {{ business.description }}
+                </div>
+            </div>
+
+            <!-- Social and Web Links -->
+            <div>
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Bog'lanish va Ijtimoiy tarmoqlar</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {% if business.website %}
+                    <a href="{{ business.website }}" target="_blank" class="flex items-center p-4 rounded-2xl border border-slate-200/80 hover:border-indigo-500 hover:shadow-md transition duration-200 group bg-white">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg mr-3 group-hover:bg-indigo-600 group-hover:text-white transition">
+                            <i class="fa-solid fa-globe"></i>
+                        </div>
+                        <div class="truncate">
+                            <span class="text-xs text-slate-400 font-semibold block">Vebsayt</span>
+                            <span class="text-sm font-bold text-slate-800 truncate block">Tashrif buyurish</span>
+                        </div>
+                    </a>
+                    {% endif %}
+
+                    {% if business.telegram_link %}
+                    <a href="{{ business.telegram_link }}" target="_blank" class="flex items-center p-4 rounded-2xl border border-slate-200/80 hover:border-sky-500 hover:shadow-md transition duration-200 group bg-white">
+                        <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-lg mr-3 group-hover:bg-sky-500 group-hover:text-white transition">
+                            <i class="fa-brands fa-telegram"></i>
+                        </div>
+                        <div class="truncate">
+                            <span class="text-xs text-slate-400 font-semibold block">Telegram</span>
+                            <span class="text-sm font-bold text-slate-800 truncate block">{{ business.telegram }}</span>
+                        </div>
+                    </a>
+                    {% endif %}
+
+                    {% if business.instagram_link %}
+                    <a href="{{ business.instagram_link }}" target="_blank" class="flex items-center p-4 rounded-2xl border border-slate-200/80 hover:border-pink-500 hover:shadow-md transition duration-200 group bg-white">
+                        <div class="w-10 h-10 rounded-xl bg-pink-50 text-pink-600 flex items-center justify-center text-lg mr-3 group-hover:bg-pink-600 group-hover:text-white transition">
+                            <i class="fa-brands fa-instagram"></i>
+                        </div>
+                        <div class="truncate">
+                            <span class="text-xs text-slate-400 font-semibold block">Instagram</span>
+                            <span class="text-sm font-bold text-slate-800 truncate block">{{ business.instagram }}</span>
+                        </div>
+                    </a>
+                    {% endif %}
+
+                    {% if business.phone %}
+                    <a href="tel:{{ business.phone }}" class="flex items-center p-4 rounded-2xl border border-slate-200/80 hover:border-emerald-500 hover:shadow-md transition duration-200 group bg-white">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg mr-3 group-hover:bg-emerald-600 group-hover:text-white transition">
+                            <i class="fa-solid fa-phone"></i>
+                        </div>
+                        <div class="truncate">
+                            <span class="text-xs text-slate-400 font-semibold block">Telefon</span>
+                            <span class="text-sm font-bold text-slate-800 truncate block">{{ business.phone }}</span>
+                        </div>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'shared/_base.html' %}
+
+{% block title %}Ro'yxatdan o'tish - Lumos{% endblock %}
+
+{% block content %}
+<div class="min-h-[calc(100vh-160px)] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white text-2xl shadow-lg shadow-indigo-500/25 mx-auto mb-4">
+            <i class="fa-solid fa-user-plus"></i>
+        </div>
+        <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Yangi hisob ochish</h2>
+        <p class="mt-2 text-sm text-slate-600">
+            Hisob yaratib, o'z biznesingiz boshqaruv paneliga ega bo'ling
+        </p>
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-white py-8 px-6 sm:px-10 shadow-xl shadow-slate-200/50 rounded-3xl border border-slate-100">
+            <form method="POST" class="space-y-4" novalidate>
+                {% csrf_token %}
+                
+                {% for field in form %}
+                <div>
+                    <label for="{{ field.id_for_label }}" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        {{ field.label }} {% if field.field.required %}<span class="text-rose-500">*</span>{% endif %}
+                    </label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <p class="text-rose-500 text-xs mt-1">{{ field.errors.0 }}</p>
+                    {% endif %}
+                    {% if field.help_text %}
+                        <p class="text-slate-400 text-xs mt-1">{{ field.help_text }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div class="pt-2">
+                    <button type="submit" class="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150">
+                        Davom etish (Biznesni kiritish)
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-6 text-center border-t border-slate-100 pt-6">
+                <p class="text-sm text-slate-600">
+                    Profilingiz bormi?
+                    <a href="{% url 'accounts:login' %}" class="font-semibold text-indigo-600 hover:text-indigo-500">
+                        Tizimga kirish
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

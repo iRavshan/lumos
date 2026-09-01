@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{{ staff.name }} - Operator Kabineti</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { background: #f1f5f9; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+        .chat-scroll { max-height: calc(100vh - 340px); overflow-y: auto; }
+        .sla-timer.danger { color: #dc2626; animation: pulse 1s infinite; }
+        .sla-timer.warning { color: #d97706; }
+        .sla-timer.safe { color: #059669; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Top Bar -->
+    <div class="bg-white border-b border-slate-200 px-4 py-3 sticky top-0 z-50">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">
+                    {{ staff.name|first|upper }}
+                </div>
+                <div>
+                    <h1 class="text-sm font-bold text-slate-900">{{ staff.name }}</h1>
+                    <p class="text-[11px] text-slate-500">{{ staff.business.name }} — Operator</p>
+                </div>
+            </div>
+            <button onclick="toggleOnline()" id="statusBtn"
+                class="px-3 py-1.5 rounded-xl text-xs font-bold transition {% if staff.is_online %}bg-emerald-100 text-emerald-700{% else %}bg-slate-100 text-slate-600{% endif %}">
+                <span id="statusDot" class="inline-block w-2 h-2 rounded-full mr-1 {% if staff.is_online %}bg-emerald-500{% else %}bg-slate-400{% endif %}"></span>
+                <span id="statusText">{% if staff.is_online %}Onlayn{% else %}Oflayn{% endif %}</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="px-3 py-4">
+
+        <!-- Active Chats -->
+        <div class="mb-4">
+            <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-1">
+                <i class="fa-solid fa-headset text-indigo-500 mr-1"></i> Faol murojaatlar ({{ active_sessions|length }})
+            </h2>
+
+            {% if active_sessions %}
+            <div class="space-y-2" id="activeSessions">
+                {% for session in active_sessions %}
+                <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs cursor-pointer hover:border-indigo-300 transition"
+                     onclick="openChat('{{ session.session_id }}', '{{ session.display_name|escapejs }}')">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">
+                                {{ session.display_name|first|upper }}
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-sm">{{ session.display_name }}</h3>
+                                <p class="text-[10px] text-slate-400">
+                                    {% if session.visitor_phone %}{{ session.visitor_phone }} · {% endif %}
+                                    {{ session.created_at|date:"d M, H:i" }}
+                                </p>
+                            </div>
+                        </div>
+                        <!-- SLA Timer -->
+                        <div class="text-right">
+                            {% if session.sla_deadline %}
+                            <div class="sla-timer text-xs font-bold" data-deadline="{{ session.sla_deadline|date:'c' }}">
+                                <i class="fa-solid fa-clock mr-0.5"></i>
+                                <span class="timer-text">--:--</span>
+                            </div>
+                            {% endif %}
+                            <span class="text-[10px] px-2 py-0.5 rounded-md font-semibold
+                                {% if session.escalation_status == 'waiting_operator' %}bg-amber-50 text-amber-700
+                                {% elif session.escalation_status == 'operator_active' %}bg-emerald-50 text-emerald-700
+                                {% else %}bg-slate-100 text-slate-600{% endif %}">
+                                {{ session.get_escalation_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                    {% if session.last_message %}
+                    <p class="text-xs text-slate-500 truncate">
+                        <span class="font-medium">{% if session.last_message.role == 'user' %}Mijoz:{% else %}Bot:{% endif %}</span>
+                        {{ session.last_message.content|truncatechars:80 }}
+                    </p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="bg-white rounded-2xl p-6 text-center border border-slate-200">
+                <i class="fa-solid fa-inbox text-3xl text-slate-300 mb-2"></i>
+                <p class="text-xs text-slate-400">Hozircha faol murojaatlar yo'q</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Recently Resolved -->
+        {% if resolved_sessions %}
+        <div class="mb-4">
+            <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-1">
+                <i class="fa-solid fa-check-circle text-emerald-500 mr-1"></i> So'nggi hal qilinganlar
+            </h2>
+            <div class="space-y-2">
+                {% for session in resolved_sessions %}
+                <div class="bg-white/70 rounded-2xl p-3 border border-slate-100 flex items-center justify-between opacity-70">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-7 h-7 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-[10px]">
+                            {{ session.display_name|first|upper }}
+                        </div>
+                        <span class="text-xs font-medium text-slate-600">{{ session.display_name }}</span>
+                    </div>
+                    <span class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md font-semibold">Hal qilindi</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Chat Modal -->
+    <div id="chatModal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeChat()"></div>
+        <div class="absolute inset-x-0 bottom-0 top-12 bg-white rounded-t-3xl shadow-2xl flex flex-col overflow-hidden">
+            <!-- Chat Header -->
+            <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-white shrink-0">
+                <div class="flex items-center space-x-2">
+                    <button onclick="closeChat()" class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
+                        <i class="fa-solid fa-arrow-left text-sm"></i>
+                    </button>
+                    <div>
+                        <h3 id="chatTitle" class="font-bold text-sm text-slate-900">Mijoz</h3>
+                        <p class="text-[10px] text-slate-400">Jonli suhbat</p>
+                    </div>
+                </div>
+                <button onclick="resolveChat()" class="px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-700 text-xs font-bold hover:bg-emerald-200 transition">
+                    <i class="fa-solid fa-check mr-1"></i> Hal qilindi
+                </button>
+            </div>
+
+            <!-- Messages -->
+            <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50">
+                <p class="text-center text-xs text-slate-400">Xabarlar yuklanmoqda...</p>
+            </div>
+
+            <!-- Reply Input -->
+            <div class="shrink-0 px-3 py-3 bg-white border-t border-slate-200">
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="replyInput" placeholder="Javob yozing..."
+                        class="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none"
+                        onkeydown="if(event.key==='Enter')sendReply()">
+                    <button onclick="sendReply()" class="w-11 h-11 rounded-xl bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-700 transition shrink-0">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const TOKEN = "{{ staff.auth_token }}";
+        let currentSessionId = null;
+        let pollInterval = null;
+
+        function toggleOnline() {
+            fetch(`/api/tma/${TOKEN}/toggle-status/`, { method: 'POST' })
+            .then(r => r.json())
+            .then(data => {
+                const btn = document.getElementById('statusBtn');
+                const dot = document.getElementById('statusDot');
+                const txt = document.getElementById('statusText');
+                if (data.is_online) {
+                    btn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold transition bg-emerald-100 text-emerald-700';
+                    dot.className = 'inline-block w-2 h-2 rounded-full mr-1 bg-emerald-500';
+                    txt.textContent = 'Onlayn';
+                } else {
+                    btn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold transition bg-slate-100 text-slate-600';
+                    dot.className = 'inline-block w-2 h-2 rounded-full mr-1 bg-slate-400';
+                    txt.textContent = 'Oflayn';
+                }
+            });
+        }
+
+        function openChat(sessionId, name) {
+            currentSessionId = sessionId;
+            document.getElementById('chatTitle').textContent = name;
+            document.getElementById('chatModal').classList.remove('hidden');
+            loadMessages();
+            pollInterval = setInterval(loadMessages, 3000);
+        }
+
+        function closeChat() {
+            document.getElementById('chatModal').classList.add('hidden');
+            currentSessionId = null;
+            if (pollInterval) clearInterval(pollInterval);
+        }
+
+        function loadMessages() {
+            if (!currentSessionId) return;
+            fetch(`/api/tma/${TOKEN}/${currentSessionId}/messages/`)
+            .then(r => r.json())
+            .then(data => {
+                const container = document.getElementById('chatMessages');
+                container.innerHTML = '';
+                data.messages.forEach(m => {
+                    const isStaff = m.role === 'staff';
+                    const isUser = m.role === 'user';
+                    const align = isUser ? 'items-start' : 'items-end';
+                    const bg = isUser ? 'bg-white border border-slate-200' : (isStaff ? 'bg-indigo-600 text-white' : 'bg-slate-200');
+                    const textColor = isStaff ? 'text-white' : 'text-slate-800';
+                    container.innerHTML += `
+                        <div class="flex flex-col ${align}">
+                            <div class="${bg} ${textColor} rounded-2xl px-4 py-2.5 max-w-[85%] text-sm">
+                                ${m.content}
+                            </div>
+                            <span class="text-[10px] text-slate-400 mt-1 px-1">${m.sender} · ${m.created_at}</span>
+                        </div>`;
+                });
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        function sendReply() {
+            const input = document.getElementById('replyInput');
+            const text = input.value.trim();
+            if (!text || !currentSessionId) return;
+            input.value = '';
+
+            fetch(`/api/tma/${TOKEN}/${currentSessionId}/reply/`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({message: text})
+            }).then(() => loadMessages());
+        }
+
+        function resolveChat() {
+            if (!currentSessionId) return;
+            fetch(`/api/tma/${TOKEN}/${currentSessionId}/resolve/`, { method: 'POST' })
+            .then(() => {
+                closeChat();
+                location.reload();
+            });
+        }
+
+        // SLA Countdown Timers
+        function updateTimers() {
+            document.querySelectorAll('.sla-timer').forEach(el => {
+                const deadline = new Date(el.dataset.deadline);
+                const now = new Date();
+                const diff = Math.floor((deadline - now) / 1000);
+                const timerSpan = el.querySelector('.timer-text');
+
+                if (diff <= 0) {
+                    timerSpan.textContent = "Muddati o'tgan!";
+                    el.classList.add('danger');
+                } else {
+                    const mins = Math.floor(diff / 60);
+                    const secs = diff % 60;
+                    timerSpan.textContent = `${mins}:${String(secs).padStart(2, '0')}`;
+                    el.classList.remove('danger', 'warning', 'safe');
+                    if (diff < 60) el.classList.add('danger');
+                    else if (diff < 180) el.classList.add('warning');
+                    else el.classList.add('safe');
+                }
+            });
+        }
+        setInterval(updateTimers, 1000);
+        updateTimers();
+    </script>
+</body>
+</html>

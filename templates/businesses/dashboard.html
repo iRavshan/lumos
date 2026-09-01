@@ -1,0 +1,429 @@
+{% extends 'shared/_base.html' %}
+
+{% block title %}{{ business.name }} - Boshqaruv Paneli (Dashboard){% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Welcome Top Banner -->
+    <div class="relative overflow-hidden bg-gradient-to-r from-indigo-900 via-indigo-800 to-violet-900 rounded-3xl p-6 sm:p-10 text-white shadow-xl mb-8">
+        <!-- Decorative bg circle -->
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="space-y-2">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-white text-xl border border-white/20">
+                        <i class="fa-solid fa-building"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight">{{ business.name }}</h1>
+                        <div class="flex items-center gap-3 text-indigo-200 text-sm mt-0.5">
+                            {% if business.category %}
+                                <span class="bg-indigo-700/50 px-2.5 py-0.5 rounded-md border border-indigo-500/30 text-xs font-medium">
+                                    {{ business.category }}
+                                </span>
+                            {% endif %}
+                            <span><i class="fa-solid fa-user-circle mr-1"></i> {{ user.username }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action Buttons in Banner -->
+            <div class="flex flex-wrap items-center gap-3">
+                <a href="{% url 'businesses:edit' %}" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-white text-indigo-900 font-bold text-sm hover:bg-indigo-50 shadow-md transition duration-150">
+                    <i class="fa-solid fa-pen-to-square mr-2 text-indigo-600"></i> Ma'lumotlarni tahrirlash
+                </a>
+                <a href="{% url 'businesses:public_profile' business.slug %}" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-medium text-sm backdrop-blur-md border border-white/20 transition duration-150">
+                    <i class="fa-solid fa-arrow-up-right-from-square mr-2"></i> Sahifani ko'rish
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+        <!-- Stat 1: Leads / Contacts Count -->
+        <a href="{% url 'chatbot:inbox' %}" class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs hover:border-indigo-300 hover:shadow-md transition duration-200 block group">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider group-hover:text-indigo-600 transition">Murojaatlar (Leads)</span>
+                <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm group-hover:bg-indigo-600 group-hover:text-white transition">
+                    <i class="fa-solid fa-inbox"></i>
+                </span>
+            </div>
+            <div class="text-2xl font-extrabold text-slate-900 mb-1 flex items-baseline gap-2">
+                {{ leads_count }}
+                {% if new_leads_count > 0 %}
+                    <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">{{ new_leads_count }} ta yangi</span>
+                {% endif %}
+            </div>
+            <div class="text-xs text-indigo-600 font-semibold flex items-center">
+                <span>Chatlarni ko'rish</span>
+                <i class="fa-solid fa-arrow-right ml-1 group-hover:translate-x-1 transition-transform"></i>
+            </div>
+        </a>
+
+        <!-- Stat 2: Digital Channels -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Ijtimoiy tarmoqlar</span>
+                <span class="w-8 h-8 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center text-sm">
+                    <i class="fa-solid fa-share-nodes"></i>
+                </span>
+            </div>
+            <div class="text-2xl font-extrabold text-slate-900 mb-1">
+                {% if business.website or business.telegram or business.instagram %}
+                    Faol
+                {% else %}
+                    Bog'lanmagan
+                {% endif %}
+            </div>
+            <div class="flex items-center space-x-2 text-xs text-slate-500">
+                {% if business.website %}<span class="text-indigo-600 font-medium">Vebsayt</span> &bull;{% endif %}
+                {% if business.telegram %}<span class="text-sky-500 font-medium">Telegram</span> &bull;{% endif %}
+                {% if business.instagram %}<span class="text-pink-500 font-medium">Instagram</span>{% endif %}
+                {% if not business.website and not business.telegram and not business.instagram %}
+                    <span>Ulanish tavsiya etiladi</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Stat 3: Profile Completeness -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Profil to'liqligi</span>
+                <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </span>
+            </div>
+            <div class="text-2xl font-extrabold text-slate-900 mb-2">{{ completion }}%</div>
+            <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div class="bg-indigo-600 h-2 rounded-full" style="width: {{ completion }}%"></div>
+            </div>
+        </div>
+
+        <!-- Stat 4: Status -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Holat</span>
+                <span class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </span>
+            </div>
+            <div class="inline-flex items-center text-emerald-600 font-bold text-base">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-2 animate-pulse"></span> Faol biznes
+            </div>
+            <p class="text-xs text-slate-400 mt-1">So'nggi yangilanish: {{ business.updated_at|date:"d M Y" }}</p>
+        </div>
+    </div>
+
+    <!-- Main 2-Column Content Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left 2 Cols: Business Information & AI Chatbot Section -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- RAG AI Chatbot & Embed Card -->
+            <div class="bg-gradient-to-br from-white to-indigo-50/40 rounded-3xl p-6 sm:p-8 border-2 border-indigo-100 shadow-sm relative overflow-hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-indigo-100/80 pb-5 mb-6">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-xl shadow-md shadow-indigo-500/20">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h3 class="text-lg font-bold text-slate-900">{{ chatbot.bot_name }}</h3>
+                                {% if chatbot.is_active %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Faol
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-rose-100 text-rose-800">
+                                        Nofaol
+                                    </span>
+                                {% endif %}
+                            </div>
+                            <p class="text-xs text-slate-500 mt-0.5">Vebsaytingiz uchun kiritilgan ma'lumotlaringiz asosida ishlovchi aqlli RAG AI Chatbot</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <a href="{% url 'chatbot:demo_page' chatbot.api_key %}" target="_blank" class="inline-flex items-center px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm transition">
+                            <i class="fa-solid fa-play mr-1.5"></i> Jonli sinov
+                        </a>
+                        <a href="{% url 'chatbot:settings' %}" class="inline-flex items-center px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-xs transition" title="Sozlamalar">
+                            <i class="fa-solid fa-gear mr-1"></i> Sozlash
+                        </a>
+                        <a href="{% url 'chatbot:history' %}" class="inline-flex items-center px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-xs transition" title="Tarix">
+                            <i class="fa-solid fa-clock-rotate-left mr-1"></i> Tarix ({{ chat_count }})
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Embed Code Box -->
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center">
+                                <i class="fa-solid fa-code text-indigo-500 mr-1.5"></i> Vebsaytga qo'yish kodi (HTML/JS Vidjet)
+                            </span>
+                            <span class="text-[11px] text-slate-400">Har qanday vebsaytga &lt;/body&gt; dan oldin qo'ying</span>
+                        </div>
+                        
+                        <div class="relative group">
+                            <textarea id="widgetCodeSnippet" readonly rows="2" class="w-full bg-slate-900 text-indigo-300 font-mono text-xs p-4 rounded-2xl border border-slate-800 focus:outline-none select-all resize-none">&lt;script src="{{ request.scheme }}://{{ request.get_host }}/static/js/lumos-widget.js" data-business-key="{{ chatbot.api_key }}"&gt;&lt;/script&gt;</textarea>
+                            <button onclick="navigator.clipboard.writeText(document.getElementById('widgetCodeSnippet').value); alert('Vidjet kodi nusxalandi! Endi uni saytingizga qo\'yishingiz mumkin.');" class="absolute top-3 right-3 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-copy"></i> Kodni nusxalash
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Instructions -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs">
+                        <div class="p-3 bg-white rounded-xl border border-indigo-50 flex items-start space-x-2">
+                            <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">1</span>
+                            <span class="text-slate-600">Yuqoridagi kodni nusxalang</span>
+                        </div>
+                        <div class="p-3 bg-white rounded-xl border border-indigo-50 flex items-start space-x-2">
+                            <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">2</span>
+                            <span class="text-slate-600">Vebsaytingiz HTML kodiga joylashtiring</span>
+                        </div>
+                        <div class="p-3 bg-white rounded-xl border border-indigo-50 flex items-start space-x-2">
+                            <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">3</span>
+                            <span class="text-slate-600">Chatbot saytingizda darhol ishlaydi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Leads / Website Visitors Card -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-5 mb-5">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center">
+                            <i class="fa-solid fa-users text-indigo-600 mr-2.5"></i> So'nggi Murojaatchilar (Leads)
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Vebsaytingiz orqali savol yo'llagan insonlar ro'yxati</p>
+                    </div>
+                    <a href="{% url 'chatbot:inbox' %}" class="inline-flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3.5 py-2 rounded-xl transition">
+                        Barcha chatlarni ko'rish ({{ leads_count }}) <i class="fa-solid fa-arrow-right ml-1.5"></i>
+                    </a>
+                </div>
+
+                {% if recent_sessions %}
+                <div class="divide-y divide-slate-100">
+                    {% for s in recent_sessions %}
+                    <div class="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 px-3 rounded-2xl transition">
+                        <div class="flex items-center space-x-3 truncate">
+                            <div class="w-10 h-10 rounded-xl {% if s.visitor_phone %}bg-indigo-100 text-indigo-700{% else %}bg-slate-100 text-slate-600{% endif %} flex items-center justify-center font-bold text-xs shrink-0">
+                                {{ s.display_name|first|upper }}
+                            </div>
+                            <div class="truncate">
+                                <div class="flex items-center gap-2">
+                                    <h4 class="font-bold text-slate-800 text-sm truncate">{{ s.display_name }}</h4>
+                                    <span class="text-[10px] px-2 py-0.5 rounded-md font-semibold
+                                        {% if s.status == 'new' %}bg-emerald-50 text-emerald-700
+                                        {% elif s.status == 'in_progress' %}bg-amber-50 text-amber-700
+                                        {% else %}bg-slate-100 text-slate-600{% endif %}">
+                                        {{ s.get_status_display }}
+                                    </span>
+                                </div>
+                                <p class="text-xs text-slate-500 truncate mt-0.5">
+                                    {% if s.last_message %}
+                                        <span class="text-slate-600 font-medium">{% if s.last_message.role == 'user' %}Mijoz:{% else %}Bot:{% endif %}</span>
+                                        {{ s.last_message.content }}
+                                    {% else %}
+                                        Xabar yo'q
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-3 shrink-0 sm:self-center">
+                            <span class="text-xs text-slate-400">{{ s.last_message_at|date:"d M, H:i" }}</span>
+                            <a href="{% url 'chatbot:inbox_detail' s.session_id %}" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 text-xs font-semibold transition inline-flex items-center">
+                                Chatni ochish <i class="fa-solid fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="py-8 text-center text-slate-400">
+                    <p class="text-xs">Hozircha saytdan murojaatlar yo'q. Vidjetni saytingizga qo'ying va birinchi mijozlar bilan suhbatni boshlang!</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Business Info Card -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-5 mb-6">
+                    <h3 class="text-lg font-bold text-slate-900 flex items-center">
+                        <i class="fa-solid fa-circle-info text-indigo-600 mr-2.5"></i> Biznes ma'lumotlari
+                    </h3>
+                    <a href="{% url 'businesses:edit' %}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-700">
+                        O'zgartirish
+                    </a>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-slate-50 p-4 rounded-2xl">
+                            <span class="text-xs text-slate-500 uppercase font-semibold">Biznes nomi</span>
+                            <p class="text-base font-bold text-slate-800 mt-0.5">{{ business.name }}</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-2xl">
+                            <span class="text-xs text-slate-500 uppercase font-semibold">Sohasi</span>
+                            <p class="text-base font-bold text-slate-800 mt-0.5">{{ business.category|default:"Kiritilmagan" }}</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-2xl">
+                            <span class="text-xs text-slate-500 uppercase font-semibold">Telefon</span>
+                            <p class="text-base font-bold text-slate-800 mt-0.5">{{ business.phone|default:"Kiritilmagan" }}</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-2xl">
+                            <span class="text-xs text-slate-500 uppercase font-semibold">Ommaviy havola (Slug)</span>
+                            <p class="text-base font-bold text-indigo-600 mt-0.5">/b/{{ business.slug }}</p>
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <span class="text-xs text-slate-500 uppercase font-semibold block mb-2">Biznes haqida to'liq ma'lumot</span>
+                        <div class="bg-slate-50 p-5 rounded-2xl text-slate-700 text-sm leading-relaxed whitespace-pre-line border border-slate-100">
+                            {{ business.description }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right 1 Col: Channels & Quick Links -->
+        <div class="space-y-6">
+            
+            <!-- Digital Channels Card -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs">
+                <h3 class="text-lg font-bold text-slate-900 border-b border-slate-100 pb-4 mb-5 flex items-center">
+                    <i class="fa-solid fa-link text-indigo-600 mr-2.5"></i> Manzillar va Tarmoqlar
+                </h3>
+
+                <div class="space-y-3">
+                    <!-- Website -->
+                    <div class="p-3.5 rounded-2xl border border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                        <div class="flex items-center space-x-3 truncate mr-2">
+                            <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm shrink-0">
+                                <i class="fa-solid fa-globe"></i>
+                            </div>
+                            <div class="truncate">
+                                <span class="text-xs text-slate-500 font-semibold block">Vebsayt</span>
+                                {% if business.website %}
+                                    <span class="text-sm font-medium text-slate-800 truncate block">{{ business.website }}</span>
+                                {% else %}
+                                    <span class="text-xs text-slate-400 italic">Kiritilmagan</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if business.website %}
+                            <a href="{{ business.website }}" target="_blank" class="p-2 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 shrink-0">
+                                <i class="fa-solid fa-external-link"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <!-- Telegram -->
+                    <div class="p-3.5 rounded-2xl border border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                        <div class="flex items-center space-x-3 truncate mr-2">
+                            <div class="w-9 h-9 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center text-sm shrink-0">
+                                <i class="fa-brands fa-telegram"></i>
+                            </div>
+                            <div class="truncate">
+                                <span class="text-xs text-slate-500 font-semibold block">Telegram</span>
+                                {% if business.telegram %}
+                                    <span class="text-sm font-medium text-slate-800 truncate block">{{ business.telegram }}</span>
+                                {% else %}
+                                    <span class="text-xs text-slate-400 italic">Kiritilmagan</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if business.telegram_link %}
+                            <a href="{{ business.telegram_link }}" target="_blank" class="p-2 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100 shrink-0">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <!-- Instagram -->
+                    <div class="p-3.5 rounded-2xl border border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                        <div class="flex items-center space-x-3 truncate mr-2">
+                            <div class="w-9 h-9 rounded-xl bg-pink-100 text-pink-600 flex items-center justify-center text-sm shrink-0">
+                                <i class="fa-brands fa-instagram"></i>
+                            </div>
+                            <div class="truncate">
+                                <span class="text-xs text-slate-500 font-semibold block">Instagram</span>
+                                {% if business.instagram %}
+                                    <span class="text-sm font-medium text-slate-800 truncate block">{{ business.instagram }}</span>
+                                {% else %}
+                                    <span class="text-xs text-slate-400 italic">Kiritilmagan</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if business.instagram_link %}
+                            <a href="{{ business.instagram_link }}" target="_blank" class="p-2 rounded-lg bg-pink-50 text-pink-600 hover:bg-pink-100 shrink-0">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-slate-100">
+                    <a href="{% url 'businesses:edit' %}" class="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-xl border border-indigo-200 text-indigo-600 font-semibold text-xs hover:bg-indigo-50 transition">
+                        <i class="fa-solid fa-pen mr-1.5"></i> Tarmoqlarni tahrirlash
+                    </a>
+                </div>
+            </div>
+
+            <!-- Team & Operators TMA Card -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                    <h3 class="text-lg font-bold text-slate-900 flex items-center">
+                        <i class="fa-solid fa-users-gear text-indigo-600 mr-2.5"></i> Jamoa va Xodimlar
+                    </h3>
+                </div>
+                <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+                    AI javob topa olmagan savollarni qabul qiluvchi operatorlar va nazoratchi supervisorlar.
+                </p>
+                <div class="space-y-2">
+                    <a href="{% url 'team:team_list' %}" class="w-full inline-flex justify-between items-center py-2.5 px-4 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs transition">
+                        <span><i class="fa-brands fa-telegram mr-1.5 text-sky-500"></i> TMA Kabinetlarini ko'rish</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                    <a href="{% url 'team:team_analytics' %}" class="w-full inline-flex justify-between items-center py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs transition">
+                        <span><i class="fa-solid fa-chart-line mr-1.5 text-violet-500"></i> SLA & Samaradorlik</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Public Link Share Card -->
+            <div class="bg-gradient-to-br from-indigo-50 to-violet-50 rounded-3xl p-6 border border-indigo-100/80">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center mb-3">
+                    <i class="fa-solid fa-qrcode"></i>
+                </div>
+                <h4 class="font-bold text-slate-900 text-base">Biznes sahifangiz havolasi</h4>
+                <p class="text-xs text-slate-600 mt-1 mb-4 leading-relaxed">
+                    Mijozlaringizga ushbu ommaviy sahifa havolasini yuborishingiz mumkin.
+                </p>
+                <div class="flex items-center space-x-2">
+                    <input type="text" readonly value="{{ request.scheme }}://{{ request.get_host }}{% url 'businesses:public_profile' business.slug %}" id="publicUrlInput" class="w-full text-xs bg-white px-3 py-2 rounded-xl border border-indigo-200 text-slate-700 outline-none select-all font-mono">
+                    <button onclick="navigator.clipboard.writeText(document.getElementById('publicUrlInput').value); alert('Havola nusxalandi!');" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shrink-0">
+                        Nusxalash
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="uz" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ chatbot.bot_name }} - {{ chatbot.business.name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="h-full flex flex-col bg-slate-50 text-slate-800 antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- Header -->
+    <header class="px-5 py-4 text-white flex items-center justify-between shadow-md shrink-0" style="background-color: {{ chatbot.theme_color }};">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center font-bold text-sm">
+                AI
+            </div>
+            <div>
+                <h3 class="font-bold text-base leading-tight">{{ chatbot.bot_name }}</h3>
+                <div class="flex items-center space-x-1.5 text-xs opacity-90">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>{{ chatbot.business.name }}</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Chat Messages Area -->
+    <div id="messagesArea" class="flex-1 p-4 overflow-y-auto space-y-3 flex flex-col">
+        
+        <!-- Welcome Message -->
+        <div class="self-start max-w-[85%] bg-white p-3.5 rounded-2xl rounded-bl-xs border border-slate-100 shadow-xs text-sm text-slate-800 leading-relaxed">
+            {{ chatbot.welcome_message }}
+        </div>
+
+        <!-- Suggested Questions -->
+        {% if suggested_questions %}
+        <div id="suggestedQuestionsWrap" class="flex flex-wrap gap-2 pt-1">
+            {% for q in suggested_questions %}
+            <button onclick="sendQuickMessage('{{ q|escapejs }}')" class="text-xs bg-white hover:bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs transition duration-150 text-left">
+                {{ q }}
+            </button>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Typing Indicator -->
+        <div id="typingIndicator" class="hidden self-start bg-white px-4 py-2.5 rounded-2xl rounded-bl-xs border border-slate-100 shadow-xs">
+            <div class="flex space-x-1">
+                <div class="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
+                <div class="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:-.15s]"></div>
+                <div class="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:-.3s]"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Input Form -->
+    <div class="p-3 bg-white border-t border-slate-200 shrink-0">
+        <form id="chatForm" class="flex items-center space-x-2">
+            <input type="text" id="userInput" placeholder="Savolingizni yozing..." class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-100" autocomplete="off">
+            <button type="submit" class="w-10 h-10 rounded-xl text-white flex items-center justify-center shrink-0 shadow-md transition hover:opacity-90" style="background-color: {{ chatbot.theme_color }};">
+                <i class="fa-solid fa-paper-plane text-sm"></i>
+            </button>
+        </form>
+        <div class="text-center text-[10px] text-slate-400 mt-2">
+            Powered by <strong class="text-slate-600">Lumos AI</strong>
+        </div>
+    </div>
+
+    <script>
+        const apiKey = "{{ chatbot.api_key }}";
+        const sessionId = "sess_" + Math.random().toString(36).substr(2, 9);
+        const messagesArea = document.getElementById('messagesArea');
+        const chatForm = document.getElementById('chatForm');
+        const userInput = document.getElementById('userInput');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const suggestedWrap = document.getElementById('suggestedQuestionsWrap');
+
+        function scrollToBottom() {
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        function appendMessage(text, role) {
+            const div = document.createElement('div');
+            if (role === 'user') {
+                div.className = "self-end max-w-[85%] text-white p-3.5 rounded-2xl rounded-br-xs text-sm leading-relaxed shadow-xs";
+                div.style.backgroundColor = "{{ chatbot.theme_color }}";
+            } else {
+                div.className = "self-start max-w-[85%] bg-white p-3.5 rounded-2xl rounded-bl-xs border border-slate-100 shadow-xs text-sm text-slate-800 leading-relaxed whitespace-pre-line";
+            }
+            div.textContent = text;
+            messagesArea.insertBefore(div, typingIndicator);
+            scrollToBottom();
+        }
+
+        function sendMessage(text) {
+            if (!text || !text.trim()) return;
+            text = text.trim();
+
+            if (suggestedWrap) {
+                suggestedWrap.style.display = 'none';
+            }
+
+            appendMessage(text, 'user');
+            userInput.value = '';
+
+            typingIndicator.classList.remove('hidden');
+            scrollToBottom();
+
+            fetch(`/api/v1/${apiKey}/chat/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text, session_id: sessionId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                typingIndicator.classList.add('hidden');
+                if (data.reply) {
+                    appendMessage(data.reply, 'assistant');
+                } else if (data.error) {
+                    appendMessage('Xatolik: ' + data.error, 'assistant');
+                }
+            })
+            .catch(() => {
+                typingIndicator.classList.add('hidden');
+                appendMessage('Bog\'lanishda xatolik yuz berdi.', 'assistant');
+            });
+        }
+
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            sendMessage(userInput.value);
+        });
+
+        function sendQuickMessage(q) {
+            sendMessage(q);
+        }
+    </script>
+</body>
+</html>
