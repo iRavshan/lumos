@@ -176,6 +176,10 @@ def api_poll_widget(request, api_key):
     })
 
 
+from django.views.decorators.clickjacking import xframe_options_exempt
+
+
+@xframe_options_exempt
 def widget_iframe_view(request, api_key):
     chatbot = get_object_or_404(ChatbotConfig, api_key=api_key)
     return render(request, 'chatbot/widget_iframe.html', {
