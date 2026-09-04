@@ -112,22 +112,6 @@ class BusinessSystemTests(TestCase):
         self.assertEqual(business.name, 'Yangi Nomi')
         self.assertEqual(business.category, 'IT & Dasturlash')
 
-    def test_public_profile(self):
-        business = Business.objects.create(
-            user=self.user,
-            name='Public Store',
-            category='Savdo',
-            website='https://store.uz',
-            telegram='store_tg',
-            instagram='store_ig',
-            description='Ommaviy do\'kon tavsifi.'
-        )
-
-        response = self.client.get(reverse('businesses:public_profile', kwargs={'slug': business.slug}))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Public Store')
-        self.assertContains(response, 'https://store.uz')
-
     def test_business_analytics_view_and_calculations(self):
         business = Business.objects.create(
             user=self.user,

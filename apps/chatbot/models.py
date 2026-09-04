@@ -50,6 +50,30 @@ class ChatbotConfig(models.Model):
         verbose_name="Tavsiya etilgan tezkor savollar",
         help_text="Har bir qatorda 1 ta tezkor savol yozing"
     )
+    # Telegram Bot Integration fields
+    telegram_bot_token = models.CharField(
+        max_length=200, 
+        blank=True, 
+        null=True, 
+        verbose_name="Telegram Bot Tokeni",
+        help_text="@BotFather dan olingan HTTP API Token"
+    )
+    telegram_bot_username = models.CharField(
+        max_length=100, 
+        blank=True, 
+        null=True, 
+        verbose_name="Telegram Bot Username"
+    )
+    telegram_bot_name = models.CharField(
+        max_length=150, 
+        blank=True, 
+        null=True, 
+        verbose_name="Telegram Bot Nomi"
+    )
+    telegram_bot_active = models.BooleanField(
+        default=False, 
+        verbose_name="Telegram Bot faolmi?"
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan sana")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Yangilangan sana")
 

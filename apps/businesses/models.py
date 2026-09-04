@@ -84,6 +84,39 @@ class Business(models.Model):
         super().save(*args, **kwargs)
 
     @property
+    def telegram_username(self):
+        tg = (self.telegram or '').strip()
+        if not tg and hasattr(self, 'chatbot_config') and self.chatbot_config.telegram_bot_username:
+            tg = self.chatbot_config.telegram_bot_username
+        if not tg:
+            return None
+        tg = tg.replace('https://t.me/', '').replace('http://t.me/', '').replace('@', '').strip('/')
+        return tg if tg else None
+
+    @property
+    def telegram_avatar_url(self):
+        username = self.telegram_username
+        if username:
+            return f"https://t.me/i/userpic/320/{username}.jpg"
+        return None
+
+    @property
+    def favicon_url(self):
+        if not self.website:
+            return None
+        ws = self.website.strip()
+        if not ws.startswith('http://') and not ws.startswith('https://'):
+            ws = f"https://{ws}"
+        try:
+            from urllib.parse import urlparse
+            domain = urlparse(ws).netloc
+            if domain:
+                return f"https://www.google.com/s2/favicons?domain={domain}&sz=128"
+        except Exception:
+            pass
+        return None
+
+    @property
     def telegram_link(self):
         if not self.telegram:
             return None

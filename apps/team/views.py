@@ -219,6 +219,19 @@ def tma_send_reply_api(request, token, session_id):
 
     session.save()
 
+    # If this session came from Telegram, forward operator reply to Telegram chat
+    if session.session_id.startswith('tg_') and session.chatbot.telegram_bot_token:
+        try:
+            tg_chat_id = session.session_id.replace('tg_', '')
+            from apps.chatbot.telegram_service import send_telegram_bot_message
+            send_telegram_bot_message(
+                session.chatbot.telegram_bot_token,
+                tg_chat_id,
+                f"👨‍💼 {staff.name} (Operator):\n{text}"
+            )
+        except Exception:
+            pass
+
     return JsonResponse({
         'status': 'success',
         'message_id': msg.id,

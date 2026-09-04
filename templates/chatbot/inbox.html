@@ -1,125 +1,104 @@
 {% extends 'shared/_base.html' %}
 
-{% block title %}Murojaatlar va Chatlar (Inbox) - {{ business.name }}{% endblock %}
+{% block title %}Murojaatlar va chatlar - {{ business.name }}{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
     
-    <!-- Top Header & Stats -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    <!-- 1. Header Card -->
+    <div class="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <div class="flex items-center space-x-2 text-xs text-slate-500 mb-1">
-                <a href="{% url 'businesses:dashboard' %}" class="hover:text-indigo-600 font-medium">Dashboard</a>
-                <span>/</span>
-                <span class="text-slate-700 font-semibold">Murojaatlar & Chatlar</span>
-            </div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
-                <i class="fa-solid fa-inbox text-indigo-600"></i> Murojaatchilar va Chatlar
+            <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+                <i class="fa-solid fa-inbox text-indigo-600"></i> Murojaatlar va chatlar
             </h1>
+            <p class="text-slate-500 text-xs mt-0.5">Vebsayt vidjeti va Telegram botdan kelgan barcha mijozlar bilan muloqot qilish paneli</p>
         </div>
 
-        <!-- Quick Filters Summary -->
-        <div class="flex items-center gap-2 flex-wrap">
-            <a href="?status=all" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition {% if current_status == 'all' %}bg-indigo-600 text-white shadow-sm{% else %}bg-white text-slate-600 border border-slate-200 hover:bg-slate-50{% endif %}">
-                Barchasi ({{ counts.all }})
-            </a>
-            <a href="?status=new" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition {% if current_status == 'new' %}bg-emerald-600 text-white shadow-sm{% else %}bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-50{% endif %}">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block mr-1"></span> Yangi ({{ counts.new }})
-            </a>
-            <a href="?status=in_progress" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition {% if current_status == 'in_progress' %}bg-amber-600 text-white shadow-sm{% else %}bg-white text-amber-700 border border-amber-200 hover:bg-amber-50{% endif %}">
-                Jarayonda ({{ counts.in_progress }})
-            </a>
-            <a href="?status=completed" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition {% if current_status == 'completed' %}bg-slate-700 text-white shadow-sm{% else %}bg-white text-slate-600 border border-slate-200 hover:bg-slate-50{% endif %}">
-                Yakunlangan ({{ counts.completed }})
-            </a>
+        <div class="flex items-center gap-2">
+            <span class="px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                Jami: {{ counts.all }} ta suhbat
+            </span>
         </div>
     </div>
 
-    <!-- 2-Pane Main Layout -->
-    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[680px]">
+    <!-- 2. Main 2-Pane Inbox Layout -->
+    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[640px]">
         
-        <!-- Left Pane: Visitors List (4 cols) -->
-        <div class="lg:col-span-4 border-r border-slate-100 flex flex-col h-full bg-slate-50/50">
+        <!-- Left Pane: Sessions List (4 cols) -->
+        <div class="lg:col-span-4 border-r border-slate-100 flex flex-col h-full bg-slate-50/40">
             
+            <!-- Channel Filter Tabs -->
+            <div class="p-3 border-b border-slate-100 bg-white">
+                <div class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold text-center">
+                    <a href="?channel=all{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1.5 {% if channel_filter == 'all' %}bg-white text-indigo-700 shadow-2xs font-extrabold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+                        <span>Barchasi</span>
+                        <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'all' %}bg-indigo-100 text-indigo-800{% else %}bg-slate-200 text-slate-600{% endif %}">{{ counts.all }}</span>
+                    </a>
+                    <a href="?channel=website{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1.5 {% if channel_filter == 'website' %}bg-white text-indigo-700 shadow-2xs font-extrabold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+                        <i class="fa-solid fa-globe text-[11px] text-indigo-500"></i>
+                        <span>Vebsayt</span>
+                        <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'website' %}bg-indigo-100 text-indigo-800{% else %}bg-slate-200 text-slate-600{% endif %}">{{ counts.website }}</span>
+                    </a>
+                    <a href="?channel=telegram{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1.5 {% if channel_filter == 'telegram' %}bg-white text-sky-700 shadow-2xs font-extrabold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+                        <i class="fa-brands fa-telegram text-[12px] text-sky-500"></i>
+                        <span>Telegram</span>
+                        <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'telegram' %}bg-sky-100 text-sky-800{% else %}bg-slate-200 text-slate-600{% endif %}">{{ counts.telegram }}</span>
+                    </a>
+                </div>
+            </div>
+
             <!-- Search Form -->
-            <div class="p-4 border-b border-slate-100 bg-white">
+            <div class="p-3 border-b border-slate-100 bg-white">
                 <form method="GET" class="relative">
-                    {% if current_status != 'all' %}
-                        <input type="hidden" name="status" value="{{ current_status }}">
+                    {% if channel_filter and channel_filter != 'all' %}
+                        <input type="hidden" name="channel" value="{{ channel_filter }}">
                     {% endif %}
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
-                    <input type="text" name="q" value="{{ search_query }}" placeholder="Ism, telefon yoki xabar matni..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:bg-white transition">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                    <input type="text" name="q" value="{{ search_query }}" placeholder="Qidirish (ism, telefon)..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:bg-white transition">
                 </form>
             </div>
 
             <!-- Sessions List -->
-            <div class="flex-1 overflow-y-auto divide-y divide-slate-100 max-h-[620px]">
+            <div class="flex-1 overflow-y-auto divide-y divide-slate-100 max-h-[580px]">
                 {% if sessions %}
                     {% for s in sessions %}
-                    <a href="{% url 'chatbot:inbox_detail' s.session_id %}{% if search_query %}?q={{ search_query }}{% endif %}" class="block p-4 transition duration-150 relative hover:bg-white {% if active_session and active_session.session_id == s.session_id %}bg-white shadow-xs border-l-4 border-indigo-600{% endif %}">
-                        <div class="flex items-start justify-between gap-2 mb-1">
-                            <div class="flex items-center space-x-2.5 truncate">
-                                <div class="w-9 h-9 rounded-xl {% if s.visitor_phone %}bg-indigo-100 text-indigo-700{% else %}bg-slate-200 text-slate-600{% endif %} flex items-center justify-center font-bold text-xs shrink-0">
-                                    {% if s.visitor_name %}
-                                        {{ s.visitor_name|first|upper }}
-                                    {% elif s.visitor_phone %}
-                                        <i class="fa-solid fa-phone text-[11px]"></i>
+                    <a href="{% url 'chatbot:inbox_detail' s.session_id %}?channel={{ channel_filter }}{% if search_query %}&q={{ search_query }}{% endif %}" class="block p-4 transition duration-150 relative hover:bg-white {% if active_session and active_session.session_id == s.session_id %}bg-white shadow-xs border-l-4 border-indigo-600{% endif %}">
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="flex items-center space-x-3 min-w-0">
+                                <div class="w-9 h-9 rounded-xl {% if s.session_id|slice:':3' == 'tg_' %}bg-sky-50 text-sky-600 border border-sky-100{% else %}bg-indigo-50 text-indigo-600 border border-indigo-100{% endif %} flex items-center justify-center font-bold text-xs shrink-0">
+                                    {% if s.session_id|slice:':3' == 'tg_' %}
+                                        <i class="fa-brands fa-telegram text-sm"></i>
                                     {% else %}
-                                        <i class="fa-solid fa-user text-[11px]"></i>
+                                        <i class="fa-solid fa-globe text-sm"></i>
                                     {% endif %}
                                 </div>
-                                <div class="truncate">
+                                <div class="min-w-0">
                                     <h4 class="font-bold text-slate-800 text-xs truncate leading-tight">
                                         {{ s.display_name }}
                                     </h4>
-                                    {% if s.visitor_phone and s.visitor_name %}
-                                        <span class="text-[11px] text-slate-500 block truncate">{{ s.visitor_phone }}</span>
+                                    {% if s.visitor_phone %}
+                                        <span class="text-[11px] text-slate-500 block truncate mt-0.5">{{ s.visitor_phone }}</span>
                                     {% endif %}
                                 </div>
                             </div>
                             
-                            <span class="text-[10px] text-slate-400 shrink-0 font-medium">
-                                {{ s.last_message_at|date:"d M, H:i" }}
-                            </span>
-                        </div>
-
-                        <!-- Last message preview -->
-                        <div class="mt-2 pl-11">
-                            <p class="text-xs text-slate-500 truncate leading-snug">
-                                {% if s.last_message %}
-                                    <span class="font-medium text-slate-700">{% if s.last_message.role == 'user' %}Mijoz:{% else %}Bot:{% endif %}</span>
-                                    {{ s.last_message.content }}
-                                {% else %}
-                                    <span class="italic text-slate-400">Xabarlar mavjud emas</span>
-                                {% endif %}
-                            </p>
-                            
-                            <!-- Badges -->
-                            <div class="flex items-center gap-2 mt-2">
-                                <span class="text-[10px] px-2 py-0.5 rounded-md font-semibold
-                                    {% if s.status == 'new' %}bg-emerald-50 text-emerald-700 border border-emerald-200
-                                    {% elif s.status == 'in_progress' %}bg-amber-50 text-amber-700 border border-amber-200
-                                    {% elif s.status == 'completed' %}bg-slate-100 text-slate-600
-                                    {% else %}bg-slate-50 text-slate-400{% endif %}">
-                                    {{ s.get_status_display }}
+                            <div class="flex flex-col items-end shrink-0 space-y-1">
+                                <span class="text-[10px] text-slate-400 font-medium">
+                                    {{ s.last_message_at|date:"d M, H:i" }}
                                 </span>
-                                
                                 <span class="text-[10px] text-slate-400">
-                                    <i class="fa-solid fa-message mr-0.5"></i> {{ s.messages.count }}
+                                    <i class="fa-solid fa-message mr-0.5 text-slate-300"></i> {{ s.messages.count }}
                                 </span>
-
-                                {% if s.notes %}
-                                <span class="text-[10px] text-indigo-600" title="Izoh mavjud">
-                                    <i class="fa-solid fa-note-sticky"></i>
-                                </span>
-                                {% endif %}
                             </div>
                         </div>
                     </a>
                     {% endfor %}
                 {% else %}
                     <div class="p-8 text-center text-slate-400">
-                        <i class="fa-solid fa-comments text-3xl mb-2 text-slate-300"></i>
+                        <i class="fa-solid fa-comments text-2xl mb-2 text-slate-300 block"></i>
                         <p class="text-xs">Murojaatlar topilmadi</p>
                     </div>
                 {% endif %}
@@ -134,27 +113,22 @@
                 <!-- Active Conversation Header -->
                 <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
                     <div class="flex items-center space-x-3">
-                        <div class="w-11 h-11 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0">
-                            {{ active_session.display_name|first|upper }}
+                        <div class="w-10 h-10 rounded-xl {% if active_session.session_id|slice:':3' == 'tg_' %}bg-sky-500 text-white{% else %}bg-indigo-600 text-white{% endif %} flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
+                            {% if active_session.session_id|slice:':3' == 'tg_' %}
+                                <i class="fa-brands fa-telegram"></i>
+                            {% else %}
+                                <i class="fa-solid fa-globe"></i>
+                            {% endif %}
                         </div>
                         <div>
                             <div class="flex items-center space-x-2">
-                                <h3 class="font-bold text-slate-900 text-base leading-snug">{{ active_session.display_name }}</h3>
-                                <span class="text-[10px] px-2 py-0.5 rounded-md font-semibold
-                                    {% if active_session.status == 'new' %}bg-emerald-50 text-emerald-700 border border-emerald-200
-                                    {% elif active_session.status == 'in_progress' %}bg-amber-50 text-amber-700 border border-amber-200
-                                    {% else %}bg-slate-100 text-slate-600{% endif %}">
-                                    {{ active_session.get_status_display }}
-                                </span>
+                                <h3 class="font-bold text-slate-900 text-sm leading-snug">{{ active_session.display_name }}</h3>
                             </div>
                             <div class="flex items-center space-x-3 text-xs text-slate-500 mt-0.5">
                                 {% if active_session.visitor_phone %}
                                     <span class="font-medium text-slate-700"><i class="fa-solid fa-phone text-indigo-500 mr-1"></i> {{ active_session.visitor_phone }}</span>
                                 {% endif %}
-                                {% if active_session.visitor_ip %}
-                                    <span class="text-slate-400"><i class="fa-solid fa-network-wired mr-1"></i> IP: {{ active_session.visitor_ip }}</span>
-                                {% endif %}
-                                <span><i class="fa-solid fa-clock mr-1"></i> {{ active_session.created_at|date:"d M Y, H:i" }}</span>
+                                <span><i class="fa-solid fa-clock mr-1 text-slate-400"></i> {{ active_session.created_at|date:"d M Y, H:i" }}</span>
                             </div>
                         </div>
                     </div>
@@ -162,11 +136,11 @@
                     <!-- Actions -->
                     <div class="flex items-center space-x-2">
                         {% if active_session.visitor_phone %}
-                        <a href="tel:{{ active_session.visitor_phone }}" class="inline-flex items-center px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-xl transition">
-                            <i class="fa-solid fa-phone mr-1.5"></i> Qo'ng'iroq qilish
+                        <a href="tel:{{ active_session.visitor_phone }}" class="inline-flex items-center px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-xl transition">
+                            <i class="fa-solid fa-phone mr-1.5"></i> Qo'ng'iroq
                         </a>
                         {% endif %}
-                        <button onclick="document.getElementById('editLeadModal').classList.remove('hidden')" class="inline-flex items-center px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
+                        <button onclick="document.getElementById('editLeadModal').classList.remove('hidden')" class="inline-flex items-center px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
                             <i class="fa-solid fa-user-pen mr-1.5"></i> Ma'lumotlarni tahrirlash
                         </button>
                     </div>
@@ -184,12 +158,14 @@
                 {% endif %}
 
                 <!-- Messages Timeline -->
-                <div class="flex-1 p-6 overflow-y-auto space-y-4 bg-slate-50/60 max-h-[520px]">
+                <div class="flex-1 p-5 sm:p-6 overflow-y-auto space-y-3.5 bg-slate-50/50 max-h-[480px]">
                     {% for msg in active_session.messages.all %}
                     <div class="flex flex-col {% if msg.role == 'user' %}items-end{% else %}items-start{% endif %}">
-                        <div class="text-[10.5px] text-slate-400 mb-1 px-1 flex items-center space-x-1">
+                        <div class="text-[10px] text-slate-400 mb-1 px-1 flex items-center space-x-1">
                             {% if msg.role == 'user' %}
                                 <span class="font-semibold text-slate-600">{{ active_session.display_name }}</span>
+                            {% elif msg.role == 'staff' %}
+                                <span class="font-semibold text-emerald-600">{{ msg.sender_staff.name|default:"Operator" }}</span>
                             {% else %}
                                 <span class="font-semibold text-indigo-600">{{ chatbot.bot_name }}</span>
                             {% endif %}
@@ -197,14 +173,14 @@
                             <span>{{ msg.created_at|date:"H:i" }}</span>
                         </div>
 
-                        <div class="max-w-[85%] p-4 rounded-2xl text-xs sm:text-sm leading-relaxed whitespace-pre-line shadow-xs
+                        <div class="max-w-[85%] p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed whitespace-pre-line shadow-2xs
                             {% if msg.role == 'user' %}
                                 bg-indigo-600 text-white rounded-br-xs
+                            {% elif msg.role == 'staff' %}
+                                bg-emerald-600 text-white rounded-bl-xs
                             {% else %}
                                 bg-white text-slate-800 border border-slate-200/80 rounded-bl-xs
-                            {% endif %}">
-                            {{ msg.content }}
-                        </div>
+                            {% endif %}">{{ msg.content }}</div>
                     </div>
                     {% empty %}
                     <div class="text-center py-12 text-slate-400">
@@ -213,20 +189,20 @@
                     {% endfor %}
                 </div>
 
-                <!-- Footer info -->
+                <!-- Footer info (Clean, without Session ID) -->
                 <div class="p-3 bg-white border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 px-6">
-                    <span>Sessiya ID: <code class="text-slate-600 font-mono">{{ active_session.session_id }}</code></span>
+                    <span>Muloqot boshlangan: <strong class="text-slate-600">{{ active_session.created_at|date:"d M, H:i" }}</strong></span>
                     <span>Jami {{ active_session.messages.count }} ta xabar</span>
                 </div>
 
             {% else %}
                 <div class="flex-1 flex flex-col items-center justify-center p-12 text-center text-slate-400">
-                    <div class="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl mb-4">
+                    <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl mb-3">
                         <i class="fa-solid fa-comments"></i>
                     </div>
-                    <h3 class="text-base font-bold text-slate-800">Suhbat tanlanmagan</h3>
-                    <p class="text-xs text-slate-500 mt-1 max-w-sm">
-                        Chap tomondagi ro'yxatdan murojaatchini tanlang yoki yangi xabarlarni kuting.
+                    <h3 class="text-sm font-bold text-slate-800">Suhbat tanlanmagan</h3>
+                    <p class="text-xs text-slate-500 mt-1 max-w-xs">
+                        Chap tomondagi ro'yxatdan murojaatchini tanlang.
                     </p>
                 </div>
             {% endif %}
@@ -240,9 +216,9 @@
 <!-- Edit Lead Details Modal -->
 {% if active_session %}
 <div id="editLeadModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
-            <h3 class="font-bold text-slate-900 text-lg">Murojaatchi Ma'lumotlari</h3>
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <h3 class="font-bold text-slate-900 text-base">Mijoz Ma'lumotlari</h3>
             <button onclick="document.getElementById('editLeadModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
         </div>
 
@@ -251,39 +227,29 @@
 
             <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Ismi</label>
-                <input type="text" name="visitor_name" value="{{ active_session.visitor_name }}" placeholder="Masalan: Anvar Karimov" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-100 outline-none">
+                <input type="text" name="visitor_name" value="{{ active_session.visitor_name }}" placeholder="Masalan: Anvar Karimov" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-100 outline-none font-medium">
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Telefon raqami</label>
-                <input type="text" name="visitor_phone" value="{{ active_session.visitor_phone }}" placeholder="+998 90 123 45 67" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-100 outline-none">
+                <input type="text" name="visitor_phone" value="{{ active_session.visitor_phone }}" placeholder="+998 90 123 45 67" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-100 outline-none font-medium">
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Email manzili</label>
-                <input type="email" name="visitor_email" value="{{ active_session.visitor_email }}" placeholder="mijoz@example.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-100 outline-none">
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Murojaat holati (Status)</label>
-                <select name="status" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-100 outline-none bg-white">
-                    <option value="new" {% if active_session.status == 'new' %}selected{% endif %}>Yangi</option>
-                    <option value="in_progress" {% if active_session.status == 'in_progress' %}selected{% endif %}>Jarayonda</option>
-                    <option value="completed" {% if active_session.status == 'completed' %}selected{% endif %}>Yakunlangan</option>
-                    <option value="archived" {% if active_session.status == 'archived' %}selected{% endif %}>Arxivlangan</option>
-                </select>
+                <input type="email" name="visitor_email" value="{{ active_session.visitor_email }}" placeholder="mijoz@example.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-100 outline-none font-medium">
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Shaxsiy eslatma / Izoh</label>
-                <textarea name="notes" rows="3" placeholder="Mijoz nima buyurtma qilmoqchi, qachon qayta qo'ng'iroq qilish kerak va hk..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-100 outline-none">{{ active_session.notes }}</textarea>
+                <textarea name="notes" rows="3" placeholder="Mijoz haqida maxsus eslatma yoki buyurtma tafsilotlari..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-100 outline-none font-medium">{{ active_session.notes }}</textarea>
             </div>
 
             <div class="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
                 <button type="button" onclick="document.getElementById('editLeadModal').classList.add('hidden')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50">
                     Bekor qilish
                 </button>
-                <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition">
+                <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-xs transition">
                     Saqlash
                 </button>
             </div>

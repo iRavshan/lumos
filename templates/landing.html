@@ -100,9 +100,6 @@
                             {% if b.telegram_link %}<a href="{{ b.telegram_link }}" target="_blank" class="hover:text-sky-500"><i class="fa-brands fa-telegram"></i></a>{% endif %}
                             {% if b.instagram_link %}<a href="{{ b.instagram_link }}" target="_blank" class="hover:text-pink-500"><i class="fa-brands fa-instagram"></i></a>{% endif %}
                         </div>
-                        <a href="{% url 'businesses:public_profile' b.slug %}" class="text-indigo-600 font-medium hover:underline inline-flex items-center">
-                            Profil <i class="fa-solid fa-arrow-right ml-1"></i>
-                        </a>
                     </div>
                 </div>
                 {% endfor %}

@@ -347,15 +347,15 @@
         }
     });
 
-    // 3. Platform Distribution (Doughnut)
+    // 3. Platform Distribution (Solid Pie Chart)
     const platformCtx = document.getElementById('platformChart').getContext('2d');
     new Chart(platformCtx, {
-        type: 'doughnut',
+        type: 'pie',
         data: {
             labels: {{ analytics.platform_labels|safe }},
             datasets: [{
                 data: {{ analytics.platform_data|safe }},
-                backgroundColor: ['#4f46e5', '#8b5cf6', '#06b6d4'],
+                backgroundColor: ['#4f46e5', '#38bdf8', '#10b981'],
                 borderWidth: 2,
                 borderColor: '#ffffff'
             }]
@@ -368,8 +368,7 @@
                     position: 'bottom',
                     labels: { boxWidth: 12, font: { size: 11 } }
                 }
-            },
-            cutout: '70%'
+            }
         }
     });
 </script>

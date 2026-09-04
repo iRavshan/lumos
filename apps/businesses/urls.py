@@ -4,7 +4,6 @@ from .views import (
     onboarding_view,
     dashboard_view,
     edit_business_view,
-    public_business_preview,
     business_analytics_view,
 )
 
@@ -15,6 +14,5 @@ urlpatterns = [
     path('dashboard/', dashboard_view, name='dashboard'),
     path('dashboard/edit/', edit_business_view, name='edit'),
     path('dashboard/analytics/', business_analytics_view, name='analytics'),
-    path('b/<slug:slug>/', public_business_preview, name='public_profile'),
 ]
 

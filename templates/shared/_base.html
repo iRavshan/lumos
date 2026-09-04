@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -28,6 +29,14 @@
             }
         }
     </script>
+    <script>
+        // Init theme immediately to prevent flashing
+        if (localStorage.getItem('lumos_theme') === 'dark' || (!('lumos_theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
     <!-- Google Fonts & Font Awesome Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,10 +44,80 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        /* Universal seamless dark mode adjustments */
+        html.dark {
+            color-scheme: dark;
+            background-color: #0f172a;
+        }
+        html.dark body {
+            background-color: #0f172a;
+            color: #f1f5f9;
+        }
+        html.dark .bg-white {
+            background-color: #1e293b !important;
+            color: #f1f5f9;
+        }
+        html.dark .bg-slate-50, html.dark .bg-slate-50\/40, html.dark .bg-slate-50\/50, html.dark .bg-slate-100, html.dark .bg-slate-100\/80 {
+            background-color: #0f172a !important;
+        }
+        html.dark .border-slate-100, html.dark .border-slate-200, html.dark .border-slate-200\/80, html.dark .border-slate-200\/90, html.dark .border-slate-200\/60 {
+            border-color: #334155 !important;
+        }
+        html.dark .border-indigo-100, html.dark .border-indigo-100\/80, html.dark .border-indigo-100\/90, html.dark .border-emerald-100, html.dark .border-emerald-100\/90, html.dark .border-violet-100, html.dark .border-violet-100\/90, html.dark .border-rose-100, html.dark .border-amber-100 {
+            border-color: #334155 !important;
+        }
+        html.dark .text-slate-900, html.dark .text-slate-800 {
+            color: #f8fafc !important;
+        }
+        html.dark .text-slate-700, html.dark .text-slate-600 {
+            color: #cbd5e1 !important;
+        }
+        html.dark .text-slate-500, html.dark .text-slate-400 {
+            color: #94a3b8 !important;
+        }
+        html.dark input, html.dark textarea, html.dark select {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+            border-color: #334155 !important;
+        }
+        html.dark input::placeholder, html.dark textarea::placeholder {
+            color: #64748b !important;
+        }
+        html.dark .divide-slate-100 > * + * {
+            border-color: #334155 !important;
+        }
+        html.dark .hover\:bg-slate-50:hover, html.dark .hover\:bg-slate-100:hover, html.dark .hover\:bg-white:hover {
+            background-color: #334155 !important;
+        }
+        html.dark .bg-indigo-50 {
+            background-color: rgba(99, 102, 241, 0.15) !important;
+            color: #818cf8 !important;
+        }
+        html.dark .bg-emerald-50 {
+            background-color: rgba(16, 185, 129, 0.15) !important;
+            color: #34d399 !important;
+        }
+        html.dark .bg-violet-50 {
+            background-color: rgba(139, 92, 246, 0.15) !important;
+            color: #a78bfa !important;
+        }
+        html.dark .bg-sky-50 {
+            background-color: rgba(14, 165, 233, 0.15) !important;
+            color: #38bdf8 !important;
+        }
+        html.dark .bg-amber-50, html.dark .bg-amber-50\/70 {
+            background-color: rgba(245, 158, 11, 0.15) !important;
+            color: #fbbf24 !important;
+        }
+        html.dark .bg-rose-50 {
+            background-color: rgba(244, 63, 94, 0.15) !important;
+            color: #fb7185 !important;
+        }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="flex flex-col min-h-full text-slate-800 antialiased selection:bg-indigo-500 selection:text-white">
+<body class="flex flex-col min-h-full text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-200">
 
     {% include 'shared/_header.html' %}
 

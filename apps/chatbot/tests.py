@@ -180,3 +180,82 @@ class ChatbotTests(TestCase):
         self.assertEqual(session.status, 'in_progress')
         self.assertEqual(session.notes, 'Mijoz ertaga 10:00 da qo\'ng\'iroq qilishni so\'radi.')
 
+    def test_telegram_bot_settings_page_and_token_saving(self):
+        self.client.login(username='jasur_ceo', password='TestPassword123!')
+        url = reverse('chatbot:telegram_settings')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Telegram Bot Boshqaruvi')
+        self.assertContains(response, 'BotFather')
+
+        # Mock token verification
+        from unittest.mock import patch
+        with patch('apps.chatbot.views.verify_telegram_bot_token') as mock_verify, \
+             patch('apps.chatbot.views.set_telegram_webhook') as mock_webhook:
+            mock_verify.return_value = (True, {'id': 12345, 'username': 'FastDeliveryBot', 'first_name': 'Fast Delivery AI'}, "")
+            mock_webhook.return_value = {'ok': True}
+
+            post_res = self.client.post(url, {
+                'telegram_bot_token': '123456789:MockTokenXYZ',
+                'telegram_bot_active': 'on'
+            })
+            self.assertRedirects(post_res, reverse('chatbot:telegram_settings'))
+
+            self.chatbot.refresh_from_db()
+            self.assertEqual(self.chatbot.telegram_bot_token, '123456789:MockTokenXYZ')
+            self.assertEqual(self.chatbot.telegram_bot_username, 'FastDeliveryBot')
+            self.assertTrue(self.chatbot.telegram_bot_active)
+
+    def test_telegram_webhook_handling_and_rag_response(self):
+        self.chatbot.telegram_bot_token = '123456789:MockTokenXYZ'
+        self.chatbot.telegram_bot_username = 'FastDeliveryBot'
+        self.chatbot.telegram_bot_active = True
+        self.chatbot.save()
+
+        from unittest.mock import patch
+        with patch('apps.chatbot.telegram_service.send_telegram_bot_message') as mock_send:
+            mock_send.return_value = {'ok': True}
+
+            webhook_url = reverse('chatbot:telegram_webhook', kwargs={'api_key': self.chatbot.api_key})
+            
+            # 1. Test /start update
+            start_payload = {
+                'update_id': 1001,
+                'message': {
+                    'message_id': 1,
+                    'from': {'id': 987654, 'first_name': 'Rustam', 'username': 'rustam_uz'},
+                    'chat': {'id': 987654, 'type': 'private'},
+                    'text': '/start'
+                }
+            }
+            res_start = self.client.post(webhook_url, data=json.dumps(start_payload), content_type='application/json')
+            self.assertEqual(res_start.status_code, 200)
+
+            # 2. Test Question update
+            msg_payload = {
+                'update_id': 1002,
+                'message': {
+                    'message_id': 2,
+                    'from': {'id': 987654, 'first_name': 'Rustam', 'username': 'rustam_uz'},
+                    'chat': {'id': 987654, 'type': 'private'},
+                    'text': 'Yetkazib berish narxi qancha?'
+                }
+            }
+            res_msg = self.client.post(webhook_url, data=json.dumps(msg_payload), content_type='application/json')
+            self.assertEqual(res_msg.status_code, 200)
+
+            # Check session created as Telegram lead
+            session = ChatSession.objects.filter(session_id='tg_987654').first()
+            self.assertIsNotNone(session)
+            self.assertIn('Rustam', session.visitor_name)
+            self.assertEqual(session.visitor_email, '@rustam_uz')
+
+            # Check messages logged
+            msgs = ChatMessage.objects.filter(session=session)
+            self.assertEqual(msgs.count(), 2)
+            user_msg = msgs.filter(role='user').first()
+            bot_msg = msgs.filter(role='assistant').first()
+            self.assertEqual(user_msg.content, 'Yetkazib berish narxi qancha?')
+            self.assertIn('15 000', bot_msg.content)
+
+

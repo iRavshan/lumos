@@ -6,8 +6,15 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import ChatbotConfig, ChatSession, ChatMessage
 from django.db.models import Q, Count
-from .forms import ChatbotConfigForm
+from django.urls import reverse
+from .forms import ChatbotConfigForm, TelegramBotConfigForm
 from .services import generate_rag_response, extract_contact_info
+from .telegram_service import (
+    verify_telegram_bot_token,
+    set_telegram_webhook,
+    delete_telegram_webhook,
+    handle_telegram_update,
+)
 
 
 def cors_json_response(data, status=200):
@@ -254,18 +261,19 @@ def inbox_view(request, session_id=None):
             Q(messages__content__icontains=q)
         ).distinct()
 
-    # Status filter
-    status_filter = request.GET.get('status', 'all')
-    if status_filter in ['new', 'in_progress', 'completed', 'archived']:
-        sessions_qs = sessions_qs.filter(status=status_filter)
+    # Channel filter (all, website, telegram)
+    channel_filter = request.GET.get('channel', 'all')
+    if channel_filter == 'telegram':
+        sessions_qs = sessions_qs.filter(session_id__startswith='tg_')
+    elif channel_filter == 'website':
+        sessions_qs = sessions_qs.exclude(session_id__startswith='tg_')
 
     # Counts
     all_sessions = chatbot.sessions.all()
     counts = {
         'all': all_sessions.count(),
-        'new': all_sessions.filter(status='new').count(),
-        'in_progress': all_sessions.filter(status='in_progress').count(),
-        'completed': all_sessions.filter(status='completed').count(),
+        'website': all_sessions.exclude(session_id__startswith='tg_').count(),
+        'telegram': all_sessions.filter(session_id__startswith='tg_').count(),
     }
 
     sessions_list = list(sessions_qs)
@@ -283,7 +291,7 @@ def inbox_view(request, session_id=None):
         'sessions': sessions_list,
         'active_session': active_session,
         'counts': counts,
-        'current_status': status_filter,
+        'channel_filter': channel_filter,
         'search_query': q,
     })
 
@@ -313,4 +321,83 @@ def update_lead_view(request, session_id):
 def chatbot_history_view(request):
     # Redirect legacy history link directly to the new powerful inbox view
     return redirect('chatbot:inbox')
+
+
+@login_required
+def telegram_bot_settings_view(request):
+    if not hasattr(request.user, 'business'):
+        messages.warning(request, "Avval biznesingizni ro'yxatdan o'tkazing.")
+        return redirect('businesses:onboarding')
+
+    business = request.user.business
+    chatbot, _ = ChatbotConfig.objects.get_or_create(
+        business=business,
+        defaults={'bot_name': f"{business.name} AI"}
+    )
+
+    webhook_url = request.build_absolute_uri(
+        reverse('chatbot:telegram_webhook', kwargs={'api_key': chatbot.api_key})
+    )
+
+    if request.method == 'POST':
+        form = TelegramBotConfigForm(request.POST, instance=chatbot)
+        if form.is_valid():
+            token = form.cleaned_data.get('telegram_bot_token', '').strip()
+            is_active = form.cleaned_data.get('telegram_bot_active', False)
+
+            if token:
+                # Verify token with Telegram
+                is_valid, bot_info, err = verify_telegram_bot_token(token)
+                if is_valid:
+                    chatbot.telegram_bot_token = token
+                    chatbot.telegram_bot_username = bot_info.get('username')
+                    chatbot.telegram_bot_name = bot_info.get('first_name')
+                    chatbot.telegram_bot_active = is_active
+
+                    # Set webhook on Telegram
+                    if is_active:
+                        set_telegram_webhook(token, webhook_url)
+                    else:
+                        delete_telegram_webhook(token)
+
+                    chatbot.save()
+                    messages.success(request, f"«@{chatbot.telegram_bot_username}» Telegram boti muvaffaqiyatli ulandi va sozlandi!")
+                    return redirect('chatbot:telegram_settings')
+                else:
+                    form.add_error('telegram_bot_token', f"Telegram xatosi: {err}")
+            else:
+                # If user cleared token, delete webhook and deactivate
+                if chatbot.telegram_bot_token:
+                    delete_telegram_webhook(chatbot.telegram_bot_token)
+                chatbot.telegram_bot_token = None
+                chatbot.telegram_bot_username = None
+                chatbot.telegram_bot_name = None
+                chatbot.telegram_bot_active = False
+                chatbot.save()
+                messages.info(request, "Telegram bot ulanishi uzildi.")
+                return redirect('chatbot:telegram_settings')
+    else:
+        form = TelegramBotConfigForm(instance=chatbot)
+
+    return render(request, 'chatbot/telegram_settings.html', {
+        'form': form,
+        'chatbot': chatbot,
+        'business': business,
+        'webhook_url': webhook_url
+    })
+
+
+@csrf_exempt
+def api_telegram_webhook(request, api_key):
+    if request.method != 'POST':
+        return HttpResponse("Only POST allowed", status=405)
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        return JsonResponse({'ok': False, 'error': 'Invalid JSON'}, status=400)
+
+    result = handle_telegram_update(api_key, data)
+    return JsonResponse(result)
+
 

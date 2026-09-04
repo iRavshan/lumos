@@ -101,11 +101,6 @@ def edit_business_view(request):
     })
 
 
-def public_business_preview(request, slug):
-    business = get_object_or_404(Business, slug=slug)
-    return render(request, 'businesses/public_profile.html', {'business': business})
-
-
 @login_required
 def business_analytics_view(request):
     if not hasattr(request.user, 'business'):
