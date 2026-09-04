@@ -21,17 +21,15 @@ class BusinessSystemTests(TestCase):
 
     def test_user_registration(self):
         response = self.client.post(reverse('accounts:register'), {
-            'username': 'bobur_dev',
             'first_name': 'Bobur',
-            'last_name': 'Karimov',
-            'email': 'bobur@example.com',
+            'phone': '+998 90 123 45 67',
             'password1': 'StrongPass12345!',
             'password2': 'StrongPass12345!'
         })
         self.assertEqual(response.status_code, 302)
         # Should redirect to onboarding
         self.assertRedirects(response, reverse('businesses:onboarding'))
-        self.assertTrue(User.objects.filter(username='bobur_dev').exists())
+        self.assertTrue(User.objects.filter(username='+998901234567').exists())
 
     def test_onboarding_and_dashboard_flow(self):
         # Login user without business
@@ -44,11 +42,10 @@ class BusinessSystemTests(TestCase):
         # Register business
         onboard_response = self.client.post(reverse('businesses:onboarding'), {
             'name': 'Lumos Tech Solutions',
-            'category': 'IT & Texnologiya',
+            'category': 'IT & Dasturlash',
             'website': 'https://lumostech.uz',
             'telegram': '@lumostech',
             'instagram': 'lumos_tech',
-            'phone': '+998901234567',
             'description': 'IT xizmatlari va dasturiy ta\'minot ishlab chiqish.'
         })
         self.assertEqual(onboard_response.status_code, 302)
@@ -64,14 +61,35 @@ class BusinessSystemTests(TestCase):
         dash_view = self.client.get(reverse('businesses:dashboard'))
         self.assertEqual(dash_view.status_code, 200)
         self.assertContains(dash_view, 'Lumos Tech Solutions')
-        self.assertContains(dash_view, 'IT &amp; Texnologiya')
+
+    def test_onboarding_with_txt_file_upload(self):
+        user2 = User.objects.create_user(username='+998939998877', first_name='Aziz', password='Password123!')
+        self.client.login(username='+998939998877', password='Password123!')
+
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        txt_file = SimpleUploadedFile(
+            "about_business.txt",
+            b"Biznesimiz haqida to'liq fayl ma'lumoti. Biz sifatli xizmatlar ko'rsatamiz.",
+            content_type="text/plain"
+        )
+
+        res = self.client.post(reverse('businesses:onboarding'), {
+            'name': 'Aziz Consulting Group',
+            'category': 'Moliya & Konsalting',
+            'telegram': '@aziz_consulting',
+            'description_file': txt_file
+        })
+        self.assertEqual(res.status_code, 302)
+        biz = Business.objects.get(user=user2)
+        self.assertIn("sifatli xizmatlar", biz.description)
+        self.assertEqual(biz.phone, '+998939998877')
 
     def test_edit_business(self):
         # Create business for user
         business = Business.objects.create(
             user=self.user,
             name='Eski Nomi',
-            category='Savdo',
+            category='Savdo & Do\'kon',
             website='https://old.uz',
             telegram='old_tg',
             instagram='old_ig',
@@ -82,18 +100,17 @@ class BusinessSystemTests(TestCase):
         
         edit_response = self.client.post(reverse('businesses:edit'), {
             'name': 'Yangi Nomi',
-            'category': 'Yangi Soha',
+            'category': 'IT & Dasturlash',
             'website': 'https://new.uz',
             'telegram': '@new_tg',
             'instagram': '@new_ig',
-            'phone': '+998991234567',
             'description': 'Yangi yangilangan tavsif.'
         })
         self.assertRedirects(edit_response, reverse('businesses:dashboard'))
 
         business.refresh_from_db()
         self.assertEqual(business.name, 'Yangi Nomi')
-        self.assertEqual(business.category, 'Yangi Soha')
+        self.assertEqual(business.category, 'IT & Dasturlash')
 
     def test_public_profile(self):
         business = Business.objects.create(

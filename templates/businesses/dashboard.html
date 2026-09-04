@@ -24,7 +24,6 @@
                                     {{ business.category }}
                                 </span>
                             {% endif %}
-                            <span><i class="fa-solid fa-user-circle mr-1"></i> {{ user.username }}</span>
                         </div>
                     </div>
                 </div>
@@ -42,81 +41,6 @@
         </div>
     </div>
 
-    <!-- Quick Stats Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-        <!-- Stat 1: Leads / Contacts Count -->
-        <a href="{% url 'chatbot:inbox' %}" class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs hover:border-indigo-300 hover:shadow-md transition duration-200 block group">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider group-hover:text-indigo-600 transition">Murojaatlar (Leads)</span>
-                <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm group-hover:bg-indigo-600 group-hover:text-white transition">
-                    <i class="fa-solid fa-inbox"></i>
-                </span>
-            </div>
-            <div class="text-2xl font-extrabold text-slate-900 mb-1 flex items-baseline gap-2">
-                {{ leads_count }}
-                {% if new_leads_count > 0 %}
-                    <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">{{ new_leads_count }} ta yangi</span>
-                {% endif %}
-            </div>
-            <div class="text-xs text-indigo-600 font-semibold flex items-center">
-                <span>Chatlarni ko'rish</span>
-                <i class="fa-solid fa-arrow-right ml-1 group-hover:translate-x-1 transition-transform"></i>
-            </div>
-        </a>
-
-        <!-- Stat 2: Digital Channels -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Ijtimoiy tarmoqlar</span>
-                <span class="w-8 h-8 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center text-sm">
-                    <i class="fa-solid fa-share-nodes"></i>
-                </span>
-            </div>
-            <div class="text-2xl font-extrabold text-slate-900 mb-1">
-                {% if business.website or business.telegram or business.instagram %}
-                    Faol
-                {% else %}
-                    Bog'lanmagan
-                {% endif %}
-            </div>
-            <div class="flex items-center space-x-2 text-xs text-slate-500">
-                {% if business.website %}<span class="text-indigo-600 font-medium">Vebsayt</span> &bull;{% endif %}
-                {% if business.telegram %}<span class="text-sky-500 font-medium">Telegram</span> &bull;{% endif %}
-                {% if business.instagram %}<span class="text-pink-500 font-medium">Instagram</span>{% endif %}
-                {% if not business.website and not business.telegram and not business.instagram %}
-                    <span>Ulanish tavsiya etiladi</span>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Stat 3: Profile Completeness -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Profil to'liqligi</span>
-                <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm">
-                    <i class="fa-solid fa-chart-pie"></i>
-                </span>
-            </div>
-            <div class="text-2xl font-extrabold text-slate-900 mb-2">{{ completion }}%</div>
-            <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                <div class="bg-indigo-600 h-2 rounded-full" style="width: {{ completion }}%"></div>
-            </div>
-        </div>
-
-        <!-- Stat 4: Status -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Holat</span>
-                <span class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </span>
-            </div>
-            <div class="inline-flex items-center text-emerald-600 font-bold text-base">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-2 animate-pulse"></span> Faol biznes
-            </div>
-            <p class="text-xs text-slate-400 mt-1">So'nggi yangilanish: {{ business.updated_at|date:"d M Y" }}</p>
-        </div>
-    </div>
 
     <!-- Main 2-Column Content Layout -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -144,7 +68,7 @@
                                     </span>
                                 {% endif %}
                             </div>
-                            <p class="text-xs text-slate-500 mt-0.5">Vebsaytingiz uchun kiritilgan ma'lumotlaringiz asosida ishlovchi aqlli RAG AI Chatbot</p>
+                            <p class="text-xs text-slate-500 mt-0.5">Vebsaytingizda kiritilgan ma'lumotlaringiz asosida ishlovchi AI Agent</p>
                         </div>
                     </div>
 
@@ -155,9 +79,6 @@
                         <a href="{% url 'chatbot:settings' %}" class="inline-flex items-center px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-xs transition" title="Sozlamalar">
                             <i class="fa-solid fa-gear mr-1"></i> Sozlash
                         </a>
-                        <a href="{% url 'chatbot:history' %}" class="inline-flex items-center px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-xs transition" title="Tarix">
-                            <i class="fa-solid fa-clock-rotate-left mr-1"></i> Tarix ({{ chat_count }})
-                        </a>
                     </div>
                 </div>
 
@@ -166,7 +87,7 @@
                     <div>
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center">
-                                <i class="fa-solid fa-code text-indigo-500 mr-1.5"></i> Vebsaytga qo'yish kodi (HTML/JS Vidjet)
+                                <i class="fa-solid fa-code text-indigo-500 mr-1.5"></i> Vebsayt vidjeti
                             </span>
                             <span class="text-[11px] text-slate-400">Har qanday vebsaytga &lt;/body&gt; dan oldin qo'ying</span>
                         </div>
@@ -197,65 +118,6 @@
                 </div>
             </div>
 
-            <!-- Recent Leads / Website Visitors Card -->
-            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-5 mb-5">
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-900 flex items-center">
-                            <i class="fa-solid fa-users text-indigo-600 mr-2.5"></i> So'nggi Murojaatchilar (Leads)
-                        </h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Vebsaytingiz orqali savol yo'llagan insonlar ro'yxati</p>
-                    </div>
-                    <a href="{% url 'chatbot:inbox' %}" class="inline-flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3.5 py-2 rounded-xl transition">
-                        Barcha chatlarni ko'rish ({{ leads_count }}) <i class="fa-solid fa-arrow-right ml-1.5"></i>
-                    </a>
-                </div>
-
-                {% if recent_sessions %}
-                <div class="divide-y divide-slate-100">
-                    {% for s in recent_sessions %}
-                    <div class="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 px-3 rounded-2xl transition">
-                        <div class="flex items-center space-x-3 truncate">
-                            <div class="w-10 h-10 rounded-xl {% if s.visitor_phone %}bg-indigo-100 text-indigo-700{% else %}bg-slate-100 text-slate-600{% endif %} flex items-center justify-center font-bold text-xs shrink-0">
-                                {{ s.display_name|first|upper }}
-                            </div>
-                            <div class="truncate">
-                                <div class="flex items-center gap-2">
-                                    <h4 class="font-bold text-slate-800 text-sm truncate">{{ s.display_name }}</h4>
-                                    <span class="text-[10px] px-2 py-0.5 rounded-md font-semibold
-                                        {% if s.status == 'new' %}bg-emerald-50 text-emerald-700
-                                        {% elif s.status == 'in_progress' %}bg-amber-50 text-amber-700
-                                        {% else %}bg-slate-100 text-slate-600{% endif %}">
-                                        {{ s.get_status_display }}
-                                    </span>
-                                </div>
-                                <p class="text-xs text-slate-500 truncate mt-0.5">
-                                    {% if s.last_message %}
-                                        <span class="text-slate-600 font-medium">{% if s.last_message.role == 'user' %}Mijoz:{% else %}Bot:{% endif %}</span>
-                                        {{ s.last_message.content }}
-                                    {% else %}
-                                        Xabar yo'q
-                                    {% endif %}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center space-x-3 shrink-0 sm:self-center">
-                            <span class="text-xs text-slate-400">{{ s.last_message_at|date:"d M, H:i" }}</span>
-                            <a href="{% url 'chatbot:inbox_detail' s.session_id %}" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 text-xs font-semibold transition inline-flex items-center">
-                                Chatni ochish <i class="fa-solid fa-arrow-right ml-1"></i>
-                            </a>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="py-8 text-center text-slate-400">
-                    <p class="text-xs">Hozircha saytdan murojaatlar yo'q. Vidjetni saytingizga qo'ying va birinchi mijozlar bilan suhbatni boshlang!</p>
-                </div>
-                {% endif %}
-            </div>
-
             <!-- Business Info Card -->
             <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-5 mb-6">
@@ -282,15 +144,8 @@
                             <p class="text-base font-bold text-slate-800 mt-0.5">{{ business.phone|default:"Kiritilmagan" }}</p>
                         </div>
                         <div class="bg-slate-50 p-4 rounded-2xl">
-                            <span class="text-xs text-slate-500 uppercase font-semibold">Ommaviy havola (Slug)</span>
+                            <span class="text-xs text-slate-500 uppercase font-semibold">Ommaviy havola</span>
                             <p class="text-base font-bold text-indigo-600 mt-0.5">/b/{{ business.slug }}</p>
-                        </div>
-                    </div>
-
-                    <div class="pt-2">
-                        <span class="text-xs text-slate-500 uppercase font-semibold block mb-2">Biznes haqida to'liq ma'lumot</span>
-                        <div class="bg-slate-50 p-5 rounded-2xl text-slate-700 text-sm leading-relaxed whitespace-pre-line border border-slate-100">
-                            {{ business.description }}
                         </div>
                     </div>
                 </div>
@@ -300,88 +155,7 @@
 
         <!-- Right 1 Col: Channels & Quick Links -->
         <div class="space-y-6">
-            
-            <!-- Digital Channels Card -->
-            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs">
-                <h3 class="text-lg font-bold text-slate-900 border-b border-slate-100 pb-4 mb-5 flex items-center">
-                    <i class="fa-solid fa-link text-indigo-600 mr-2.5"></i> Manzillar va Tarmoqlar
-                </h3>
-
-                <div class="space-y-3">
-                    <!-- Website -->
-                    <div class="p-3.5 rounded-2xl border border-slate-100 bg-slate-50/50 flex items-center justify-between">
-                        <div class="flex items-center space-x-3 truncate mr-2">
-                            <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm shrink-0">
-                                <i class="fa-solid fa-globe"></i>
-                            </div>
-                            <div class="truncate">
-                                <span class="text-xs text-slate-500 font-semibold block">Vebsayt</span>
-                                {% if business.website %}
-                                    <span class="text-sm font-medium text-slate-800 truncate block">{{ business.website }}</span>
-                                {% else %}
-                                    <span class="text-xs text-slate-400 italic">Kiritilmagan</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% if business.website %}
-                            <a href="{{ business.website }}" target="_blank" class="p-2 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 shrink-0">
-                                <i class="fa-solid fa-external-link"></i>
-                            </a>
-                        {% endif %}
-                    </div>
-
-                    <!-- Telegram -->
-                    <div class="p-3.5 rounded-2xl border border-slate-100 bg-slate-50/50 flex items-center justify-between">
-                        <div class="flex items-center space-x-3 truncate mr-2">
-                            <div class="w-9 h-9 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center text-sm shrink-0">
-                                <i class="fa-brands fa-telegram"></i>
-                            </div>
-                            <div class="truncate">
-                                <span class="text-xs text-slate-500 font-semibold block">Telegram</span>
-                                {% if business.telegram %}
-                                    <span class="text-sm font-medium text-slate-800 truncate block">{{ business.telegram }}</span>
-                                {% else %}
-                                    <span class="text-xs text-slate-400 italic">Kiritilmagan</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% if business.telegram_link %}
-                            <a href="{{ business.telegram_link }}" target="_blank" class="p-2 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100 shrink-0">
-                                <i class="fa-solid fa-arrow-right"></i>
-                            </a>
-                        {% endif %}
-                    </div>
-
-                    <!-- Instagram -->
-                    <div class="p-3.5 rounded-2xl border border-slate-100 bg-slate-50/50 flex items-center justify-between">
-                        <div class="flex items-center space-x-3 truncate mr-2">
-                            <div class="w-9 h-9 rounded-xl bg-pink-100 text-pink-600 flex items-center justify-center text-sm shrink-0">
-                                <i class="fa-brands fa-instagram"></i>
-                            </div>
-                            <div class="truncate">
-                                <span class="text-xs text-slate-500 font-semibold block">Instagram</span>
-                                {% if business.instagram %}
-                                    <span class="text-sm font-medium text-slate-800 truncate block">{{ business.instagram }}</span>
-                                {% else %}
-                                    <span class="text-xs text-slate-400 italic">Kiritilmagan</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% if business.instagram_link %}
-                            <a href="{{ business.instagram_link }}" target="_blank" class="p-2 rounded-lg bg-pink-50 text-pink-600 hover:bg-pink-100 shrink-0">
-                                <i class="fa-solid fa-arrow-right"></i>
-                            </a>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="mt-6 pt-4 border-t border-slate-100">
-                    <a href="{% url 'businesses:edit' %}" class="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-xl border border-indigo-200 text-indigo-600 font-semibold text-xs hover:bg-indigo-50 transition">
-                        <i class="fa-solid fa-pen mr-1.5"></i> Tarmoqlarni tahrirlash
-                    </a>
-                </div>
-            </div>
-
+        
             <!-- Team & Operators TMA Card -->
             <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">

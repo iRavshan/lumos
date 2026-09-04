@@ -32,9 +32,9 @@
                     
                     <div class="hidden md:flex items-center space-x-2 text-sm text-slate-600 pl-2 border-l border-slate-200">
                         <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
-                            {{ user.username|first|upper }}
+                            {{ user.first_name|first|default:user.username|first|upper }}
                         </div>
-                        <span class="font-medium text-slate-700">{{ user.username }}</span>
+                        <span class="font-medium text-slate-700">{{ user.first_name|default:user.username }}</span>
                     </div>
 
                     <a href="{% url 'accounts:logout' %}" class="inline-flex items-center px-3.5 py-2 text-sm font-medium rounded-xl text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition duration-150" title="Chiqish">

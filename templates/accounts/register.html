@@ -16,27 +16,76 @@
 
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div class="bg-white py-8 px-6 sm:px-10 shadow-xl shadow-slate-200/50 rounded-3xl border border-slate-100">
-            <form method="POST" class="space-y-4" novalidate>
+            <form method="POST" id="registerForm" class="space-y-4" novalidate>
                 {% csrf_token %}
                 
-                {% for field in form %}
+                <!-- First Name -->
                 <div>
-                    <label for="{{ field.id_for_label }}" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                        {{ field.label }} {% if field.field.required %}<span class="text-rose-500">*</span>{% endif %}
+                    <label for="firstNameInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        Ismingiz <span class="text-rose-500">*</span>
                     </label>
-                    {{ field }}
-                    {% if field.errors %}
-                        <p class="text-rose-500 text-xs mt-1">{{ field.errors.0 }}</p>
-                    {% endif %}
-                    {% if field.help_text %}
-                        <p class="text-slate-400 text-xs mt-1">{{ field.help_text }}</p>
+                    <input type="text" id="firstNameInput" name="first_name" value="{{ form.first_name.value|default:'' }}"
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 font-medium text-slate-800"
+                        placeholder="Ismingizni kiriting" autocomplete="given-name" required>
+                    {% if form.first_name.errors %}
+                        <p class="text-rose-500 text-xs mt-1">{{ form.first_name.errors.0 }}</p>
                     {% endif %}
                 </div>
-                {% endfor %}
 
+                <!-- Phone Number with +998 Prefix -->
+                <div>
+                    <label for="phoneInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        Telefon raqamingiz <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="flex rounded-xl shadow-xs border border-gray-200 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-100 overflow-hidden transition duration-200 bg-white">
+                        <span class="inline-flex items-center px-3.5 bg-slate-50 border-r border-gray-200 text-slate-700 font-bold text-sm select-none shrink-0">
+                            🇺🇿 +998
+                        </span>
+                        <input type="tel" id="phoneInput" name="phone" value="{{ form.phone.value|default:'' }}"
+                            class="w-full px-4 py-3 outline-none font-semibold text-slate-800 placeholder-slate-400 text-sm bg-white"
+                            placeholder="90 123 45 67" maxlength="14" autocomplete="tel" required>
+                    </div>
+                    {% if form.phone.errors %}
+                        <p class="text-rose-500 text-xs mt-1">{{ form.phone.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Password 1 -->
+                <div>
+                    <label for="pass1Input" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        Parol <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="password" id="pass1Input" name="password1"
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 font-medium text-slate-800"
+                        placeholder="Parol kiriting" autocomplete="new-password" required>
+                    {% if form.password1.errors %}
+                        <p class="text-rose-500 text-xs mt-1">{{ form.password1.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Password 2 (Confirm) -->
+                <div>
+                    <label for="pass2Input" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        Parolni tasdiqlang <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="password" id="pass2Input" name="password2"
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 font-medium text-slate-800"
+                        placeholder="Parolni qayta kiriting" autocomplete="new-password" required>
+                    
+                    <!-- Live Password Match Status -->
+                    <div id="passwordMatchStatus" class="hidden"></div>
+                    
+                    {% if form.password2.errors %}
+                        <p class="text-rose-500 text-xs mt-1">{{ form.password2.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Submit Button (Disabled until valid) -->
                 <div class="pt-2">
-                    <button type="submit" class="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150">
-                        Davom etish (Biznesni kiritish)
+                    <button type="submit" id="submitBtn" disabled
+                        class="w-full flex justify-center items-center py-3.5 px-4 rounded-xl text-sm font-bold transition duration-200 bg-slate-200 text-slate-400 cursor-not-allowed opacity-75 select-none">
+                        <span>Davom etish</span>
+                        <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
                     </button>
                 </div>
             </form>
@@ -52,4 +101,102 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const firstNameInput = document.getElementById('firstNameInput');
+        const phoneInput = document.getElementById('phoneInput');
+        const pass1Input = document.getElementById('pass1Input');
+        const pass2Input = document.getElementById('pass2Input');
+        const matchStatus = document.getElementById('passwordMatchStatus');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Clean initial phone value if it came with +998 or 998
+        if (phoneInput.value) {
+            let digits = phoneInput.value.replace(/\D/g, '');
+            if (digits.startsWith('998') && digits.length > 3) {
+                digits = digits.substring(3);
+            }
+            phoneInput.value = formatPhone(digits);
+        }
+
+        // Phone Input Auto-Formatting: XX XXX XX XX
+        function formatPhone(digits) {
+            digits = digits.substring(0, 9);
+            if (digits.length <= 2) return digits;
+            if (digits.length <= 5) return `${digits.slice(0, 2)} ${digits.slice(2)}`;
+            if (digits.length <= 7) return `${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5)}`;
+            return `${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5, 7)} ${digits.slice(7, 9)}`;
+        }
+
+        phoneInput.addEventListener('input', function (e) {
+            let digits = e.target.value.replace(/\D/g, '');
+            // If user typed 998 at start, remove it
+            if (digits.startsWith('998') && digits.length > 3) {
+                digits = digits.substring(3);
+            }
+            e.target.value = formatPhone(digits);
+            validateForm();
+        });
+
+        // Live validation for all fields
+        firstNameInput.addEventListener('input', validateForm);
+        pass1Input.addEventListener('input', function () {
+            checkPasswordMatch();
+            validateForm();
+        });
+        pass2Input.addEventListener('input', function () {
+            checkPasswordMatch();
+            validateForm();
+        });
+
+        function checkPasswordMatch() {
+            const p1 = pass1Input.value;
+            const p2 = pass2Input.value;
+
+            if (!p2) {
+                matchStatus.className = 'hidden';
+                matchStatus.innerHTML = '';
+                pass2Input.classList.remove('border-rose-400', 'border-emerald-400', 'focus:border-rose-500', 'focus:border-emerald-500');
+                return;
+            }
+
+            if (p1 !== p2) {
+                matchStatus.className = 'text-rose-500 text-xs font-semibold mt-1.5 flex items-center';
+                matchStatus.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1.5"></i> Parollar bir-biriga mos kelmadi';
+                pass2Input.classList.add('border-rose-400', 'focus:border-rose-500');
+                pass2Input.classList.remove('border-emerald-400', 'focus:border-emerald-500');
+            } else {
+                matchStatus.className = 'text-emerald-600 text-xs font-semibold mt-1.5 flex items-center';
+                matchStatus.innerHTML = '<i class="fa-solid fa-circle-check mr-1.5"></i> Parollar mos keldi';
+                pass2Input.classList.add('border-emerald-400', 'focus:border-emerald-500');
+                pass2Input.classList.remove('border-rose-400', 'focus:border-rose-500');
+            }
+        }
+
+        function validateForm() {
+            const isNameValid = firstNameInput.value.trim().length > 0;
+            const phoneDigits = phoneInput.value.replace(/\D/g, '');
+            const isPhoneValid = phoneDigits.length === 9;
+            const isPass1Valid = pass1Input.value.length > 0;
+            const isPass2Valid = pass2Input.value.length > 0;
+            const isPassMatch = isPass1Valid && isPass2Valid && (pass1Input.value === pass2Input.value);
+
+            const isFormValid = isNameValid && isPhoneValid && isPassMatch;
+
+            if (isFormValid) {
+                submitBtn.disabled = false;
+                submitBtn.className = 'w-full flex justify-center items-center py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/25 cursor-pointer transition duration-150 transform hover:-translate-y-0.5 active:translate-y-0';
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.className = 'w-full flex justify-center items-center py-3.5 px-4 rounded-xl text-sm font-bold transition duration-200 bg-slate-200 text-slate-400 cursor-not-allowed opacity-75 select-none';
+            }
+        }
+
+        // Initial validation check
+        validateForm();
+    });
+</script>
 {% endblock %}

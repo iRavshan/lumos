@@ -24,10 +24,12 @@ def onboarding_view(request):
         return redirect('businesses:dashboard')
 
     if request.method == 'POST':
-        form = BusinessForm(request.POST)
+        form = BusinessForm(request.POST, request.FILES)
         if form.is_valid():
             business = form.save(commit=False)
             business.user = request.user
+            if not business.phone and request.user.username.startswith('+'):
+                business.phone = request.user.username
             business.save()
             messages.success(request, f"«{business.name}» biznesingiz muvaffaqiyatli ro'yxatdan o'tkazildi!")
             return redirect('businesses:dashboard')
@@ -83,7 +85,7 @@ def edit_business_view(request):
     business = request.user.business
 
     if request.method == 'POST':
-        form = BusinessForm(request.POST, instance=business)
+        form = BusinessForm(request.POST, request.FILES, instance=business)
         if form.is_valid():
             form.save()
             messages.success(request, "Biznes ma'lumotlari muvaffaqiyatli yangilandi!")
