@@ -258,4 +258,45 @@ class ChatbotTests(TestCase):
             self.assertEqual(user_msg.content, 'Yetkazib berish narxi qancha?')
             self.assertIn('15 000', bot_msg.content)
 
+    def test_export_inbox_excel(self):
+        self.client.login(username='jasur_ceo', password='TestPassword123!')
+        
+        # Create a website lead and a telegram lead
+        ChatSession.objects.create(
+            chatbot=self.chatbot,
+            session_id='sess_web_101',
+            visitor_name='Ali Valiyev',
+            visitor_phone='+998901112233'
+        )
+        ChatSession.objects.create(
+            chatbot=self.chatbot,
+            session_id='tg_998877',
+            visitor_name='Vali Aliyev',
+            visitor_phone='+998909998877'
+        )
+
+        export_url = reverse('chatbot:export_excel')
+        response = self.client.get(export_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        self.assertIn('.xlsx', response['Content-Disposition'])
+
+        # Verify Excel sheets using openpyxl
+        import io, openpyxl
+        wb = openpyxl.load_workbook(io.BytesIO(response.content))
+        self.assertIn("Vebsayt Murojaatlari", wb.sheetnames)
+        self.assertIn("Telegram Murojaatlari", wb.sheetnames)
+
+        ws_web = wb["Vebsayt Murojaatlari"]
+        ws_tg = wb["Telegram Murojaatlari"]
+
+        # Check content in web sheet
+        web_names = [row[1] for row in ws_web.iter_rows(values_only=True) if row[1]]
+        self.assertIn("Ali Valiyev", web_names)
+
+        # Check content in tg sheet
+        tg_names = [row[1] for row in ws_tg.iter_rows(values_only=True) if row[1]]
+        self.assertIn("Vali Aliyev", tg_names)
+
+
 

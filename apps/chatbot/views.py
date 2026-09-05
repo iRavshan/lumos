@@ -8,7 +8,7 @@ from .models import ChatbotConfig, ChatSession, ChatMessage
 from django.db.models import Q, Count
 from django.urls import reverse
 from .forms import ChatbotConfigForm, TelegramBotConfigForm
-from .services import generate_rag_response, extract_contact_info
+from .services import generate_rag_response, extract_contact_info, analyze_session_insights
 from .telegram_service import (
     verify_telegram_bot_token,
     set_telegram_webhook,
@@ -247,8 +247,8 @@ def inbox_view(request, session_id=None):
             defaults={'bot_name': f"{business.name} AI"}
         )
 
-    # Base sessions queryset
-    sessions_qs = chatbot.sessions.prefetch_related('messages').all()
+    # Base sessions queryset with prefetched messages and their staff senders
+    sessions_qs = chatbot.sessions.prefetch_related('messages__sender_staff').all()
 
     # Search filter
     q = request.GET.get('q', '').strip()
@@ -278,18 +278,20 @@ def inbox_view(request, session_id=None):
 
     sessions_list = list(sessions_qs)
 
-    # Active session selection
+    # Active session selection & Insights (do not auto-open first chat on load)
     active_session = None
+    insights = None
     if session_id:
-        active_session = chatbot.sessions.filter(session_id=session_id).prefetch_related('messages').first()
-    elif sessions_list:
-        active_session = sessions_list[0]
+        active_session = chatbot.sessions.filter(session_id=session_id).prefetch_related('messages__sender_staff', 'assigned_staff').first()
+        if active_session:
+            insights = analyze_session_insights(active_session)
 
     return render(request, 'chatbot/inbox.html', {
         'business': business,
         'chatbot': chatbot,
         'sessions': sessions_list,
         'active_session': active_session,
+        'insights': insights,
         'counts': counts,
         'channel_filter': channel_filter,
         'search_query': q,
@@ -313,6 +315,43 @@ def update_lead_view(request, session_id):
         session.notes = request.POST.get('notes', '').strip()
         session.save()
         messages.success(request, f"«{session.display_name}» ma'lumotlari muvaffaqiyatli yangilandi.")
+
+    return redirect('chatbot:inbox_detail', session_id=session_id)
+
+
+@login_required
+def send_inbox_message_view(request, session_id):
+    if not hasattr(request.user, 'business'):
+        return redirect('businesses:onboarding')
+
+    business = request.user.business
+    chatbot = getattr(business, 'chatbot_config', None)
+    session = get_object_or_404(ChatSession, chatbot=chatbot, session_id=session_id)
+
+    if request.method == 'POST':
+        content = request.POST.get('content', '').strip()
+        if content:
+            # Create staff/admin reply
+            ChatMessage.objects.create(
+                chatbot=chatbot,
+                session=session,
+                role='staff',
+                content=content
+            )
+            session.save() # updates last_message_at
+
+            # If telegram session, forward reply to Telegram chat
+            if session.session_id.startswith('tg_') and chatbot.telegram_bot_token:
+                try:
+                    tg_chat_id = session.session_id.replace('tg_', '')
+                    from .telegram_service import send_telegram_bot_message
+                    send_telegram_bot_message(
+                        chatbot.telegram_bot_token,
+                        tg_chat_id,
+                        f"👨‍💼 {business.name}:\n{content}"
+                    )
+                except Exception:
+                    pass
 
     return redirect('chatbot:inbox_detail', session_id=session_id)
 
@@ -399,5 +438,136 @@ def api_telegram_webhook(request, api_key):
 
     result = handle_telegram_update(api_key, data)
     return JsonResponse(result)
+
+
+@login_required
+def export_inbox_excel_view(request):
+    """
+    Exports all leads/chat sessions into an Excel (.xlsx) file with two separate sheets:
+    1. Vebsayt Murojaatlari (Website inquiries)
+    2. Telegram Murojaatlari (Telegram bot inquiries)
+    """
+    if not hasattr(request.user, 'business'):
+        return redirect('businesses:onboarding')
+
+    business = request.user.business
+    chatbot = getattr(business, 'chatbot_config', None)
+    if not chatbot:
+        messages.warning(request, "Chatbot ma'lumotlari topilmadi.")
+        return redirect('chatbot:inbox')
+
+    import io
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from django.utils import timezone
+
+    wb = openpyxl.Workbook()
+
+    # Define styles
+    header_fill = PatternFill(start_color="4F46E5", end_color="4F46E5", fill_type="solid") # Indigo 600
+    header_font = Font(name="Arial", size=11, bold=True, color="FFFFFF")
+    data_font = Font(name="Arial", size=10)
+    center_align = Alignment(horizontal="center", vertical="center")
+    left_align = Alignment(horizontal="left", vertical="center")
+    thin_border = Border(
+        left=Side(style='thin', color='E2E8F0'),
+        right=Side(style='thin', color='E2E8F0'),
+        top=Side(style='thin', color='E2E8F0'),
+        bottom=Side(style='thin', color='E2E8F0')
+    )
+
+    headers = [
+        "№", 
+        "Murojaatchi Ismi", 
+        "Telefon Raqami", 
+        "Email", 
+        "Birinchi Murojaat", 
+        "So'nggi Xabar Vaqti", 
+        "Xabarlar Soni", 
+        "Eslatma / Izoh"
+    ]
+
+    all_sessions = chatbot.sessions.prefetch_related('messages').all().order_by('-last_message_at')
+
+    # Sheet 1: Vebsayt
+    ws_web = wb.active
+    ws_web.title = "Vebsayt Murojaatlari"
+
+    # Sheet 2: Telegram
+    ws_tg = wb.create_sheet(title="Telegram Murojaatlari")
+
+    def populate_sheet(ws, queryset, is_telegram=False):
+        # Header Row
+        ws.append(headers)
+        ws.row_dimensions[1].height = 28
+
+        for col_idx in range(1, len(headers) + 1):
+            cell = ws.cell(row=1, column=col_idx)
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = center_align
+
+        # Data Rows
+        row_num = 1
+        for s in queryset:
+            msg_count = s.messages.count()
+            created_str = s.created_at.strftime("%d.%m.%Y %H:%M") if s.created_at else "-"
+            last_msg_str = s.last_message_at.strftime("%d.%m.%Y %H:%M") if s.last_message_at else "-"
+
+            name_val = s.visitor_name or s.display_name
+            phone_val = s.visitor_phone or "-"
+            email_val = s.visitor_email or "-"
+            notes_val = s.notes or "-"
+
+            row_data = [
+                row_num,
+                name_val,
+                phone_val,
+                email_val,
+                created_str,
+                last_msg_str,
+                msg_count,
+                notes_val
+            ]
+            ws.append(row_data)
+            current_row = row_num + 1
+            ws.row_dimensions[current_row].height = 20
+
+            for col_idx in range(1, len(headers) + 1):
+                cell = ws.cell(row=current_row, column=col_idx)
+                cell.font = data_font
+                cell.border = thin_border
+                if col_idx in [1, 5, 6, 7]:
+                    cell.alignment = center_align
+                else:
+                    cell.alignment = left_align
+
+            row_num += 1
+
+        # Adjust column widths
+        col_widths = [6, 26, 20, 26, 20, 20, 15, 35]
+        for idx, width in enumerate(col_widths, start=1):
+            col_letter = openpyxl.utils.get_column_letter(idx)
+            ws.column_dimensions[col_letter].width = width
+
+    # Populate both sheets
+    web_sessions = all_sessions.exclude(session_id__startswith='tg_')
+    tg_sessions = all_sessions.filter(session_id__startswith='tg_')
+
+    populate_sheet(ws_web, web_sessions, is_telegram=False)
+    populate_sheet(ws_tg, tg_sessions, is_telegram=True)
+
+    # Save to memory stream
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+
+    filename = f"Lumos_Murojaatlar_{business.name}_{timezone.now().strftime('%Y%m%d_%H%M')}.xlsx"
+    response = HttpResponse(
+        output.getvalue(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
 
 

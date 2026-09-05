@@ -3,6 +3,21 @@
 {% block title %}Murojaatlar va chatlar - {{ business.name }}{% endblock %}
 
 {% block content %}
+<style>
+    /* Robust placeholder for contenteditable */
+    #replyInputBox:empty:before,
+    #replyInputBox[data-empty="true"]:before {
+        content: attr(data-placeholder);
+        color: #94a3b8;
+        pointer-events: none;
+        display: block;
+    }
+    .emoji-tab-btn.active {
+        background-color: #e0e7ff;
+        color: #4338ca;
+    }
+</style>
+
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
     
     <!-- 1. Header Card -->
@@ -14,38 +29,41 @@
             <p class="text-slate-500 text-xs mt-0.5">Vebsayt vidjeti va Telegram botdan kelgan barcha mijozlar bilan muloqot qilish paneli</p>
         </div>
 
-        <div class="flex items-center gap-2">
-            <span class="px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
-                Jami: {{ counts.all }} ta suhbat
-            </span>
+        <div class="flex items-center gap-2.5">
+            <a href="{% url 'chatbot:export_excel' %}" 
+               class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 shadow-2xs transition"
+               title="Mijozlar ro'yxatini Excel (.xlsx) formatida yuklab olish (Vebsayt & Telegram)">
+                <i class="fa-solid fa-file-excel text-emerald-600 text-sm"></i>
+                <span>Excelda yuklab olish</span>
+            </a>
         </div>
     </div>
 
-    <!-- 2. Main 2-Pane Inbox Layout -->
-    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[640px]">
+    <!-- 2. Main 3-Pane Responsive Inbox Layout -->
+    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[600px] max-h-[780px]">
         
-        <!-- Left Pane: Sessions List (4 cols) -->
-        <div class="lg:col-span-4 border-r border-slate-100 flex flex-col h-full bg-slate-50/40">
+        <!-- Left Pane: Sessions List (3 cols on desktop) -->
+        <div class="lg:col-span-3 border-r border-slate-100 flex flex-col h-full max-h-[780px] bg-slate-50/40">
             
             <!-- Channel Filter Tabs -->
             <div class="p-3 border-b border-slate-100 bg-white">
                 <div class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold text-center">
                     <a href="?channel=all{% if search_query %}&q={{ search_query }}{% endif %}" 
-                       class="py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1.5 {% if channel_filter == 'all' %}bg-white text-indigo-700 shadow-2xs font-extrabold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+                       class="py-1.5 px-1 rounded-lg transition flex items-center justify-center gap-1 {% if channel_filter == 'all' %}bg-white text-indigo-700 shadow-2xs font-extrabold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
                         <span>Barchasi</span>
-                        <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'all' %}bg-indigo-100 text-indigo-800{% else %}bg-slate-200 text-slate-600{% endif %}">{{ counts.all }}</span>
+                        <span class="text-[10px] px-1 py-0.2 rounded-full {% if channel_filter == 'all' %}bg-indigo-100 text-indigo-800{% else %}bg-slate-200 text-slate-600{% endif %}">{{ counts.all }}</span>
                     </a>
                     <a href="?channel=website{% if search_query %}&q={{ search_query }}{% endif %}" 
-                       class="py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1.5 {% if channel_filter == 'website' %}bg-white text-indigo-700 shadow-2xs font-extrabold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+                       class="py-1.5 px-1 rounded-lg transition flex items-center justify-center gap-1 {% if channel_filter == 'website' %}bg-white text-indigo-700 shadow-2xs font-extrabold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
                         <i class="fa-solid fa-globe text-[11px] text-indigo-500"></i>
-                        <span>Vebsayt</span>
-                        <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'website' %}bg-indigo-100 text-indigo-800{% else %}bg-slate-200 text-slate-600{% endif %}">{{ counts.website }}</span>
+                        <span>Veb</span>
+                        <span class="text-[10px] px-1 py-0.2 rounded-full {% if channel_filter == 'website' %}bg-indigo-100 text-indigo-800{% else %}bg-slate-200 text-slate-600{% endif %}">{{ counts.website }}</span>
                     </a>
                     <a href="?channel=telegram{% if search_query %}&q={{ search_query }}{% endif %}" 
-                       class="py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1.5 {% if channel_filter == 'telegram' %}bg-white text-sky-700 shadow-2xs font-extrabold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+                       class="py-1.5 px-1 rounded-lg transition flex items-center justify-center gap-1 {% if channel_filter == 'telegram' %}bg-white text-sky-700 shadow-2xs font-extrabold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
                         <i class="fa-brands fa-telegram text-[12px] text-sky-500"></i>
-                        <span>Telegram</span>
-                        <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'telegram' %}bg-sky-100 text-sky-800{% else %}bg-slate-200 text-slate-600{% endif %}">{{ counts.telegram }}</span>
+                        <span>TG</span>
+                        <span class="text-[10px] px-1 py-0.2 rounded-full {% if channel_filter == 'telegram' %}bg-sky-100 text-sky-800{% else %}bg-slate-200 text-slate-600{% endif %}">{{ counts.telegram }}</span>
                     </a>
                 </div>
             </div>
@@ -57,18 +75,18 @@
                         <input type="hidden" name="channel" value="{{ channel_filter }}">
                     {% endif %}
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-                    <input type="text" name="q" value="{{ search_query }}" placeholder="Qidirish (ism, telefon)..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:bg-white transition">
+                    <input type="text" name="q" value="{{ search_query }}" placeholder="Qidirish..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:bg-white transition">
                 </form>
             </div>
 
             <!-- Sessions List -->
-            <div class="flex-1 overflow-y-auto divide-y divide-slate-100 max-h-[580px]">
+            <div class="flex-1 overflow-y-auto divide-y divide-slate-100">
                 {% if sessions %}
                     {% for s in sessions %}
-                    <a href="{% url 'chatbot:inbox_detail' s.session_id %}?channel={{ channel_filter }}{% if search_query %}&q={{ search_query }}{% endif %}" class="block p-4 transition duration-150 relative hover:bg-white {% if active_session and active_session.session_id == s.session_id %}bg-white shadow-xs border-l-4 border-indigo-600{% endif %}">
-                        <div class="flex items-center justify-between gap-3">
-                            <div class="flex items-center space-x-3 min-w-0">
-                                <div class="w-9 h-9 rounded-xl {% if s.session_id|slice:':3' == 'tg_' %}bg-sky-50 text-sky-600 border border-sky-100{% else %}bg-indigo-50 text-indigo-600 border border-indigo-100{% endif %} flex items-center justify-center font-bold text-xs shrink-0">
+                    <a href="{% url 'chatbot:inbox_detail' s.session_id %}?channel={{ channel_filter }}{% if search_query %}&q={{ search_query }}{% endif %}" class="block p-3.5 transition duration-150 relative hover:bg-white {% if active_session and active_session.session_id == s.session_id %}bg-white shadow-xs border-l-4 border-indigo-600{% endif %}">
+                        <div class="flex items-center justify-between gap-2.5">
+                            <div class="flex items-center space-x-2.5 min-w-0">
+                                <div class="w-8 h-8 rounded-xl {% if s.session_id|slice:':3' == 'tg_' %}bg-sky-50 text-sky-600 border border-sky-100{% else %}bg-indigo-50 text-indigo-600 border border-indigo-100{% endif %} flex items-center justify-center font-bold text-xs shrink-0">
                                     {% if s.session_id|slice:':3' == 'tg_' %}
                                         <i class="fa-brands fa-telegram text-sm"></i>
                                     {% else %}
@@ -85,11 +103,11 @@
                                 </div>
                             </div>
                             
-                            <div class="flex flex-col items-end shrink-0 space-y-1">
-                                <span class="text-[10px] text-slate-400 font-medium">
-                                    {{ s.last_message_at|date:"d M, H:i" }}
+                            <div class="flex flex-col items-end shrink-0 space-y-0.5">
+                                <span class="text-[9px] text-slate-400 font-medium">
+                                    {{ s.last_message_at|date:"d M" }}
                                 </span>
-                                <span class="text-[10px] text-slate-400">
+                                <span class="text-[9px] text-slate-400">
                                     <i class="fa-solid fa-message mr-0.5 text-slate-300"></i> {{ s.messages.count }}
                                 </span>
                             </div>
@@ -106,13 +124,14 @@
 
         </div>
 
-        <!-- Right Pane: Active Conversation & Lead Profile (8 cols) -->
-        <div class="lg:col-span-8 flex flex-col h-full bg-white">
-            
-            {% if active_session %}
+        <!-- Middle & Right Pane: Active Conversation & Insights Panel -->
+        {% if active_session %}
+            <!-- Middle: Active Chat Area -->
+            <div id="chatAreaPane" class="lg:col-span-6 border-r border-slate-100 flex flex-col h-full max-h-[780px] bg-slate-100/50 transition-all duration-300">
+                
                 <!-- Active Conversation Header -->
-                <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
-                    <div class="flex items-center space-x-3">
+                <div class="p-4 border-b border-slate-100 flex items-center justify-between gap-3 bg-white shrink-0">
+                    <div class="flex items-center space-x-3 min-w-0">
                         <div class="w-10 h-10 rounded-xl {% if active_session.session_id|slice:':3' == 'tg_' %}bg-sky-500 text-white{% else %}bg-indigo-600 text-white{% endif %} flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
                             {% if active_session.session_id|slice:':3' == 'tg_' %}
                                 <i class="fa-brands fa-telegram"></i>
@@ -120,66 +139,80 @@
                                 <i class="fa-solid fa-globe"></i>
                             {% endif %}
                         </div>
-                        <div>
-                            <div class="flex items-center space-x-2">
-                                <h3 class="font-bold text-slate-900 text-sm leading-snug">{{ active_session.display_name }}</h3>
+                        <div class="min-w-0">
+                            <h3 class="font-bold text-slate-900 text-sm leading-snug truncate">{{ active_session.display_name }}</h3>
+                            {% if active_session.visitor_phone %}
+                            <div class="flex items-center space-x-2 text-[11px] text-slate-500 mt-0.5 truncate">
+                                <span class="font-medium text-slate-700"><i class="fa-solid fa-phone text-indigo-500 mr-1"></i> {{ active_session.visitor_phone }}</span>
                             </div>
-                            <div class="flex items-center space-x-3 text-xs text-slate-500 mt-0.5">
-                                {% if active_session.visitor_phone %}
-                                    <span class="font-medium text-slate-700"><i class="fa-solid fa-phone text-indigo-500 mr-1"></i> {{ active_session.visitor_phone }}</span>
-                                {% endif %}
-                                <span><i class="fa-solid fa-clock mr-1 text-slate-400"></i> {{ active_session.created_at|date:"d M Y, H:i" }}</span>
-                            </div>
+                            {% endif %}
                         </div>
                     </div>
 
-                    <!-- Actions -->
-                    <div class="flex items-center space-x-2">
+                    <!-- Fast Actions & AI Panel Toggle -->
+                    <div class="flex items-center space-x-1.5 shrink-0">
+                        <button type="button" 
+                                onclick="toggleAiPanel()" 
+                                id="aiPanelToggleBtn"
+                                class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl transition flex items-center gap-1.5 border border-indigo-100"
+                                title="AI Tahlil panelini ko'rsatish yoki yopish">
+                            <i class="fa-solid fa-wand-magic-sparkles text-indigo-600"></i>
+                            <span id="aiToggleText" class="hidden sm:inline">AI Tahlil</span>
+                        </button>
                         {% if active_session.visitor_phone %}
-                        <a href="tel:{{ active_session.visitor_phone }}" class="inline-flex items-center px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-xl transition">
-                            <i class="fa-solid fa-phone mr-1.5"></i> Qo'ng'iroq
+                        <a href="tel:{{ active_session.visitor_phone }}" class="w-8 h-8 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs transition" title="Qo'ng'iroq qilish">
+                            <i class="fa-solid fa-phone"></i>
                         </a>
                         {% endif %}
-                        <button onclick="document.getElementById('editLeadModal').classList.remove('hidden')" class="inline-flex items-center px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
-                            <i class="fa-solid fa-user-pen mr-1.5"></i> Ma'lumotlarni tahrirlash
+                        <button onclick="document.getElementById('editLeadModal').classList.remove('hidden')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition flex items-center gap-1" title="Mijoz ma'lumotlarini tahrirlash">
+                            <i class="fa-solid fa-user-pen"></i>
+                            <span class="hidden sm:inline">Tahrirlash</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Notes Banner if exists -->
                 {% if active_session.notes %}
-                <div class="bg-amber-50/70 border-b border-amber-100 px-6 py-2.5 text-xs text-amber-900 flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
-                        <i class="fa-solid fa-note-sticky text-amber-600"></i>
-                        <span><strong>Eslatma:</strong> {{ active_session.notes }}</span>
+                <div class="bg-amber-50/80 border-b border-amber-100 px-4 py-2 text-xs text-amber-900 flex items-center justify-between shrink-0">
+                    <div class="flex items-center space-x-2 truncate">
+                        <i class="fa-solid fa-note-sticky text-amber-600 shrink-0"></i>
+                        <span class="truncate"><strong>Eslatma:</strong> {{ active_session.notes }}</span>
                     </div>
-                    <button onclick="document.getElementById('editLeadModal').classList.remove('hidden')" class="text-[11px] text-amber-700 underline font-semibold">Tahrirlash</button>
+                    <button onclick="document.getElementById('editLeadModal').classList.remove('hidden')" class="text-[10px] text-amber-700 underline font-semibold shrink-0 ml-2">O'zgartirish</button>
                 </div>
                 {% endif %}
 
-                <!-- Messages Timeline -->
-                <div class="flex-1 p-5 sm:p-6 overflow-y-auto space-y-3.5 bg-slate-50/50 max-h-[480px]">
+                <!-- Messages Timeline (Styled Wallpaper / Slate background - flex-1 fills entire remaining height) -->
+                <div class="flex-1 p-4 sm:p-5 overflow-y-auto space-y-3.5 bg-slate-100/70">
                     {% for msg in active_session.messages.all %}
-                    <div class="flex flex-col {% if msg.role == 'user' %}items-end{% else %}items-start{% endif %}">
-                        <div class="text-[10px] text-slate-400 mb-1 px-1 flex items-center space-x-1">
+                    <div class="flex flex-col {% if msg.role == 'user' %}items-start{% else %}items-end{% endif %}">
+                        <div class="text-[10px] text-slate-400 mb-1 px-1 flex items-center space-x-1.5">
                             {% if msg.role == 'user' %}
-                                <span class="font-semibold text-slate-600">{{ active_session.display_name }}</span>
+                                <span class="text-slate-400 font-medium">{{ msg.created_at|date:"H:i" }}</span>
                             {% elif msg.role == 'staff' %}
-                                <span class="font-semibold text-emerald-600">{{ msg.sender_staff.name|default:"Operator" }}</span>
+                                <span class="inline-flex items-center gap-1 font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded text-[10px] border border-emerald-100">
+                                    <i class="fa-solid fa-headset text-[10px]"></i>
+                                    <span>{{ msg.sender_staff.name|default:business.name }} (Operator)</span>
+                                </span>
+                                <span class="text-slate-300">&bull;</span>
+                                <span class="text-slate-400 font-medium">{{ msg.created_at|date:"H:i" }}</span>
                             {% else %}
-                                <span class="font-semibold text-indigo-600">{{ chatbot.bot_name }}</span>
+                                <span class="inline-flex items-center gap-1 font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded text-[10px] border border-indigo-100">
+                                    <i class="fa-solid fa-robot text-[10px]"></i>
+                                    <span>{{ chatbot.bot_name }}</span>
+                                </span>
+                                <span class="text-slate-300">&bull;</span>
+                                <span class="text-slate-400 font-medium">{{ msg.created_at|date:"H:i" }}</span>
                             {% endif %}
-                            <span>&bull;</span>
-                            <span>{{ msg.created_at|date:"H:i" }}</span>
                         </div>
 
-                        <div class="max-w-[85%] p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed whitespace-pre-line shadow-2xs
+                        <div class="max-w-[88%] p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed whitespace-pre-line shadow-2xs
                             {% if msg.role == 'user' %}
-                                bg-indigo-600 text-white rounded-br-xs
+                                bg-white text-slate-800 border border-slate-200/90 rounded-tl-xs shadow-xs
                             {% elif msg.role == 'staff' %}
-                                bg-emerald-600 text-white rounded-bl-xs
+                                bg-emerald-600 text-white rounded-tr-xs shadow-xs
                             {% else %}
-                                bg-white text-slate-800 border border-slate-200/80 rounded-bl-xs
+                                bg-indigo-600 text-white rounded-tr-xs shadow-xs
                             {% endif %}">{{ msg.content }}</div>
                     </div>
                     {% empty %}
@@ -189,25 +222,252 @@
                     {% endfor %}
                 </div>
 
-                <!-- Footer info (Clean, without Session ID) -->
-                <div class="p-3 bg-white border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 px-6">
-                    <span>Muloqot boshlangan: <strong class="text-slate-600">{{ active_session.created_at|date:"d M, H:i" }}</strong></span>
-                    <span>Jami {{ active_session.messages.count }} ta xabar</span>
-                </div>
-
-            {% else %}
-                <div class="flex-1 flex flex-col items-center justify-center p-12 text-center text-slate-400">
-                    <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl mb-3">
-                        <i class="fa-solid fa-comments"></i>
+                <!-- Send Message Area (Anchored to Bottom) -->
+                <div class="p-3 bg-white border-t border-slate-100 relative shrink-0">
+                    
+                    <!-- Formatting Toolbar -->
+                    <div class="flex items-center space-x-1 pb-1.5 mb-1 border-b border-slate-100 text-slate-500">
+                        <button type="button" onclick="formatInputText('bold')" class="w-7 h-7 rounded hover:bg-slate-100 hover:text-slate-800 flex items-center justify-center text-xs font-bold transition" title="Qalin (Bold)">
+                            <i class="fa-solid fa-bold"></i>
+                        </button>
+                        <button type="button" onclick="formatInputText('italic')" class="w-7 h-7 rounded hover:bg-slate-100 hover:text-slate-800 flex items-center justify-center text-xs italic transition" title="Kursiv (Italic)">
+                            <i class="fa-solid fa-italic"></i>
+                        </button>
+                        <button type="button" onclick="formatInputText('underline')" class="w-7 h-7 rounded hover:bg-slate-100 hover:text-slate-800 flex items-center justify-center text-xs underline transition" title="Tagiga chizilgan (Underline)">
+                            <i class="fa-solid fa-underline"></i>
+                        </button>
+                        <button type="button" onclick="formatInputText('strike')" class="w-7 h-7 rounded hover:bg-slate-100 hover:text-slate-800 flex items-center justify-center text-xs line-through transition" title="Ustiga chizilgan (Strikethrough)">
+                            <i class="fa-solid fa-strikethrough"></i>
+                        </button>
+                        <button type="button" onclick="formatInputText('code')" class="w-7 h-7 rounded hover:bg-slate-100 hover:text-slate-800 flex items-center justify-center text-xs font-mono transition" title="Monospace kod">
+                            <i class="fa-solid fa-code"></i>
+                        </button>
                     </div>
-                    <h3 class="text-sm font-bold text-slate-800">Suhbat tanlanmagan</h3>
-                    <p class="text-xs text-slate-500 mt-1 max-w-xs">
-                        Chap tomondagi ro'yxatdan murojaatchini tanlang.
-                    </p>
-                </div>
-            {% endif %}
 
-        </div>
+                    <!-- Comprehensive Telegram Emoji & Sticker Picker Popup (Continuous Scroll Groups) -->
+                    <div id="stickerPickerPopup" class="hidden absolute bottom-24 right-3 z-30 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 p-3">
+                        <div class="max-h-64 overflow-y-auto pr-1 space-y-3 text-xl text-center select-none divide-y divide-slate-100">
+                            
+                            <!-- 1. Smiles / Faces -->
+                            <div class="pt-1">
+                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block text-left mb-1.5 px-1">😀 Yuzlar va hissiyotlar</span>
+                                <div class="grid grid-cols-8 gap-1">
+                                    <button type="button" onclick="insertSticker('😀')" class="p-1 hover:bg-slate-100 rounded-lg">😀</button>
+                                    <button type="button" onclick="insertSticker('😃')" class="p-1 hover:bg-slate-100 rounded-lg">😃</button>
+                                    <button type="button" onclick="insertSticker('😄')" class="p-1 hover:bg-slate-100 rounded-lg">😄</button>
+                                    <button type="button" onclick="insertSticker('😁')" class="p-1 hover:bg-slate-100 rounded-lg">😁</button>
+                                    <button type="button" onclick="insertSticker('😊')" class="p-1 hover:bg-slate-100 rounded-lg">😊</button>
+                                    <button type="button" onclick="insertSticker('😇')" class="p-1 hover:bg-slate-100 rounded-lg">😇</button>
+                                    <button type="button" onclick="insertSticker('🙂')" class="p-1 hover:bg-slate-100 rounded-lg">🙂</button>
+                                    <button type="button" onclick="insertSticker('😉')" class="p-1 hover:bg-slate-100 rounded-lg">😉</button>
+                                    <button type="button" onclick="insertSticker('😍')" class="p-1 hover:bg-slate-100 rounded-lg">😍</button>
+                                    <button type="button" onclick="insertSticker('🥰')" class="p-1 hover:bg-slate-100 rounded-lg">🥰</button>
+                                    <button type="button" onclick="insertSticker('😘')" class="p-1 hover:bg-slate-100 rounded-lg">😘</button>
+                                    <button type="button" onclick="insertSticker('😋')" class="p-1 hover:bg-slate-100 rounded-lg">😋</button>
+                                    <button type="button" onclick="insertSticker('😎')" class="p-1 hover:bg-slate-100 rounded-lg">😎</button>
+                                    <button type="button" onclick="insertSticker('🤩')" class="p-1 hover:bg-slate-100 rounded-lg">🤩</button>
+                                    <button type="button" onclick="insertSticker('🥳')" class="p-1 hover:bg-slate-100 rounded-lg">🥳</button>
+                                    <button type="button" onclick="insertSticker('😏')" class="p-1 hover:bg-slate-100 rounded-lg">😏</button>
+                                    <button type="button" onclick="insertSticker('🤔')" class="p-1 hover:bg-slate-100 rounded-lg">🤔</button>
+                                    <button type="button" onclick="insertSticker('🫡')" class="p-1 hover:bg-slate-100 rounded-lg">🫡</button>
+                                    <button type="button" onclick="insertSticker('🤗')" class="p-1 hover:bg-slate-100 rounded-lg">🤗</button>
+                                    <button type="button" onclick="insertSticker('🤫')" class="p-1 hover:bg-slate-100 rounded-lg">🤫</button>
+                                    <button type="button" onclick="insertSticker('🙄')" class="p-1 hover:bg-slate-100 rounded-lg">🙄</button>
+                                    <button type="button" onclick="insertSticker('😬')" class="p-1 hover:bg-slate-100 rounded-lg">😬</button>
+                                    <button type="button" onclick="insertSticker('🥺')" class="p-1 hover:bg-slate-100 rounded-lg">🥺</button>
+                                    <button type="button" onclick="insertSticker('😭')" class="p-1 hover:bg-slate-100 rounded-lg">😭</button>
+                                </div>
+                            </div>
+
+                            <!-- 2. Gestures / Hands -->
+                            <div class="pt-2">
+                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block text-left mb-1.5 px-1">👍 Qo'llar va imo-ishoralar</span>
+                                <div class="grid grid-cols-8 gap-1">
+                                    <button type="button" onclick="insertSticker('👋')" class="p-1 hover:bg-slate-100 rounded-lg">👋</button>
+                                    <button type="button" onclick="insertSticker('👍')" class="p-1 hover:bg-slate-100 rounded-lg">👍</button>
+                                    <button type="button" onclick="insertSticker('👎')" class="p-1 hover:bg-slate-100 rounded-lg">👎</button>
+                                    <button type="button" onclick="insertSticker('👌')" class="p-1 hover:bg-slate-100 rounded-lg">👌</button>
+                                    <button type="button" onclick="insertSticker('✌️')" class="p-1 hover:bg-slate-100 rounded-lg">✌️</button>
+                                    <button type="button" onclick="insertSticker('🤞')" class="p-1 hover:bg-slate-100 rounded-lg">🤞</button>
+                                    <button type="button" onclick="insertSticker('🤝')" class="p-1 hover:bg-slate-100 rounded-lg">🤝</button>
+                                    <button type="button" onclick="insertSticker('👏')" class="p-1 hover:bg-slate-100 rounded-lg">👏</button>
+                                    <button type="button" onclick="insertSticker('🙌')" class="p-1 hover:bg-slate-100 rounded-lg">🙌</button>
+                                    <button type="button" onclick="insertSticker('🫶')" class="p-1 hover:bg-slate-100 rounded-lg">🫶</button>
+                                    <button type="button" onclick="insertSticker('👐')" class="p-1 hover:bg-slate-100 rounded-lg">👐</button>
+                                    <button type="button" onclick="insertSticker('🤲')" class="p-1 hover:bg-slate-100 rounded-lg">🤲</button>
+                                    <button type="button" onclick="insertSticker('🙏')" class="p-1 hover:bg-slate-100 rounded-lg">🙏</button>
+                                    <button type="button" onclick="insertSticker('✍️')" class="p-1 hover:bg-slate-100 rounded-lg">✍️</button>
+                                    <button type="button" onclick="insertSticker('💪')" class="p-1 hover:bg-slate-100 rounded-lg">💪</button>
+                                    <button type="button" onclick="insertSticker('👉')" class="p-1 hover:bg-slate-100 rounded-lg">👉</button>
+                                </div>
+                            </div>
+
+                            <!-- 3. Business & Work -->
+                            <div class="pt-2">
+                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block text-left mb-1.5 px-1">💼 Biznes va savdo</span>
+                                <div class="grid grid-cols-8 gap-1">
+                                    <button type="button" onclick="insertSticker('💼')" class="p-1 hover:bg-slate-100 rounded-lg">💼</button>
+                                    <button type="button" onclick="insertSticker('📊')" class="p-1 hover:bg-slate-100 rounded-lg">📊</button>
+                                    <button type="button" onclick="insertSticker('📈')" class="p-1 hover:bg-slate-100 rounded-lg">📈</button>
+                                    <button type="button" onclick="insertSticker('💰')" class="p-1 hover:bg-slate-100 rounded-lg">💰</button>
+                                    <button type="button" onclick="insertSticker('💳')" class="p-1 hover:bg-slate-100 rounded-lg">💳</button>
+                                    <button type="button" onclick="insertSticker('💵')" class="p-1 hover:bg-slate-100 rounded-lg">💵</button>
+                                    <button type="button" onclick="insertSticker('🛒')" class="p-1 hover:bg-slate-100 rounded-lg">🛒</button>
+                                    <button type="button" onclick="insertSticker('🏷️')" class="p-1 hover:bg-slate-100 rounded-lg">🏷️</button>
+                                    <button type="button" onclick="insertSticker('📦')" class="p-1 hover:bg-slate-100 rounded-lg">📦</button>
+                                    <button type="button" onclick="insertSticker('🚚')" class="p-1 hover:bg-slate-100 rounded-lg">🚚</button>
+                                    <button type="button" onclick="insertSticker('🏬')" class="p-1 hover:bg-slate-100 rounded-lg">🏬</button>
+                                    <button type="button" onclick="insertSticker('🏢')" class="p-1 hover:bg-slate-100 rounded-lg">🏢</button>
+                                    <button type="button" onclick="insertSticker('📋')" class="p-1 hover:bg-slate-100 rounded-lg">📋</button>
+                                    <button type="button" onclick="insertSticker('📁')" class="p-1 hover:bg-slate-100 rounded-lg">📁</button>
+                                    <button type="button" onclick="insertSticker('🎯')" class="p-1 hover:bg-slate-100 rounded-lg">🎯</button>
+                                    <button type="button" onclick="insertSticker('🚀')" class="p-1 hover:bg-slate-100 rounded-lg">🚀</button>
+                                </div>
+                            </div>
+
+                            <!-- 4. Symbols & Highlights -->
+                            <div class="pt-2">
+                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block text-left mb-1.5 px-1">⚡ Belgilar va e'tibor</span>
+                                <div class="grid grid-cols-8 gap-1">
+                                    <button type="button" onclick="insertSticker('✅')" class="p-1 hover:bg-slate-100 rounded-lg">✅</button>
+                                    <button type="button" onclick="insertSticker('✨')" class="p-1 hover:bg-slate-100 rounded-lg">✨</button>
+                                    <button type="button" onclick="insertSticker('🔥')" class="p-1 hover:bg-slate-100 rounded-lg">🔥</button>
+                                    <button type="button" onclick="insertSticker('⚡')" class="p-1 hover:bg-slate-100 rounded-lg">⚡</button>
+                                    <button type="button" onclick="insertSticker('⭐')" class="p-1 hover:bg-slate-100 rounded-lg">⭐</button>
+                                    <button type="button" onclick="insertSticker('🌟')" class="p-1 hover:bg-slate-100 rounded-lg">🌟</button>
+                                    <button type="button" onclick="insertSticker('💡')" class="p-1 hover:bg-slate-100 rounded-lg">💡</button>
+                                    <button type="button" onclick="insertSticker('💯')" class="p-1 hover:bg-slate-100 rounded-lg">💯</button>
+                                    <button type="button" onclick="insertSticker('🎉')" class="p-1 hover:bg-slate-100 rounded-lg">🎉</button>
+                                    <button type="button" onclick="insertSticker('📌')" class="p-1 hover:bg-slate-100 rounded-lg">📌</button>
+                                    <button type="button" onclick="insertSticker('📍')" class="p-1 hover:bg-slate-100 rounded-lg">📍</button>
+                                    <button type="button" onclick="insertSticker('⏰')" class="p-1 hover:bg-slate-100 rounded-lg">⏰</button>
+                                    <button type="button" onclick="insertSticker('🔔')" class="p-1 hover:bg-slate-100 rounded-lg">🔔</button>
+                                    <button type="button" onclick="insertSticker('❗')" class="p-1 hover:bg-slate-100 rounded-lg">❗</button>
+                                    <button type="button" onclick="insertSticker('❓')" class="p-1 hover:bg-slate-100 rounded-lg">❓</button>
+                                    <button type="button" onclick="insertSticker('❤️')" class="p-1 hover:bg-slate-100 rounded-lg">❤️</button>
+                                </div>
+                            </div>
+
+                            <!-- 5. Objects & Tech -->
+                            <div class="pt-2">
+                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block text-left mb-1.5 px-1">🎁 Buyumlar va aloqa</span>
+                                <div class="grid grid-cols-8 gap-1">
+                                    <button type="button" onclick="insertSticker('📞')" class="p-1 hover:bg-slate-100 rounded-lg">📞</button>
+                                    <button type="button" onclick="insertSticker('📱')" class="p-1 hover:bg-slate-100 rounded-lg">📱</button>
+                                    <button type="button" onclick="insertSticker('💻')" class="p-1 hover:bg-slate-100 rounded-lg">💻</button>
+                                    <button type="button" onclick="insertSticker('✉️')" class="p-1 hover:bg-slate-100 rounded-lg">✉️</button>
+                                    <button type="button" onclick="insertSticker('🎁')" class="p-1 hover:bg-slate-100 rounded-lg">🎁</button>
+                                    <button type="button" onclick="insertSticker('🏆')" class="p-1 hover:bg-slate-100 rounded-lg">🏆</button>
+                                    <button type="button" onclick="insertSticker('👑')" class="p-1 hover:bg-slate-100 rounded-lg">👑</button>
+                                    <button type="button" onclick="insertSticker('💎')" class="p-1 hover:bg-slate-100 rounded-lg">💎</button>
+                                    <button type="button" onclick="insertSticker('🔑')" class="p-1 hover:bg-slate-100 rounded-lg">🔑</button>
+                                    <button type="button" onclick="insertSticker('🔒')" class="p-1 hover:bg-slate-100 rounded-lg">🔒</button>
+                                    <button type="button" onclick="insertSticker('🎧')" class="p-1 hover:bg-slate-100 rounded-lg">🎧</button>
+                                    <button type="button" onclick="insertSticker('🌐')" class="p-1 hover:bg-slate-100 rounded-lg">🌐</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Form with Auto-expanding ContentEditable Rich Input & Actions -->
+                    <form method="POST" action="{% url 'chatbot:send_message' active_session.session_id %}" class="relative flex items-end" id="replyMessageForm" onsubmit="prepareMessageSubmit()">
+                        {% csrf_token %}
+                        <input type="hidden" name="content" id="replyHiddenContent">
+                        
+                        <div id="replyInputBox"
+                             contenteditable="true"
+                             role="textbox"
+                             aria-multiline="true"
+                             data-placeholder="Xabar yuborish..."
+                             data-empty="true"
+                             oninput="handleRichInput(this)"
+                             onkeydown="handleRichKeyDown(event)"
+                             class="w-full pl-3.5 pr-20 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:bg-white transition text-slate-800 overflow-y-auto max-h-36 min-h-[40px] leading-relaxed break-words whitespace-pre-wrap"></div>
+                        
+                        <!-- Actions inside Input container (Sticker & Send) -->
+                        <div class="absolute right-1.5 bottom-1.5 flex items-center space-x-1">
+                            <!-- Sticker Button -->
+                            <button type="button" 
+                                    onclick="toggleStickerPicker()" 
+                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-amber-500 hover:bg-slate-100 transition"
+                                    title="Stiker yoki emoji qo'shish">
+                                <i class="fa-regular fa-face-smile text-sm"></i>
+                            </button>
+                            
+                            <!-- Send Button with Modern Icon -->
+                            <button type="submit" 
+                                    id="replySendBtn"
+                                    disabled
+                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-xs transition duration-150 text-slate-300 bg-transparent cursor-not-allowed disabled:opacity-40"
+                                    title="Xabarni yuborish">
+                                <i class="fa-solid fa-arrow-up text-xs font-bold"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right: Customer Insights & Recommendations Panel (Collapsible) -->
+            <div id="aiInsightsPane" class="lg:col-span-3 flex flex-col h-full bg-gradient-to-b from-indigo-50/70 via-slate-50/80 to-violet-50/50 border-l border-indigo-100/80 p-5 overflow-y-auto space-y-4 transition-all duration-300">
+                
+                <!-- Panel Header -->
+                <div class="flex items-center justify-between border-b border-indigo-100 pb-3">
+                    <h4 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-wand-magic-sparkles text-indigo-600"></i>
+                        <span>AI Tahlil & Tavsiya</span>
+                    </h4>
+                    <button type="button" onclick="toggleAiPanel()" class="w-6 h-6 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 flex items-center justify-center text-xs transition" title="Panelni yopish">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- 1. Customer Intent & Topic -->
+                <div class="space-y-1.5">
+                    <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Mijoz maqsadi</span>
+                    <div class="p-3.5 bg-white rounded-xl border border-indigo-100/80 shadow-2xs">
+                        <div class="text-xs font-bold text-slate-800 mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-bullseye text-indigo-600 text-xs"></i>
+                            {{ insights.intent }}
+                        </div>
+                        <p class="text-[11px] text-slate-500">Asosiy mavzu: <strong class="text-slate-700">{{ insights.key_topic }}</strong></p>
+                    </div>
+                </div>
+
+                <!-- 2. AI Opinion (Fikr) -->
+                <div class="space-y-1.5">
+                    <span class="text-[10px] font-extrabold text-indigo-400 uppercase tracking-wider block">Mijoz haqida xulosa</span>
+                    <div class="p-3.5 bg-white rounded-xl border border-indigo-200/70 shadow-2xs">
+                        <div class="flex items-start gap-2">
+                            <i class="fa-solid fa-lightbulb text-amber-500 text-xs mt-0.5 shrink-0"></i>
+                            <p class="text-xs text-slate-700 font-medium leading-relaxed">{{ insights.opinion }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Actionable Recommendation (Tavsiya) -->
+                <div class="space-y-1.5">
+                    <span class="text-[10px] font-extrabold text-emerald-500 uppercase tracking-wider block">Keyingi qadam tavsiyasi</span>
+                    <div class="p-3.5 bg-emerald-50/80 rounded-xl border border-emerald-200/80 shadow-2xs">
+                        <div class="flex items-start gap-2">
+                            <i class="fa-solid fa-sparkles text-emerald-600 text-xs mt-0.5 shrink-0"></i>
+                            <p class="text-xs text-emerald-950 font-medium leading-relaxed">{{ insights.recommendation }}</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        {% else %}
+            <div class="lg:col-span-9 flex flex-col items-center justify-center p-12 text-center text-slate-400 bg-slate-50/50">
+                <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl mb-3">
+                    <i class="fa-solid fa-comments"></i>
+                </div>
+                <h3 class="text-sm font-bold text-slate-800">Suhbat tanlanmagan</h3>
+                <p class="text-xs text-slate-500 mt-1 max-w-xs">
+                    Chap tomondagi ro'yxatdan murojaatchini tanlang.
+                </p>
+            </div>
+        {% endif %}
 
     </div>
 
@@ -256,5 +516,170 @@
         </form>
     </div>
 </div>
+
+<script>
+    // 1. Toggle AI Insights Panel
+    function toggleAiPanel() {
+        const pane = document.getElementById('aiInsightsPane');
+        const chatArea = document.getElementById('chatAreaPane');
+        const btnText = document.getElementById('aiToggleText');
+        const btn = document.getElementById('aiPanelToggleBtn');
+        
+        if (!pane || !chatArea) return;
+
+        if (pane.classList.contains('hidden')) {
+            pane.classList.remove('hidden');
+            chatArea.classList.remove('lg:col-span-9');
+            chatArea.classList.add('lg:col-span-6');
+            if (btn) {
+                btn.className = 'px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl transition flex items-center gap-1.5 border border-indigo-100';
+            }
+            if (btnText) btnText.textContent = 'AI Tahlil';
+            localStorage.setItem('lumos_inbox_ai_panel', 'visible');
+        } else {
+            pane.classList.add('hidden');
+            chatArea.classList.remove('lg:col-span-6');
+            chatArea.classList.add('lg:col-span-9');
+            if (btn) {
+                btn.className = 'px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition flex items-center gap-1.5 border border-slate-200';
+            }
+            if (btnText) btnText.textContent = 'AI Tahlilni ochish';
+            localStorage.setItem('lumos_inbox_ai_panel', 'hidden');
+        }
+    }
+
+    // Restore saved AI panel state
+    document.addEventListener('DOMContentLoaded', function() {
+        if (localStorage.getItem('lumos_inbox_ai_panel') === 'hidden') {
+            toggleAiPanel();
+        }
+    });
+
+    // 2. Handle Rich ContentEditable Input & Toggle Send Button (with placeholder preservation)
+    function handleRichInput(el) {
+        const text = (el.innerText || el.textContent || '').trim();
+        const btn = document.getElementById('replySendBtn');
+
+        // Manage placeholder data-empty attribute
+        if (text.length === 0) {
+            el.setAttribute('data-empty', 'true');
+            if (el.innerHTML === '<br>' || el.innerHTML === '<div><br></div>') {
+                el.innerHTML = '';
+            }
+        } else {
+            el.removeAttribute('data-empty');
+        }
+
+        if (!btn) return;
+        if (text.length > 0) {
+            btn.disabled = false;
+            btn.className = 'w-7 h-7 rounded-lg flex items-center justify-center text-xs transition duration-150 text-white bg-indigo-600 hover:bg-indigo-700 shadow-2xs cursor-pointer';
+        } else {
+            btn.disabled = true;
+            btn.className = 'w-7 h-7 rounded-lg flex items-center justify-center text-xs transition duration-150 text-slate-300 bg-transparent cursor-not-allowed disabled:opacity-40';
+        }
+    }
+
+    // 3. Handle KeyDown: Enter to Send, Ctrl+Enter / Shift+Enter for Newline
+    function handleRichKeyDown(e) {
+        // If Ctrl+Enter or Shift+Enter is pressed, insert line break
+        if (e.key === 'Enter' && (e.ctrlKey || e.shiftKey)) {
+            e.preventDefault();
+            document.execCommand('insertLineBreak');
+            handleRichInput(e.target);
+            return;
+        }
+
+        // If simple Enter is pressed (without Ctrl/Shift), submit form
+        if (e.key === 'Enter' && !e.ctrlKey && !e.shiftKey) {
+            e.preventDefault();
+            const text = (e.target.innerText || e.target.textContent || '').trim();
+            if (text.length > 0) {
+                const form = document.getElementById('replyMessageForm');
+                if (form) {
+                    prepareMessageSubmit();
+                    form.submit();
+                }
+            }
+        }
+    }
+
+    // Prepare message payload before submit
+    function prepareMessageSubmit() {
+        const inputBox = document.getElementById('replyInputBox');
+        const hiddenInput = document.getElementById('replyHiddenContent');
+        if (inputBox && hiddenInput) {
+            hiddenInput.value = (inputBox.innerText || inputBox.textContent || '').trim();
+        }
+    }
+
+    // 4. Format Selected Text Visually (Bold, Italic, Underline, Strikethrough, Monospace)
+    function formatInputText(type) {
+        const inputBox = document.getElementById('replyInputBox');
+        if (!inputBox) return;
+
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) return;
+
+        const range = selection.getRangeAt(0);
+        // Only format if selection is inside our rich input and not collapsed (something is selected)
+        if (selection.isCollapsed || !inputBox.contains(range.commonAncestorContainer)) {
+            return;
+        }
+
+        switch (type) {
+            case 'bold':
+                document.execCommand('bold', false, null);
+                break;
+            case 'italic':
+                document.execCommand('italic', false, null);
+                break;
+            case 'underline':
+                document.execCommand('underline', false, null);
+                break;
+            case 'strike':
+                document.execCommand('strikeThrough', false, null);
+                break;
+            case 'code':
+                document.execCommand('fontName', false, 'monospace');
+                break;
+        }
+
+        handleRichInput(inputBox);
+    }
+
+    // 5. Categorized Sticker & Emoji Picker
+    function toggleStickerPicker() {
+        const popup = document.getElementById('stickerPickerPopup');
+        if (popup) {
+            popup.classList.toggle('hidden');
+        }
+    }
+
+    function insertSticker(emoji) {
+        const inputBox = document.getElementById('replyInputBox');
+        if (!inputBox) return;
+
+        inputBox.focus();
+        if (document.queryCommandSupported('insertText')) {
+            document.execCommand('insertText', false, emoji + ' ');
+        } else {
+            inputBox.innerHTML += emoji + ' ';
+        }
+
+        handleRichInput(inputBox);
+    }
+
+    // Close sticker popup on outside click
+    document.addEventListener('click', function(e) {
+        const popup = document.getElementById('stickerPickerPopup');
+        if (!popup || popup.classList.contains('hidden')) return;
+        
+        const isClickInside = popup.contains(e.target) || (e.target.closest && e.target.closest('button[onclick*="toggleStickerPicker"]'));
+        if (!isClickInside) {
+            popup.classList.add('hidden');
+        }
+    });
+</script>
 {% endif %}
 {% endblock %}

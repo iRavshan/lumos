@@ -10,8 +10,8 @@ def generate_staff_token():
 
 class StaffMember(models.Model):
     ROLE_CHOICES = (
-        ('operator', 'Operator (Mijozlarga javob beruvchi)'),
-        ('supervisor', 'Supervisor (Nazoratchi va Boshqaruvchi)'),
+        ('operator', 'Operator'),
+        ('supervisor', 'Supervisor'),
     )
 
     business = models.ForeignKey(

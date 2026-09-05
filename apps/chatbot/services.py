@@ -226,3 +226,102 @@ def generate_rag_response(chatbot_config, user_message, chat_history=None):
 
     # Fallback to intelligent local RAG matcher
     return contextual_fallback_agent(chatbot_config, user_message)
+
+
+def analyze_session_insights(session):
+    """
+    Analyzes chat session conversation to determine customer intent, sentiment, key interest, and business recommendation.
+    """
+    user_msgs = [m.content for m in session.messages.all() if m.role == 'user']
+    if not user_msgs:
+        return {
+            'sentiment': 'Noma\'lum',
+            'sentiment_color': 'slate',
+            'intent': 'Kuzatuvchi',
+            'intent_badge': 'bg-slate-100 text-slate-700',
+            'key_topic': 'Boshlang\'ich muloqot',
+            'opinion': 'Mijoz hali o\'z savolini yozmagan yoki endi kirgan.',
+            'recommendation': 'Mijoz bilan iliq salomlashib, unga qanday yordam bera olishingizni so\'rang.',
+            'conversion_score': 20,
+        }
+
+    all_text = " ".join(user_msgs).lower()
+    msg_count = len(user_msgs)
+
+    # 1. Intent Detection
+    has_contact = bool(session.visitor_phone or session.visitor_email)
+    price_words = ['narx', 'narxi', 'qancha', 'sum', "so'm", 'tolov', "to'lov", 'dollar', 'skidka', 'chegirma', 'tarif']
+    order_words = ['buyurtma', 'olmoqchiman', 'zakaz', 'shartnoma', 'sotib', 'yetkazib', 'manzil', 'yetkazish']
+    problem_words = ['ishlamayapti', 'muammo', 'kechikdi', 'xato', 'shikoyat', 'yordam', 'boglanolmayapman']
+
+    is_buying = any(w in all_text for w in order_words) or (has_contact and any(w in all_text for w in price_words))
+    is_price_inquiry = any(w in all_text for w in price_words)
+    is_problem = any(w in all_text for w in problem_words)
+
+    if is_buying:
+        intent = "Issiq Lead (Xaridga tayyor)"
+        intent_badge = "bg-emerald-50 text-emerald-700 border-emerald-200"
+        score = 85 if has_contact else 70
+    elif is_price_inquiry:
+        intent = "Narx / Shartlar qidirmoqda"
+        intent_badge = "bg-indigo-50 text-indigo-700 border-indigo-200"
+        score = 65 if has_contact else 50
+    elif is_problem:
+        intent = "Texnik / Qo'llab-quvvatlash"
+        intent_badge = "bg-rose-50 text-rose-700 border-rose-200"
+        score = 40
+    else:
+        intent = "Umumiy qiziqish"
+        intent_badge = "bg-sky-50 text-sky-700 border-sky-200"
+        score = 35 if msg_count > 2 else 25
+
+    # 2. Sentiment
+    if any(w in all_text for w in ['rahmat', 'katta rahmat', 'ajoyib', 'tushundim', 'yaxshi', 'super', 'zo\'r', 'zor']):
+        sentiment = "Ijobiy (Qoniqish hosil qilgan)"
+        sentiment_color = "emerald"
+    elif is_problem or any(w in all_text for w in ['yoq', 'qoniqarsiz', 'yomon', 'kutmoqdaman']):
+        sentiment = "E'tibor talab (Xavotirda)"
+        sentiment_color = "rose"
+    else:
+        sentiment = "Neytral / Qiziquvchi"
+        sentiment_color = "indigo"
+
+    # 3. Key Topic
+    if is_buying:
+        key_topic = "Xarid & Xizmat buyurtmasi"
+    elif is_price_inquiry:
+        key_topic = "Narxlar va to'lov shartlari"
+    elif 'telegram' in all_text or 'bot' in all_text:
+        key_topic = "Telegram bot / Aloqa kanallari"
+    elif 'yetkazib' in all_text or 'manzil' in all_text:
+        key_topic = "Yetkazib berish va lokatsiya"
+    else:
+        key_topic = "Umumiy ma'lumotlar"
+
+    # 4. Opinion (Fikr) & Recommendation (Tavsiya)
+    if is_buying:
+        opinion = f"Mijoz aniq taklif yoki xarid bo'yicha murojaat qilgan ({msg_count} ta xabar). Bitimni yopish ehtimoli yuqori."
+        if session.visitor_phone:
+            recommendation = f"Telefon orqali ({session.visitor_phone}) zudlik bilan bog'lanib, shartnomani rasmiylashtiring yoki buyurtmani qabul qiling."
+        else:
+            recommendation = "Mijozdan telefon raqamini so'rang yoki maxsus taklif/chegirma taqdim etib bitimni tezlashtiring."
+    elif is_price_inquiry:
+        opinion = "Mijoz narxlar va shartlarni taqqoslamoqda. To'g'ri tushuntirish orqali uni xaridga yo'naltirish mumkin."
+        recommendation = "Mijozga biznesingizning asosiy ustunliklarini (sifat, kafolat, qulaylik) eslatib, batafsil hisob-kitob qilib bering."
+    elif is_problem:
+        opinion = "Mijozda noaniqlik yoki savol yuzaga kelgan. Zudlik bilan xushmuomalalik bilan tushuntirish talab etiladi."
+        recommendation = "Mijozning muammosini tezda ijobiy hal qilib, ishonchni mustahkamlang."
+    else:
+        opinion = f"Mijoz xizmatlar bilan tanishmoqda ({msg_count} ta xabar almashilgan)."
+        recommendation = "Mijozning asosiy ehtiyojini aniqlash uchun unga yo'naltiruvchi savol bering va konsultatsiya taklif qiling."
+
+    return {
+        'sentiment': sentiment,
+        'sentiment_color': sentiment_color,
+        'intent': intent,
+        'intent_badge': intent_badge,
+        'key_topic': key_topic,
+        'opinion': opinion,
+        'recommendation': recommendation,
+        'conversion_score': score,
+    }
