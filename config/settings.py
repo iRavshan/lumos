@@ -110,6 +110,10 @@ STORAGES = {
     },
 }
 
+# Whitenoise: xeshlanmagan fayl nomlari bilan ham ishlashga ruxsat berish
+# (tashqi saytlar /static/js/lumos-widget.js yo'li bilan murojaat qiladi)
+WHITENOISE_MANIFEST_STRICT = False
+
 # Production Security & SSL Settings
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
