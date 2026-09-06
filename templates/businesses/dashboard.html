@@ -29,7 +29,6 @@
                     <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight">{{ business.name }}</h1>
                 </div>
                 <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
-                    <span><i class="fa-solid fa-phone text-slate-400 mr-1"></i> {{ business.phone|default:"Telefon kiritilmagan" }}</span>
                     {% if business.website %}
                     <span><i class="fa-solid fa-globe text-slate-400 mr-1"></i> <a href="{{ business.website }}" target="_blank" class="text-slate-900 dark:text-slate-200 hover:underline font-semibold">{{ business.website }}</a></span>
                     {% endif %}
@@ -96,7 +95,7 @@
         </a>
 
         <!-- Card 4: Savdo Agenti Holati -->
-        <a href="{% url 'chatbot:settings' %}" class="bg-white dark:bg-[#141414] p-5 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:border-slate-400 transition duration-200 group block relative overflow-hidden">
+        <a href="{% url 'chatbot:agent_settings' %}" class="bg-white dark:bg-[#141414] p-5 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:border-slate-400 transition duration-200 group block relative overflow-hidden">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold">Savdo Agenti</span>
                 <span class="w-7 h-7 rounded-lg bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 flex items-center justify-center text-xs group-hover:scale-105 transition">
@@ -159,7 +158,7 @@
                         </div>
                     </div>
                     
-                    <a href="{% url 'chatbot:settings' %}" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-zinc-300 hover:text-white border border-white/10 flex items-center justify-center text-xs font-bold transition shadow-2xs" title="Agent sozlamalari">
+                    <a href="{% url 'chatbot:agent_settings' %}" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-zinc-300 hover:text-white border border-white/10 flex items-center justify-center text-xs font-bold transition shadow-2xs" title="Agent sozlamalari">
                         <i class="fa-solid fa-sliders"></i>
                     </a>
                 </div>

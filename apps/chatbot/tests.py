@@ -129,6 +129,29 @@ class ChatbotTests(TestCase):
         self.assertEqual(self.chatbot.bot_name, 'Fast Delivery AI Bot')
         self.assertEqual(self.chatbot.theme_color, '#2563eb')
 
+    def test_agent_settings_view(self):
+        self.client.login(username='jasur_ceo', password='TestPassword123!')
+        url = reverse('chatbot:agent_settings')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        post_res = self.client.post(url, {
+            'bot_name': 'Super Savdo Agenti',
+            'response_delay_enabled': 'on',
+            'first_message_delay_seconds': 6,
+            'subsequent_message_delay_seconds': 12,
+            'split_messages': 'on',
+            'extra_knowledge': 'Yetkazib berish bepul.',
+            'website': 'https://fastdelivery.uz',
+        })
+        self.assertRedirects(post_res, reverse('chatbot:agent_settings'))
+        self.chatbot.refresh_from_db()
+        self.assertEqual(self.chatbot.bot_name, 'Super Savdo Agenti')
+        self.assertEqual(self.chatbot.first_message_delay_seconds, 6)
+        self.assertEqual(self.chatbot.subsequent_message_delay_seconds, 12)
+        self.assertTrue(self.chatbot.split_messages)
+        self.assertEqual(self.chatbot.extra_knowledge, 'Yetkazib berish bepul.')
+
     def test_contact_auto_extraction_and_inbox_flow(self):
         # Visitor sends a message with phone and name
         url = reverse('chatbot:api_chat', kwargs={'api_key': self.chatbot.api_key})

@@ -19,12 +19,15 @@
         </a>
     </div>
 
-    <!-- 2. Navigation Tabs (Widget vs Telegram Bot) -->
-    <div class="flex space-x-2 border-b border-[#E7E5E1] dark:border-[#262626] pb-1">
-        <a href="{% url 'chatbot:settings' %}" class="px-4 py-2.5 font-bold text-xs sm:text-sm text-slate-900 dark:text-[#F5F1E8] border-b-2 border-slate-900 dark:border-[#F5F1E8] transition flex items-center">
+    <!-- 2. Navigation Tabs (Agent vs Widget vs Telegram Bot) -->
+    <div class="flex space-x-2 border-b border-[#E7E5E1] dark:border-[#262626] pb-1 overflow-x-auto scrollbar-thin">
+        <a href="{% url 'chatbot:agent_settings' %}" class="px-4 py-2.5 font-bold text-xs sm:text-sm text-slate-500 hover:text-slate-800 dark:hover:text-white border-b-2 border-transparent transition flex items-center shrink-0">
+            <i class="fa-solid fa-robot mr-2 text-indigo-600 dark:text-indigo-400"></i> Savdo Agenti
+        </a>
+        <a href="{% url 'chatbot:settings' %}" class="px-4 py-2.5 font-bold text-xs sm:text-sm text-slate-900 dark:text-[#F5F1E8] border-b-2 border-slate-900 dark:border-[#F5F1E8] transition flex items-center shrink-0">
             <i class="fa-solid fa-code mr-2 text-indigo-600 dark:text-indigo-400"></i> Vebsayt Vidjeti
         </a>
-        <a href="{% url 'chatbot:telegram_settings' %}" class="px-4 py-2.5 font-bold text-xs sm:text-sm text-slate-500 hover:text-slate-800 dark:hover:text-white border-b-2 border-transparent transition flex items-center">
+        <a href="{% url 'chatbot:telegram_settings' %}" class="px-4 py-2.5 font-bold text-xs sm:text-sm text-slate-500 hover:text-slate-800 dark:hover:text-white border-b-2 border-transparent transition flex items-center shrink-0">
             <i class="fa-brands fa-telegram mr-2 text-sky-500"></i> Telegram Bot
         </a>
     </div>
@@ -37,35 +40,56 @@
             <!-- Left 2 Cols: Form Cards -->
             <div class="lg:col-span-2 space-y-6">
 
-                <!-- Card 1: Bot Shaxsi va Nomi -->
+                <!-- Step-by-Step Guide Card with Embed Code -->
                 <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-4">
                     <div class="flex items-center justify-between border-b border-slate-100 dark:border-[#262626] pb-3">
                         <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm flex items-center">
-                            <i class="fa-solid fa-signature text-indigo-600 dark:text-indigo-400 mr-2"></i> Bot Nomi va Holati
+                            <i class="fa-solid fa-circle-info text-indigo-600 dark:text-indigo-400 mr-2"></i> Vidjetni 3 qadamda ulash
                         </h3>
                     </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-                        <div>
-                            <span class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                                Bot nomi
-                            </span>
-                            <div class="flex items-center justify-between px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] text-slate-900 dark:text-[#F5F1E8] font-bold text-sm">
-                                <span class="flex items-center gap-2">
-                                    <i class="fa-solid fa-robot text-indigo-600 dark:text-indigo-400"></i>
-                                    {{ chatbot.bot_name }}
-                                </span>
-                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400 dark:text-slate-500 bg-white dark:bg-[#141414] px-2 py-0.5 rounded-md border border-[#E7E5E1] dark:border-[#262626]" title="Bot nomi o'zgarmas">
-                                    <i class="fa-solid fa-lock text-[10px]"></i> O'zgarmas
-                                </span>
+                    
+                    <div class="space-y-3.5 text-xs text-slate-600 dark:text-slate-300">
+                        <!-- 1-qadam: Kodni nusxalash -->
+                        <div class="p-3.5 bg-slate-50 dark:bg-[#1E1E1E] rounded-xl border border-slate-100 dark:border-[#262626] space-y-2.5">
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex items-center space-x-2 min-w-0">
+                                    <span class="w-5 h-5 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center text-[11px] shrink-0">1</span>
+                                    <span class="font-bold text-slate-800 dark:text-[#F5F1E8] truncate">Ulash kodini nusxalang:</span>
+                                </div>
+                                <button type="button" 
+                                        onclick="copyWidgetCode()"
+                                        id="copyWidgetBtn"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition shadow-xs shrink-0">
+                                    <i class="fa-solid fa-copy"></i> <span id="copyWidgetBtnText">Nusxalash</span>
+                                </button>
+                            </div>
+                            <p class="text-slate-500 dark:text-slate-400 text-[11px]">
+                                Ushbu kodni nusxalab, vebsaytingizning har bir sahifasiga joylashtiring:
+                            </p>
+                            <!-- Scrollable Code Box that strictly fits width -->
+                            <div class="w-full min-w-0 bg-[#0A0A0A] rounded-xl p-3 border border-slate-800 overflow-hidden">
+                                <div class="overflow-x-auto select-all scrollbar-thin">
+                                    <code id="widgetScriptCode" class="text-indigo-300 font-mono text-[11px] whitespace-nowrap block">&lt;script src="{{ request.scheme }}://{{ request.get_host }}/static/js/lumos-widget.js" data-business-key="{{ chatbot.api_key }}"&gt;&lt;/script&gt;</code>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="p-3.5 bg-slate-50 dark:bg-[#1E1E1E] rounded-xl border border-[#E7E5E1] dark:border-[#262626] flex items-center space-x-3 mt-4 sm:mt-6">
-                            {{ form.is_active }}
-                            <label for="{{ form.is_active.id_for_label }}" class="text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer">
-                                Chatbot vebsaytda faol holatda tursin
-                            </label>
+                        <!-- 2-qadam: Saytga joylash -->
+                        <div class="flex items-start space-x-3 p-3.5 bg-slate-50 dark:bg-[#1E1E1E] rounded-xl border border-slate-100 dark:border-[#262626]">
+                            <span class="w-5 h-5 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center text-[11px] shrink-0 mt-0.5">2</span>
+                            <div>
+                                <p class="font-bold text-slate-800 dark:text-[#F5F1E8]">Saytingizga joylang:</p>
+                                <p class="text-slate-500 dark:text-slate-400 mt-0.5">Nusxalangan kodni saytingizning <code>&lt;/body&gt;</code> tegi oldiga qo'ying. WordPress, Tilda, Wix va barcha turdagi vebsaytlarda ishlaydi.</p>
+                            </div>
+                        </div>
+
+                        <!-- 3-qadam: Tekshirish -->
+                        <div class="flex items-start space-x-3 p-3.5 bg-slate-50 dark:bg-[#1E1E1E] rounded-xl border border-slate-100 dark:border-[#262626]">
+                            <span class="w-5 h-5 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center text-[11px] shrink-0 mt-0.5">3</span>
+                            <div>
+                                <p class="font-bold text-slate-800 dark:text-[#F5F1E8]">Natijani tekshiring:</p>
+                                <p class="text-slate-500 dark:text-slate-400 mt-0.5">Saytingizni yangilang — pastki o'ng burchakda AI chat vidjet tugmasi paydo bo'ladi. <a href="{% url 'chatbot:demo_page' chatbot.api_key %}" target="_blank" class="text-indigo-600 dark:text-indigo-400 font-bold hover:underline inline-flex items-center gap-1">Jonli sinov <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a> orqali ham tekshirishingiz mumkin.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -131,7 +155,7 @@
 
             </div>
 
-            <!-- Right 1 Col: Video Tutorial & Embed Script Sidebar -->
+            <!-- Right 1 Col: Video Tutorial & Sidebar -->
             <div class="space-y-6">
 
                 <!-- Video Tutorial Card -->
@@ -164,26 +188,6 @@
                     </div>
                 </div>
 
-                <!-- Embed Script Code Box -->
-                <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-3">
-                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-[#262626] pb-2.5">
-                        <h4 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-xs uppercase tracking-wider flex items-center">
-                            <i class="fa-solid fa-code text-indigo-600 dark:text-indigo-400 mr-2 text-sm"></i> Vebsaytga ulash kodi
-                        </h4>
-                    </div>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">
-                        Ushbu script kodini saytingizning <code>&lt;/body&gt;</code> tegi oldiga joylang:
-                    </p>
-                    <div class="relative">
-                        <pre class="bg-slate-900 text-slate-200 p-3 rounded-xl text-[11px] font-mono overflow-x-auto select-all leading-relaxed">&lt;script src="{{ request.scheme }}://{{ request.get_host }}/static/js/lumos-widget.js" data-business-key="{{ chatbot.api_key }}"&gt;&lt;/script&gt;</pre>
-                        <button type="button" 
-                                onclick="navigator.clipboard.writeText('&lt;script src=&quot;{{ request.scheme }}://{{ request.get_host }}/static/js/lumos-widget.js&quot; data-business-key=&quot;{{ chatbot.api_key }}&quot;&gt;&lt;/script&gt;'); alert('Vidjet kodi nusxalandi!');"
-                                class="mt-2 w-full py-2 px-3 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-xs font-bold transition flex items-center justify-center gap-1.5 border border-indigo-200 dark:border-indigo-800">
-                            <i class="fa-solid fa-copy"></i> Kodni nusxalash
-                        </button>
-                    </div>
-                </div>
-
                 <!-- Quick Tips Card -->
                 <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
                     <h4 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-xs uppercase tracking-wider pb-2 border-b border-slate-100 dark:border-[#262626] flex items-center">
@@ -196,7 +200,7 @@
                         </div>
                         <div class="flex items-start space-x-2">
                             <i class="fa-solid fa-check text-emerald-600 dark:text-emerald-400 mt-0.5 text-xs"></i>
-                            <span>Vidjet faolligini istalgan vaqtda yoqib-o'chirishingiz mumkin</span>
+                            <span>Vidjet avtomatik ravishda saytingizda faol ishlaydi</span>
                         </div>
                         <div class="flex items-start space-x-2">
                             <i class="fa-solid fa-check text-emerald-600 dark:text-emerald-400 mt-0.5 text-xs"></i>
@@ -248,6 +252,26 @@
                 if (colorPicker) colorPicker.value = val;
                 if (previewBadge) previewBadge.style.backgroundColor = val;
             }
+        });
+    }
+
+    function copyWidgetCode() {
+        const codePre = document.getElementById('widgetScriptCode');
+        const btn = document.getElementById('copyWidgetBtn');
+        const btnText = document.getElementById('copyWidgetBtnText');
+        if (!codePre) return;
+
+        const codeText = codePre.innerText || codePre.textContent;
+        navigator.clipboard.writeText(codeText).then(() => {
+            if (btn && btnText) {
+                const origHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check text-emerald-600"></i> <span class="text-emerald-600 dark:text-emerald-400">Nusxalandi!</span>';
+                setTimeout(() => {
+                    btn.innerHTML = origHtml;
+                }, 2000);
+            }
+        }).catch(() => {
+            alert('Kod nusxalandi!');
         });
     }
 </script>

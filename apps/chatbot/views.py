@@ -7,7 +7,7 @@ from django.contrib import messages
 from .models import ChatbotConfig, ChatSession, ChatMessage
 from django.db.models import Q, Count
 from django.urls import reverse
-from .forms import ChatbotConfigForm, TelegramBotConfigForm
+from .forms import ChatbotConfigForm, TelegramBotConfigForm, AgentConfigForm
 from .services import generate_rag_response, extract_contact_info, analyze_session_insights
 from .telegram_service import (
     verify_telegram_bot_token,
@@ -254,6 +254,52 @@ def chatbot_settings_view(request):
         form = ChatbotConfigForm(instance=chatbot)
 
     return render(request, 'chatbot/settings.html', {
+        'form': form,
+        'chatbot': chatbot,
+        'business': business
+    })
+
+
+@login_required
+def agent_settings_view(request):
+    if not hasattr(request.user, 'business'):
+        messages.warning(request, "Avval biznesingizni ro'yxatdan o'tkazing.")
+        return redirect('businesses:onboarding')
+
+    business = request.user.business
+    chatbot, created = ChatbotConfig.objects.get_or_create(
+        business=business,
+        defaults={
+            'bot_name': f"{business.name} AI",
+            'welcome_message': f"Assalomu alaykum! «{business.name}» virtual yordamchisiman. Sizga qanday yordam bera olaman?"
+        }
+    )
+
+    if request.method == 'POST':
+        form = AgentConfigForm(request.POST, instance=chatbot)
+        website = request.POST.get('website', '').strip()
+        description = request.POST.get('description', '').strip()
+
+        if form.is_valid():
+            form.save()
+
+            # Business website and description update if provided
+            updated_business = False
+            if website and website != (business.website or ''):
+                business.website = website
+                updated_business = True
+            if description and description != (business.description or ''):
+                business.description = description
+                updated_business = True
+            if updated_business:
+                business.save()
+
+            messages.success(request, "Savdo agenti sozlamalari muvaffaqiyatli saqlandi!")
+            return redirect('chatbot:agent_settings')
+    else:
+        form = AgentConfigForm(instance=chatbot)
+
+    return render(request, 'chatbot/agent_settings.html', {
         'form': form,
         'chatbot': chatbot,
         'business': business

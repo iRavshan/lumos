@@ -22,14 +22,14 @@ class BusinessSystemTests(TestCase):
     def test_user_registration(self):
         response = self.client.post(reverse('accounts:register'), {
             'first_name': 'Bobur',
-            'phone': '+998 90 123 45 67',
+            'email': 'bobur@example.com',
             'password1': 'StrongPass12345!',
             'password2': 'StrongPass12345!'
         })
         self.assertEqual(response.status_code, 302)
         # Should redirect to onboarding
         self.assertRedirects(response, reverse('businesses:onboarding'))
-        self.assertTrue(User.objects.filter(username='+998901234567').exists())
+        self.assertTrue(User.objects.filter(email='bobur@example.com').exists())
 
     def test_onboarding_and_dashboard_flow(self):
         # Login user without business

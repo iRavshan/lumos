@@ -27,25 +27,24 @@ class UserRegisterForm(forms.Form):
         required=True,
         label="Ismingiz",
         widget=forms.TextInput(attrs={
-            'class': 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200',
+            'class': 'w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 text-sm font-semibold',
             'placeholder': 'Ismingizni kiriting'
         })
     )
-    phone = forms.CharField(
-        max_length=30,
+    email = forms.EmailField(
         required=True,
-        label="Telefon raqamingiz",
-        widget=forms.TextInput(attrs={
-            'class': 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200',
-            'placeholder': '+998 90 123 45 67',
-            'type': 'tel'
+        label="Elektron pochta",
+        widget=forms.EmailInput(attrs={
+            'class': 'w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 text-sm',
+            'placeholder': 'misol@domen.uz',
+            'id': 'emailInput'
         })
     )
     password1 = forms.CharField(
         required=True,
         label="Parol",
         widget=forms.PasswordInput(attrs={
-            'class': 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200',
+            'class': 'w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 text-sm',
             'placeholder': 'Parol kiriting'
         })
     )
@@ -53,22 +52,16 @@ class UserRegisterForm(forms.Form):
         required=True,
         label="Parolni tasdiqlang",
         widget=forms.PasswordInput(attrs={
-            'class': 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200',
+            'class': 'w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 text-sm',
             'placeholder': 'Parolni qayta kiriting'
         })
     )
 
-    def clean_phone(self):
-        raw_phone = self.cleaned_data.get('phone', '').strip()
-        norm_phone = normalize_phone(raw_phone)
-        digits = re.sub(r'\D', '', norm_phone)
-        if len(digits) < 9:
-            raise ValidationError("Telefon raqami noto'g'ri kiritildi.")
-        
-        # Check if user with this phone/username already exists
-        if User.objects.filter(username=norm_phone).exists():
-            raise ValidationError("Ushbu telefon raqami allaqachon ro'yxatdan o'tgan. Iltimos, tizimga kiring.")
-        return norm_phone
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '').strip().lower()
+        if User.objects.filter(username=email).exists() or User.objects.filter(email=email).exists():
+            raise ValidationError("Ushbu elektron pochta allaqachon ro'yxatdan o'tgan. Iltimos, tizimga kiring.")
+        return email
 
     def clean(self):
         cleaned_data = super().clean()
@@ -79,12 +72,13 @@ class UserRegisterForm(forms.Form):
         return cleaned_data
 
     def save(self):
-        norm_phone = self.cleaned_data['phone']
+        email = self.cleaned_data['email']
         first_name = self.cleaned_data['first_name']
         password = self.cleaned_data['password1']
 
         user = User.objects.create_user(
-            username=norm_phone,
+            username=email,
+            email=email,
             first_name=first_name,
             password=password
         )
@@ -92,39 +86,46 @@ class UserRegisterForm(forms.Form):
 
 
 class UserLoginForm(forms.Form):
-    phone = forms.CharField(
-        max_length=30,
+    email = forms.CharField(
         required=True,
-        label="Telefon raqami",
+        label="Elektron pochta",
         widget=forms.TextInput(attrs={
-            'class': 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200',
-            'placeholder': '+998 90 123 45 67',
-            'type': 'tel'
+            'class': 'w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 text-sm',
+            'placeholder': 'misol@domen.uz yoki username',
+            'id': 'loginEmailInput'
         })
     )
     password = forms.CharField(
         required=True,
         label="Parol",
         widget=forms.PasswordInput(attrs={
-            'class': 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200',
+            'class': 'w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 text-sm',
             'placeholder': 'Parolingiz'
         })
     )
 
     def clean(self):
         cleaned_data = super().clean()
-        raw_phone = cleaned_data.get('phone', '').strip()
+        raw_email = cleaned_data.get('email', '').strip()
         password = cleaned_data.get('password', '')
 
-        if raw_phone and password:
-            norm_phone = normalize_phone(raw_phone)
-            # Authenticate via username (normalized phone) or raw input
-            user = authenticate(username=norm_phone, password=password)
+        if raw_email and password:
+            # 1. Try auth directly with input as username
+            user = authenticate(username=raw_email, password=password)
             if not user:
-                user = authenticate(username=raw_phone, password=password)
-            
+                user = authenticate(username=raw_email.lower(), password=password)
+            # 2. If not found, look up user by email
             if not user:
-                raise ValidationError("Telefon raqam yoki parol noto'g'ri.")
+                user_obj = User.objects.filter(email__iexact=raw_email).first()
+                if user_obj:
+                    user = authenticate(username=user_obj.username, password=password)
+            # 3. Fallback for legacy phone-based users
+            if not user:
+                norm_phone = normalize_phone(raw_email)
+                user = authenticate(username=norm_phone, password=password)
+
+            if not user:
+                raise ValidationError("Elektron pochta yoki parol noto'g'ri.")
             cleaned_data['user'] = user
 
         return cleaned_data

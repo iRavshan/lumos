@@ -36,7 +36,7 @@ def login_view(request):
                 messages.success(request, f"Xush kelibsiz, {user.first_name or user.username}!")
                 return redirect('businesses:dashboard')
         else:
-            messages.error(request, "Telefon raqam yoki parol noto'g'ri.")
+            messages.error(request, "Elektron pochta yoki parol noto'g'ri.")
     else:
         form = UserLoginForm()
 

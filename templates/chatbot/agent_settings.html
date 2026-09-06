@@ -1,0 +1,338 @@
+{% extends 'shared/_base.html' %}
+
+{% block title %}Savdo Agenti Sozlamalari - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+    <!-- 1. Header Card -->
+    <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-[#E7E5E1] dark:border-[#262626] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight flex items-center gap-2">
+                <i class="fa-solid fa-robot text-indigo-600 dark:text-indigo-400"></i> Savdo Agenti Sozlamalari
+            </h1>
+            <p class="text-slate-500 dark:text-slate-400 text-xs mt-2">«{{ business.name }}» AI savdo agenti xarakteristikalari, insoniy kechikish va bilimlar bazasini boshqaring</p>
+        </div>
+
+        <a href="{% url 'chatbot:demo_page' chatbot.api_key %}" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] text-white font-bold text-xs shadow-xs transition shrink-0">
+            <i class="fa-solid fa-play mr-1.5"></i> Jonli sinov
+        </a>
+    </div>
+
+    <!-- 2. Navigation Tabs (Agent vs Widget vs Telegram Bot) -->
+    <div class="flex space-x-2 border-b border-[#E7E5E1] dark:border-[#262626] pb-1 overflow-x-auto scrollbar-thin">
+        <a href="{% url 'chatbot:agent_settings' %}" class="px-4 py-2.5 font-bold text-xs sm:text-sm text-slate-900 dark:text-[#F5F1E8] border-b-2 border-slate-900 dark:border-[#F5F1E8] transition flex items-center shrink-0">
+            <i class="fa-solid fa-robot mr-2 text-indigo-600 dark:text-indigo-400"></i> Savdo Agenti
+        </a>
+        <a href="{% url 'chatbot:settings' %}" class="px-4 py-2.5 font-bold text-xs sm:text-sm text-slate-500 hover:text-slate-800 dark:hover:text-white border-b-2 border-transparent transition flex items-center shrink-0">
+            <i class="fa-solid fa-code mr-2"></i> Vebsayt Vidjeti
+        </a>
+        <a href="{% url 'chatbot:telegram_settings' %}" class="px-4 py-2.5 font-bold text-xs sm:text-sm text-slate-500 hover:text-slate-800 dark:hover:text-white border-b-2 border-transparent transition flex items-center shrink-0">
+            <i class="fa-brands fa-telegram mr-2 text-sky-500"></i> Telegram Bot
+        </a>
+    </div>
+
+    <form method="POST" class="space-y-6" novalidate>
+        {% csrf_token %}
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Left 2 Cols: Form Cards -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- Card 1: Agent Shaxsi va Nomi -->
+                <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-[#262626] pb-3">
+                        <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm flex items-center">
+                            <i class="fa-solid fa-user-tie text-indigo-600 dark:text-indigo-400 mr-2"></i> Agent Shaxsi va Nomi
+                        </h3>
+                        <span class="text-xs text-slate-400 dark:text-slate-500">Mijozlar ko'radigan ism</span>
+                    </div>
+
+                    <div>
+                        <label for="{{ form.bot_name.id_for_label }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                            Savdo agenti ismi <span class="text-rose-500">*</span>
+                        </label>
+                        {{ form.bot_name }}
+                        {% if form.bot_name.errors %}
+                            <p class="text-rose-500 text-xs mt-1">{{ form.bot_name.errors.0 }}</p>
+                        {% endif %}
+                        <p class="text-slate-400 dark:text-slate-500 text-xs mt-1.5">
+                            Mijozlar bilan muloqot boshlanganda ushbu ism virtual menejer sifatida ko'rsatiladi (masalan: Anvar, Aziza, Jasur).
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 2: Inson kabi kechiktirib javob yozish (Human-like delay) -->
+                <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-5">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-[#262626] pb-3">
+                        <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm flex items-center">
+                            <i class="fa-solid fa-hourglass-half text-indigo-600 dark:text-indigo-400 mr-2"></i> Inson kabi kechiktirib javob yozish
+                        </h3>
+                        <span class="text-xs text-slate-400 dark:text-slate-500">Tabiiy muloqot effekti</span>
+                    </div>
+
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Agent robot kabi bir soniyada emas, haqiqiy savdo menejeri kabi o'ylab, tabiiy kechikish bilan javob yozadi. Bu mijozlarga ishonch bag'ishlaydi.
+                    </p>
+
+                    <!-- Main Delay Toggle Switch -->
+                    <div class="p-4 rounded-xl bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-between">
+                        <div>
+                            <span class="font-bold text-xs sm:text-sm text-slate-800 dark:text-[#F5F1E8] block">
+                                Insoniy kechikishni yoqish (Human-like delay)
+                            </span>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                Mijozga «yozmoqda...» animatsiyasi ko'rsatiladi.
+                            </p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                            {{ form.response_delay_enabled }}
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                    </div>
+
+                    <!-- Configurable Delays -->
+                    <div id="delayOptionsWrapper" class="space-y-4">
+                        <!-- 1. First message delay -->
+                        <div class="p-4 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-white dark:bg-[#141414]">
+                            <div class="flex items-center justify-between gap-4 mb-2">
+                                <div>
+                                    <span class="text-xs font-bold text-slate-800 dark:text-[#F5F1E8] flex items-center gap-1.5">
+                                        <span class="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-[10px] font-mono font-bold">1</span>
+                                        Birinchi xabarga kechikib javob yozish
+                                    </span>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                        Mijoz yangi suhbat boshlagandagi dastlabki kechikish
+                                    </p>
+                                </div>
+                                <div class="flex items-center space-x-1.5 shrink-0">
+                                    {{ form.first_message_delay_seconds }}
+                                    <span class="text-xs font-mono text-slate-500">sek</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 pt-1">
+                                <span class="text-[10px] font-mono uppercase text-slate-400 font-semibold mr-1">Tezkor:</span>
+                                <button type="button" onclick="setFirstDelay(3)" class="px-2.5 py-1 rounded-lg text-xs font-mono border border-[#E7E5E1] dark:border-[#262626] hover:bg-slate-100 dark:hover:bg-[#262626] text-slate-600 dark:text-slate-400 transition">3s</button>
+                                <button type="button" onclick="setFirstDelay(5)" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold border border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 transition">5s (Tavsiya)</button>
+                                <button type="button" onclick="setFirstDelay(8)" class="px-2.5 py-1 rounded-lg text-xs font-mono border border-[#E7E5E1] dark:border-[#262626] hover:bg-slate-100 dark:hover:bg-[#262626] text-slate-600 dark:text-slate-400 transition">8s</button>
+                            </div>
+                        </div>
+
+                        <!-- 2. Subsequent messages delay -->
+                        <div class="p-4 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-white dark:bg-[#141414]">
+                            <div class="flex items-center justify-between gap-4 mb-2">
+                                <div>
+                                    <span class="text-xs font-bold text-slate-800 dark:text-[#F5F1E8] flex items-center gap-1.5">
+                                        <span class="w-5 h-5 rounded-full bg-violet-100 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400 flex items-center justify-center text-[10px] font-mono font-bold">2</span>
+                                        Keyingi xabarlarga kechikib javob yozish
+                                    </span>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                        Suhbat davomida navbatdagi savollarga javob yozish vaqti
+                                    </p>
+                                </div>
+                                <div class="flex items-center space-x-1.5 shrink-0">
+                                    {{ form.subsequent_message_delay_seconds }}
+                                    <span class="text-xs font-mono text-slate-500">sek</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 pt-1">
+                                <span class="text-[10px] font-mono uppercase text-slate-400 font-semibold mr-1">Tezkor:</span>
+                                <button type="button" onclick="setSubsequentDelay(5)" class="px-2.5 py-1 rounded-lg text-xs font-mono border border-[#E7E5E1] dark:border-[#262626] hover:bg-slate-100 dark:hover:bg-[#262626] text-slate-600 dark:text-slate-400 transition">5s</button>
+                                <button type="button" onclick="setSubsequentDelay(10)" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold border border-violet-500 bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 transition">10s (Tavsiya)</button>
+                                <button type="button" onclick="setSubsequentDelay(15)" class="px-2.5 py-1 rounded-lg text-xs font-mono border border-[#E7E5E1] dark:border-[#262626] hover:bg-slate-100 dark:hover:bg-[#262626] text-slate-600 dark:text-slate-400 transition">15s</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Matnlarni bo'laklarga ajratib yuborish (Split messages) -->
+                <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-[#262626] pb-3">
+                        <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm flex items-center">
+                            <i class="fa-solid fa-layer-group text-indigo-600 dark:text-indigo-400 mr-2"></i> Matnlarni bo'laklarga ajratib yuborish
+                        </h3>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-between">
+                        <div>
+                            <span class="font-bold text-xs sm:text-sm text-slate-800 dark:text-[#F5F1E8] block">
+                                Xabarlarni bo'laklab jo'natish (Split messages)
+                            </span>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                Katta uzun matn o'rniga ketma-ket bir nechta qisqa xabar qilib jo'natadi.
+                            </p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                            {{ form.split_messages }}
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                        </label>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div class="p-3.5 rounded-xl border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/50 dark:bg-emerald-950/20">
+                            <span class="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5 mb-1">
+                                <i class="fa-solid fa-check"></i> Yoqilgan holatda
+                            </span>
+                            <p class="text-slate-600 dark:text-slate-300 text-[11px] leading-relaxed">
+                                Xabarlar ixcham va qulay o'qiladi, jonli inson yozayotgandek taassurot beradi.
+                            </p>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E]">
+                            <span class="font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mb-1">
+                                <i class="fa-solid fa-ban"></i> O'chirilgan holatda
+                            </span>
+                            <p class="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed">
+                                Barcha ma'lumotlar bitta yagona katta matn ko'rinishida yuboriladi.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4: RAG Bilimlar Bazasi (O'qitish ma'lumotlari) -->
+                <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-[#262626] pb-3">
+                        <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm flex items-center">
+                            <i class="fa-solid fa-brain text-indigo-600 dark:text-indigo-400 mr-2"></i> AI Bilimlar Bazasi va Maxsus FAQ
+                        </h3>
+                    </div>
+
+                    <!-- Website URL -->
+                    <div>
+                        <label for="websiteInput" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                            <i class="fa-solid fa-globe mr-1 text-indigo-500"></i> Vebsayt havolasi (RAG o'rganish manbasi)
+                        </label>
+                        <input type="url" name="website" id="websiteInput" 
+                            value="{{ business.website|default:'' }}"
+                            placeholder="https://misol.uz"
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 text-sm">
+                        <p class="text-slate-400 dark:text-slate-500 text-xs mt-1.5">
+                            Agent ushbu saytdagi sahifalar, xizmatlar va mahsulotlarni o'rganib oladi.
+                        </p>
+                    </div>
+
+                    <!-- Extra Knowledge / FAQ -->
+                    <div>
+                        <label for="{{ form.extra_knowledge.id_for_label }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                            <i class="fa-solid fa-file-lines mr-1 text-indigo-500"></i> Maxsus narxlar, qoidalar va tez-tez beriladigan savollar
+                        </label>
+                        {{ form.extra_knowledge }}
+                        {% if form.extra_knowledge.errors %}
+                            <p class="text-rose-500 text-xs mt-1">{{ form.extra_knowledge.errors.0 }}</p>
+                        {% endif %}
+                        <p class="text-slate-400 dark:text-slate-500 text-xs mt-1.5">
+                            Ish vaqti, yetkazib berish shartlari, to'lov usullari va kafolatlar haqida yozing. Bot mijozlar so'raganda ushbu ma'lumotlar asosida aniq javob beradi.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="bg-white dark:bg-[#141414] rounded-2xl p-4 border border-[#E7E5E1] dark:border-[#262626] shadow-xs flex items-center justify-between">
+                    <a href="{% url 'businesses:dashboard' %}" class="px-5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-50 dark:hover:bg-[#1E1E1E] transition">
+                        Bekor qilish
+                    </a>
+                    <button type="submit" class="inline-flex items-center px-7 py-2.5 bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] text-white font-bold rounded-xl shadow-xs transition text-xs">
+                        <i class="fa-solid fa-floppy-disk mr-1.5"></i> Sozlamalarni saqlash
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Right 1 Col: Agent Profile & Info Sidebar -->
+            <div class="space-y-6">
+
+                <!-- Agent Live Profile Card -->
+                <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-[#E7E5E1] dark:border-[#262626] shadow-xs text-center space-y-4">
+                    <div class="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-3xl mx-auto shadow-xs border border-indigo-100 dark:border-indigo-900/50">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-[#F5F1E8]" id="agentPreviewName">
+                            {{ chatbot.bot_name }}
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">«{{ business.name }}» AI Savdo Agenti</p>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-100 dark:border-[#262626] space-y-2 text-left text-xs">
+                        <div class="flex items-center justify-between py-1 border-b border-slate-50 dark:border-zinc-800">
+                            <span class="text-slate-500 dark:text-slate-400">Agent holati:</span>
+                            <span class="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> 24/7 Faol
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between py-1 border-b border-slate-50 dark:border-zinc-800">
+                            <span class="text-slate-500 dark:text-slate-400">Insoniy kechikish:</span>
+                            <span class="font-bold text-slate-800 dark:text-[#F5F1E8]">
+                                {% if chatbot.response_delay_enabled %}Yoqilgan ({{ chatbot.first_message_delay_seconds }}s / {{ chatbot.subsequent_message_delay_seconds }}s){% else %}O'chirilgan{% endif %}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between py-1">
+                            <span class="text-slate-500 dark:text-slate-400">Matnni bo'laklash:</span>
+                            <span class="font-bold text-slate-800 dark:text-[#F5F1E8]">
+                                {% if chatbot.split_messages %}Yoqilgan{% else %}O'chirilgan{% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <a href="{% url 'chatbot:demo_page' chatbot.api_key %}" target="_blank"
+                        class="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] text-white font-bold text-xs shadow-xs transition">
+                        <i class="fa-solid fa-play mr-1.5"></i> Jonli sinab ko'rish
+                    </a>
+                </div>
+
+                <!-- Tips Card -->
+                <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
+                    <h4 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-xs uppercase tracking-wider pb-2 border-b border-slate-100 dark:border-[#262626] flex items-center">
+                        <i class="fa-solid fa-lightbulb text-amber-500 mr-1.5"></i> Foydali maslahatlar
+                    </h4>
+                    <div class="space-y-2.5 pt-1 text-slate-500 dark:text-slate-400 leading-relaxed text-[11px]">
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-check text-emerald-600 dark:text-emerald-400 mt-0.5 text-xs"></i>
+                            <span>Agentga samimiy ism bering — mijozlar ko'pincha ism bilan murojaat qilishadi.</span>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-check text-emerald-600 dark:text-emerald-400 mt-0.5 text-xs"></i>
+                            <span>5-10 soniya kechikish muloqotni tabiiy va professional savdo menejeri suhbati kabi qiladi.</span>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-check text-emerald-600 dark:text-emerald-400 mt-0.5 text-xs"></i>
+                            <span>Bilimlar bazasiga tez-tez so'raladigan narx va yetkazib berish shartlarini kiriting.</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </form>
+</div>
+
+{% block extra_scripts %}
+<script>
+    const botNameInput = document.getElementById('id_bot_name');
+    const previewName = document.getElementById('agentPreviewName');
+    const firstDelayInput = document.getElementById('firstDelayInput');
+    const subsequentDelayInput = document.getElementById('subsequentDelayInput');
+
+    if (botNameInput && previewName) {
+        botNameInput.addEventListener('input', function(e) {
+            previewName.textContent = e.target.value.trim() || 'AI Savdo Agenti';
+        });
+    }
+
+    function setFirstDelay(seconds) {
+        if (firstDelayInput) {
+            firstDelayInput.value = seconds;
+        }
+    }
+
+    function setSubsequentDelay(seconds) {
+        if (subsequentDelayInput) {
+            subsequentDelayInput.value = seconds;
+        }
+    }
+</script>
+{% endblock %}
+{% endblock %}

@@ -19,21 +19,16 @@
             <form method="POST" id="loginForm" class="space-y-4" novalidate>
                 {% csrf_token %}
                 
-                <!-- Phone with +998 Prefix -->
+                <!-- Email / Username -->
                 <div>
-                    <label for="loginPhoneInput" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-300 font-semibold mb-1.5">
-                        Telefon raqam <span class="text-rose-500">*</span>
+                    <label for="loginEmailInput" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-300 font-semibold mb-1.5">
+                        Elektron pochta <span class="text-rose-500">*</span>
                     </label>
-                    <div class="flex rounded-xl border border-[#E7E5E1] dark:border-[#262626] focus-within:border-slate-800 dark:focus-within:border-white overflow-hidden transition bg-white dark:bg-[#141414]">
-                        <span class="inline-flex items-center px-3.5 bg-slate-50 dark:bg-[#1E1E1E] border-r border-[#E7E5E1] dark:border-[#262626] text-slate-700 dark:text-slate-300 font-mono text-xs select-none shrink-0 font-bold">
-                            +998
-                        </span>
-                        <input type="tel" id="loginPhoneInput" name="phone" value="{{ form.phone.value|default:'' }}"
-                            class="w-full px-3.5 py-2.5 outline-none font-medium text-slate-900 dark:text-white placeholder-slate-400 text-sm bg-transparent"
-                            placeholder="90 123 45 67" maxlength="14" autocomplete="tel" required>
-                    </div>
-                    {% if form.phone.errors %}
-                        <p class="text-rose-500 text-xs mt-1">{{ form.phone.errors.0 }}</p>
+                    <input type="text" id="loginEmailInput" name="email" value="{{ form.email.value|default:'' }}"
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] focus:border-slate-800 dark:focus:border-white outline-none transition text-sm font-medium text-slate-900 dark:text-white bg-transparent placeholder-slate-400"
+                        placeholder="misol@domen.uz" autocomplete="username" required>
+                    {% if form.email.errors %}
+                        <p class="text-rose-500 text-xs mt-1">{{ form.email.errors.0 }}</p>
                     {% endif %}
                 </div>
 
@@ -76,45 +71,18 @@
 {% block extra_scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const phoneInput = document.getElementById('loginPhoneInput');
+        const emailInput = document.getElementById('loginEmailInput');
         const passInput = document.getElementById('loginPassInput');
         const submitBtn = document.getElementById('loginSubmitBtn');
 
-        // Clean initial phone value if it came with +998 or 998
-        if (phoneInput.value) {
-            let digits = phoneInput.value.replace(/\D/g, '');
-            if (digits.startsWith('998') && digits.length > 3) {
-                digits = digits.substring(3);
-            }
-            phoneInput.value = formatPhone(digits);
-        }
-
-        // Phone Input Auto-Formatting: XX XXX XX XX
-        function formatPhone(digits) {
-            digits = digits.substring(0, 9);
-            if (digits.length <= 2) return digits;
-            if (digits.length <= 5) return `${digits.slice(0, 2)} ${digits.slice(2)}`;
-            if (digits.length <= 7) return `${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5)}`;
-            return `${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5, 7)} ${digits.slice(7, 9)}`;
-        }
-
-        phoneInput.addEventListener('input', function (e) {
-            let digits = e.target.value.replace(/\D/g, '');
-            if (digits.startsWith('998') && digits.length > 3) {
-                digits = digits.substring(3);
-            }
-            e.target.value = formatPhone(digits);
-            validateLoginForm();
-        });
-
+        emailInput.addEventListener('input', validateLoginForm);
         passInput.addEventListener('input', validateLoginForm);
 
         function validateLoginForm() {
-            const phoneDigits = phoneInput.value.replace(/\D/g, '');
-            const isPhoneValid = phoneDigits.length === 9;
+            const isEmailValid = emailInput.value.trim().length > 0;
             const isPassValid = passInput.value.length > 0;
 
-            if (isPhoneValid && isPassValid) {
+            if (isEmailValid && isPassValid) {
                 submitBtn.disabled = false;
                 submitBtn.className = 'w-full flex justify-center items-center py-3 px-4 rounded-full text-xs font-bold text-[#0A0A0A] bg-[#F5F1E8] hover:bg-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] dark:hover:bg-white shadow-xs cursor-pointer transition';
             } else {

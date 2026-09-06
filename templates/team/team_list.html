@@ -3,72 +3,99 @@
 {% block title %}Jamoa boshqaruvi - {{ business.name }}{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-7">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
     <!-- 1. Header Card -->
     <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-[#E7E5E1] dark:border-[#262626] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight flex items-center gap-2">
-                <i class="fa-solid fa-users-gear text-indigo-600 dark:text-indigo-400"></i> Jamoa Boshqaruvi
-            </h1>
-            <p class="text-slate-500 dark:text-slate-400 text-xs mt-2">Operatorlar va supervisorlar yaratish, ularning Telegram Mini App kabinetlarini boshqarish</p>
+        <div class="flex items-center space-x-3.5">
+            <div class="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#1E1E1E] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-lg shrink-0 shadow-2xs">
+                <i class="fa-solid fa-users-gear"></i>
+            </div>
+            <div>
+                <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight">
+                    Jamoa boshqaruvi
+                </h1>
+                <p class="text-slate-500 dark:text-slate-400 text-xs mt-1">«{{ business.name }}» operatorlari va supervisorlarini boshqarish hamda Telegram Mini App havolalari</p>
+            </div>
         </div>
         <div class="flex items-center gap-2.5 shrink-0">
-            <a href="{% url 'team:team_analytics' %}" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1E1E1E] dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 font-bold text-xs transition">
-                <i class="fa-solid fa-chart-line mr-1.5 text-violet-600 dark:text-violet-400"></i> KPI & Nazorat
+            <a href="{% url 'team:team_analytics' %}" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1E1E1E] dark:hover:bg-[#262626] text-slate-800 dark:text-[#F5F1E8] font-bold text-xs border border-transparent dark:border-[#262626] transition">
+                <i class="fa-solid fa-chart-line mr-1.5 text-slate-600 dark:text-slate-400"></i> KPI & Nazorat
             </a>
-            <a href="{% url 'team:team_create' %}" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] text-white font-bold text-xs shadow-xs transition">
+            <a href="{% url 'team:team_create' %}" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] text-white font-bold text-xs shadow-xs transition">
                 <i class="fa-solid fa-user-plus mr-1.5"></i> Yangi xodim qo'shish
             </a>
         </div>
     </div>
 
-    <!-- 2. Distinct Stats Bar -->
-    <div class="grid grid-cols-3 gap-4">
-        <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-indigo-100/90 dark:border-indigo-950/50 shadow-xs relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-1 bg-indigo-600"></div>
-            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Jami Xodimlar</span>
-            <div class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-[#F5F1E8] mt-1.5">{{ total_staff }}</div>
+    <!-- 2. Distinct Stats Bar (Pleep-style Monochrome Metric Cards) -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- Stat 1: Jami xodimlar -->
+        <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs relative overflow-hidden group">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">Jami Xodimlar</span>
+                <span class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#1E1E1E] text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-users"></i>
+                </span>
+            </div>
+            <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-[#F5F1E8] mt-2.5">{{ total_staff }}</div>
+            <div class="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-1">Barcha faol a'zolar</div>
         </div>
-        <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-emerald-100/90 dark:border-emerald-950/50 shadow-xs relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
-            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Operatorlar</span>
-            <div class="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1.5">{{ operators|length }}</div>
+
+        <!-- Stat 2: Operatorlar -->
+        <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs relative overflow-hidden group">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">Operatorlar</span>
+                <span class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#1E1E1E] text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-headset"></i>
+                </span>
+            </div>
+            <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-[#F5F1E8] mt-2.5">{{ operators|length }}</div>
+            <div class="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-1">Mijozlar bilan jonli chat</div>
         </div>
-        <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-violet-100/90 dark:border-violet-950/50 shadow-xs relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-1 bg-violet-600"></div>
-            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Supervisorlar</span>
-            <div class="text-2xl sm:text-3xl font-black text-violet-600 dark:text-violet-400 mt-1.5">{{ supervisors|length }}</div>
+
+        <!-- Stat 3: Supervisorlar -->
+        <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs relative overflow-hidden group">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">Supervisorlar</span>
+                <span class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#1E1E1E] text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </span>
+            </div>
+            <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-[#F5F1E8] mt-2.5">{{ supervisors|length }}</div>
+            <div class="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-1">SLA va sifat nazoratchilari</div>
         </div>
     </div>
 
     <!-- 3. Operators Section -->
     <div class="space-y-4">
         <div class="flex items-center justify-between">
-            <h2 class="text-sm font-bold text-slate-800 dark:text-[#F5F1E8] uppercase tracking-wider flex items-center">
-                <span class="w-6 h-6 rounded-lg bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-xs mr-2"><i class="fa-solid fa-headset"></i></span>
-                Operatorlar ro'yxati
+            <h2 class="text-xs font-mono uppercase tracking-wider font-bold text-slate-700 dark:text-slate-300 flex items-center">
+                <span class="w-6 h-6 rounded-lg bg-slate-100 dark:bg-[#1E1E1E] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-[11px] mr-2">
+                    <i class="fa-solid fa-headset"></i>
+                </span>
+                Operatorlar ro'yxati ({{ operators|length }})
             </h2>
         </div>
 
         {% if operators %}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             {% for op in operators %}
-            <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:shadow-md transition space-y-4">
+            <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:border-slate-400 dark:hover:border-zinc-700 transition space-y-4">
                 <div class="flex items-center justify-between border-b border-[#E7E5E1] dark:border-[#262626] pb-3">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/60 flex items-center justify-center font-bold text-sm">
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#1E1E1E] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center font-bold text-sm">
                             {{ op.name|first|upper }}
                         </div>
                         <div>
                             <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm">{{ op.name }}</h3>
-                            <p class="text-xs text-slate-400 dark:text-slate-500">{{ op.clean_telegram|default:"Telegram username kiritilmagan" }}</p>
+                            <p class="text-xs text-slate-400 dark:text-slate-500 font-mono">{{ op.clean_telegram|default:"Telegram username kiritilmagan" }}</p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-[#1E1E1E] px-2.5 py-1 rounded-lg border border-slate-200 dark:border-[#262626]">
                         <span class="w-2 h-2 rounded-full {% if op.is_online %}bg-emerald-500 animate-pulse{% else %}bg-slate-300 dark:bg-slate-600{% endif %}"></span>
-                        <span class="text-[10px] font-bold {% if op.is_online %}text-emerald-700 dark:text-emerald-400{% else %}text-slate-400 dark:text-slate-500{% endif %}">
-                            {% if op.is_online %}Onlayn{% else %}Oflayn{% endif %}
+                        <span class="text-[10px] font-bold font-mono {% if op.is_online %}text-emerald-600 dark:text-emerald-400{% else %}text-slate-400 dark:text-slate-500{% endif %}">
+                            {% if op.is_online %}ONLAYN{% else %}OFLAYN{% endif %}
                         </span>
                     </div>
                 </div>
@@ -89,24 +116,28 @@
                     </div>
                 </div>
 
-                <!-- TMA Link Box -->
-                <div class="bg-indigo-50/50 dark:bg-indigo-950/30 rounded-xl p-3 border border-indigo-100 dark:border-indigo-800/60">
-                    <div class="text-[10px] font-bold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider mb-1"><i class="fa-brands fa-telegram mr-1 text-sky-500"></i> Operator TMA havolasi:</div>
+                <!-- TMA Link Box (Pleep-style) -->
+                <div class="bg-slate-50 dark:bg-[#1E1E1E] rounded-xl p-3 border border-[#E7E5E1] dark:border-[#262626] space-y-1.5">
+                    <div class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                        <span class="flex items-center gap-1.5">
+                            <i class="fa-brands fa-telegram text-sky-500"></i> Operator TMA havolasi:
+                        </span>
+                    </div>
                     <div class="flex items-center space-x-2">
-                        <input type="text" readonly value="{{ request.scheme }}://{{ request.get_host }}/tma/operator/{{ op.auth_token }}/" class="w-full text-xs bg-white dark:bg-[#1E1E1E] border border-indigo-200 dark:border-[#262626] rounded-lg px-2.5 py-1.5 text-slate-700 dark:text-slate-300 font-mono outline-none select-all">
-                        <button onclick="navigator.clipboard.writeText('{{ request.scheme }}://{{ request.get_host }}/tma/operator/{{ op.auth_token }}/'); alert('Operator TMA havolasi nusxalandi!');" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition shrink-0">
+                        <input type="text" readonly value="{{ request.scheme }}://{{ request.get_host }}/tma/operator/{{ op.auth_token }}/" class="w-full text-xs bg-white dark:bg-[#141414] border border-[#E7E5E1] dark:border-[#262626] rounded-lg px-2.5 py-2 text-slate-800 dark:text-[#F5F1E8] font-mono outline-none select-all focus:border-slate-400">
+                        <button onclick="navigator.clipboard.writeText('{{ request.scheme }}://{{ request.get_host }}/tma/operator/{{ op.auth_token }}/'); alert('Operator TMA havolasi nusxalandi!');" class="px-3 py-2 rounded-lg bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] text-white text-xs font-bold transition shrink-0 shadow-2xs">
                             <i class="fa-solid fa-copy"></i>
                         </button>
                     </div>
                 </div>
 
                 <!-- Action buttons -->
-                <div class="flex items-center justify-between pt-1">
-                    <a href="{% url 'team:team_edit' op.id %}" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">
-                        <i class="fa-solid fa-pen-to-square mr-1"></i> Tahrirlash
+                <div class="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-[#262626]">
+                    <a href="{% url 'team:team_edit' op.id %}" class="text-xs font-bold text-slate-700 hover:text-black dark:text-slate-300 dark:hover:text-white transition inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-pen-to-square text-xs"></i> Tahrirlash
                     </a>
-                    <a href="{% url 'team:team_delete' op.id %}" class="text-xs font-bold text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300" onclick="return confirm('Rostdan o\'chirmoqchimisiz?')">
-                        <i class="fa-solid fa-trash mr-1"></i> O'chirish
+                    <a href="{% url 'team:team_delete' op.id %}" class="text-xs font-bold text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 transition inline-flex items-center gap-1.5" onclick="return confirm('Rostdan ham ushbu xodimni o\'chirmoqchimisiz?')">
+                        <i class="fa-solid fa-trash text-xs"></i> O'chirish
                     </a>
                 </div>
             </div>
@@ -114,9 +145,12 @@
         </div>
         {% else %}
         <div class="bg-white dark:bg-[#141414] rounded-2xl p-8 text-center border border-[#E7E5E1] dark:border-[#262626] shadow-xs">
-            <i class="fa-solid fa-headset text-3xl text-slate-300 dark:text-slate-600 mb-2 block"></i>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Hozircha operatorlar qo'shilmagan.</p>
-            <a href="{% url 'team:team_create' %}" class="inline-flex items-center mt-3 px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] text-white text-xs font-bold shadow-xs transition">
+            <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-[#1E1E1E] text-slate-400 dark:text-slate-500 flex items-center justify-center text-xl mx-auto mb-3">
+                <i class="fa-solid fa-headset"></i>
+            </div>
+            <h3 class="text-sm font-bold text-slate-800 dark:text-[#F5F1E8]">Hozircha operatorlar qo'shilmagan</h3>
+            <p class="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-sm mx-auto">Operatorlar mijozlardan kelgan eskalatsiyalarni qabul qiladi va TMA orqali javob beradi.</p>
+            <a href="{% url 'team:team_create' %}" class="inline-flex items-center mt-4 px-4 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] text-white text-xs font-bold shadow-xs transition">
                 <i class="fa-solid fa-plus mr-1.5"></i> Operator qo'shish
             </a>
         </div>
@@ -126,47 +160,53 @@
     <!-- 4. Supervisors Section -->
     <div class="space-y-4">
         <div class="flex items-center justify-between">
-            <h2 class="text-sm font-bold text-slate-800 dark:text-[#F5F1E8] uppercase tracking-wider flex items-center">
-                <span class="w-6 h-6 rounded-lg bg-violet-100 dark:bg-violet-950/40 text-violet-700 dark:text-violet-400 flex items-center justify-center text-xs mr-2"><i class="fa-solid fa-shield-halved"></i></span>
-                Supervisorlar ro'yxati
+            <h2 class="text-xs font-mono uppercase tracking-wider font-bold text-slate-700 dark:text-slate-300 flex items-center">
+                <span class="w-6 h-6 rounded-lg bg-slate-100 dark:bg-[#1E1E1E] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-[11px] mr-2">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </span>
+                Supervisorlar ro'yxati ({{ supervisors|length }})
             </h2>
         </div>
 
         {% if supervisors %}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             {% for sup in supervisors %}
-            <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:shadow-md transition space-y-4">
+            <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:border-slate-400 dark:hover:border-zinc-700 transition space-y-4">
                 <div class="flex items-center justify-between border-b border-[#E7E5E1] dark:border-[#262626] pb-3">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-xl bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-400 border border-violet-100 dark:border-violet-800/60 flex items-center justify-center font-bold text-sm">
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#1E1E1E] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center font-bold text-sm">
                             {{ sup.name|first|upper }}
                         </div>
                         <div>
                             <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm">{{ sup.name }}</h3>
-                            <p class="text-xs text-slate-400 dark:text-slate-500">{{ sup.clean_telegram|default:"Telegram username kiritilmagan" }}</p>
+                            <p class="text-xs text-slate-400 dark:text-slate-500 font-mono">{{ sup.clean_telegram|default:"Telegram username kiritilmagan" }}</p>
                         </div>
                     </div>
-                    <span class="px-2.5 py-0.5 rounded-lg text-[10px] font-bold bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-400 border border-violet-200 dark:border-violet-800/60">Supervisor</span>
+                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-100 dark:bg-[#1E1E1E] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-[#262626]">Supervisor</span>
                 </div>
 
-                <!-- Supervisor TMA Link Box -->
-                <div class="bg-violet-50/50 dark:bg-violet-950/30 rounded-xl p-3 border border-violet-100 dark:border-violet-800/60">
-                    <div class="text-[10px] font-bold text-violet-700 dark:text-violet-400 uppercase tracking-wider mb-1"><i class="fa-brands fa-telegram mr-1 text-sky-500"></i> Supervisor TMA havolasi:</div>
+                <!-- Supervisor TMA Link Box (Pleep-style) -->
+                <div class="bg-slate-50 dark:bg-[#1E1E1E] rounded-xl p-3 border border-[#E7E5E1] dark:border-[#262626] space-y-1.5">
+                    <div class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                        <span class="flex items-center gap-1.5">
+                            <i class="fa-brands fa-telegram text-sky-500"></i> Supervisor TMA havolasi:
+                        </span>
+                    </div>
                     <div class="flex items-center space-x-2">
-                        <input type="text" readonly value="{{ request.scheme }}://{{ request.get_host }}/tma/supervisor/{{ sup.auth_token }}/" class="w-full text-xs bg-white dark:bg-[#1E1E1E] border border-violet-200 dark:border-[#262626] rounded-lg px-2.5 py-1.5 text-slate-700 dark:text-slate-300 font-mono outline-none select-all">
-                        <button onclick="navigator.clipboard.writeText('{{ request.scheme }}://{{ request.get_host }}/tma/supervisor/{{ sup.auth_token }}/'); alert('Supervisor TMA havolasi nusxalandi!');" class="px-3 py-1.5 rounded-lg bg-violet-600 text-white text-xs font-bold hover:bg-violet-700 transition shrink-0">
+                        <input type="text" readonly value="{{ request.scheme }}://{{ request.get_host }}/tma/supervisor/{{ sup.auth_token }}/" class="w-full text-xs bg-white dark:bg-[#141414] border border-[#E7E5E1] dark:border-[#262626] rounded-lg px-2.5 py-2 text-slate-800 dark:text-[#F5F1E8] font-mono outline-none select-all focus:border-slate-400">
+                        <button onclick="navigator.clipboard.writeText('{{ request.scheme }}://{{ request.get_host }}/tma/supervisor/{{ sup.auth_token }}/'); alert('Supervisor TMA havolasi nusxalandi!');" class="px-3 py-2 rounded-lg bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] text-white text-xs font-bold transition shrink-0 shadow-2xs">
                             <i class="fa-solid fa-copy"></i>
                         </button>
                     </div>
                 </div>
 
                 <!-- Action buttons -->
-                <div class="flex items-center justify-between pt-1">
-                    <a href="{% url 'team:team_edit' sup.id %}" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">
-                        <i class="fa-solid fa-pen-to-square mr-1"></i> Tahrirlash
+                <div class="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-[#262626]">
+                    <a href="{% url 'team:team_edit' sup.id %}" class="text-xs font-bold text-slate-700 hover:text-black dark:text-slate-300 dark:hover:text-white transition inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-pen-to-square text-xs"></i> Tahrirlash
                     </a>
-                    <a href="{% url 'team:team_delete' sup.id %}" class="text-xs font-bold text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300" onclick="return confirm('Rostdan o\'chirmoqchimisiz?')">
-                        <i class="fa-solid fa-trash mr-1"></i> O'chirish
+                    <a href="{% url 'team:team_delete' sup.id %}" class="text-xs font-bold text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 transition inline-flex items-center gap-1.5" onclick="return confirm('Rostdan ham ushbu supervisor xodimni o\'chirmoqchimisiz?')">
+                        <i class="fa-solid fa-trash text-xs"></i> O'chirish
                     </a>
                 </div>
             </div>
@@ -174,9 +214,12 @@
         </div>
         {% else %}
         <div class="bg-white dark:bg-[#141414] rounded-2xl p-8 text-center border border-[#E7E5E1] dark:border-[#262626] shadow-xs">
-            <i class="fa-solid fa-shield-halved text-3xl text-slate-300 dark:text-slate-600 mb-2 block"></i>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Hozircha supervisor qo'shilmagan.</p>
-            <a href="{% url 'team:team_create' %}" class="inline-flex items-center mt-3 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold shadow-xs transition">
+            <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-[#1E1E1E] text-slate-400 dark:text-slate-500 flex items-center justify-center text-xl mx-auto mb-3">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3 class="text-sm font-bold text-slate-800 dark:text-[#F5F1E8]">Hozircha supervisor qo'shilmagan</h3>
+            <p class="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-sm mx-auto">Supervisor operatorlar vaqtida javob bermagan suhbatlarni nazorat qiladi va hal qiladi.</p>
+            <a href="{% url 'team:team_create' %}" class="inline-flex items-center mt-4 px-4 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] text-white text-xs font-bold shadow-xs transition">
                 <i class="fa-solid fa-plus mr-1.5"></i> Supervisor qo'shish
             </a>
         </div>
