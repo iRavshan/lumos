@@ -56,6 +56,7 @@
         var businessName = config.business_name || 'Biznes';
         var welcomeMsg = config.welcome_message || 'Assalomu alaykum! Sizga qanday yordam bera olaman?';
         var suggestedQuestions = config.suggested_questions || [];
+        var logoUrl = config.business_logo_url ? (baseUrl + config.business_logo_url) : null;
 
         // Inject Styles
         var style = document.createElement('style');
@@ -298,7 +299,7 @@
             <div class="lumos-chat-window" id="lumosChatWindow">
                 <div class="lumos-chat-header">
                     <div class="lumos-header-info">
-                        <div class="lumos-avatar">AI</div>
+                        <div class="lumos-avatar">${logoUrl ? '<img src="' + logoUrl + '" style="width:100%;height:100%;object-fit:contain;padding:3px;" onerror="this.style.display=\'none\'; this.parentElement.textContent=\'' + businessName.charAt(0).toUpperCase() + '\'">' : businessName.charAt(0).toUpperCase()}</div>
                         <div class="lumos-title-wrap">
                             <h4>${botName}</h4>
                             <p><span class="lumos-status-dot"></span> ${businessName}</p>
@@ -402,12 +403,21 @@
             })
             .then(function (res) { return res.json(); })
             .then(function (data) {
-                typingIndicator.classList.remove('active');
-                if (data.reply) {
-                    appendMessage(data.reply, 'assistant');
-                } else if (data.error) {
-                    appendMessage('Xatolik: ' + data.error, 'assistant');
-                }
+                var delayMs = (data.delay_seconds || 0) * 1000;
+                setTimeout(function () {
+                    typingIndicator.classList.remove('active');
+                    if (data.parts && data.parts.length > 1) {
+                        data.parts.forEach(function (part, index) {
+                            setTimeout(function () {
+                                appendMessage(part, 'assistant');
+                            }, index * 800);
+                        });
+                    } else if (data.reply) {
+                        appendMessage(data.reply, 'assistant');
+                    } else if (data.error) {
+                        appendMessage('Xatolik: ' + data.error, 'assistant');
+                    }
+                }, delayMs);
             })
             .catch(function (err) {
                 typingIndicator.classList.remove('active');

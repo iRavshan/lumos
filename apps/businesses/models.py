@@ -19,12 +19,6 @@ class Business(models.Model):
         unique=True, 
         blank=True
     )
-    category = models.CharField(
-        max_length=100, 
-        blank=True, 
-        verbose_name="Biznes sohasi / Faoliyat turi",
-        help_text="Masalan: IT, Ta'lim, Savdo, Restoran, Xizmat ko'rsatish"
-    )
     website = models.URLField(
         max_length=255, 
         blank=True, 
@@ -101,7 +95,7 @@ class Business(models.Model):
         return None
 
     @property
-    def favicon_url(self):
+    def domain(self):
         if not self.website:
             return None
         ws = self.website.strip()
@@ -109,11 +103,15 @@ class Business(models.Model):
             ws = f"https://{ws}"
         try:
             from urllib.parse import urlparse
-            domain = urlparse(ws).netloc
-            if domain:
-                return f"https://www.google.com/s2/favicons?domain={domain}&sz=128"
+            return urlparse(ws).netloc.lower().replace('www.', '')
         except Exception:
-            pass
+            return None
+
+    @property
+    def favicon_url(self):
+        dom = self.domain
+        if dom:
+            return f"https://www.google.com/s2/favicons?domain={dom}&sz=128"
         return None
 
     @property
@@ -142,7 +140,6 @@ class Business(models.Model):
     def completion_percentage(self):
         fields = [
             bool(self.name),
-            bool(self.category),
             bool(self.website),
             bool(self.telegram),
             bool(self.instagram),

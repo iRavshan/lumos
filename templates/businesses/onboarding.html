@@ -1,210 +1,1166 @@
 {% extends 'shared/_base.html' %}
 
-{% block title %}Biznesni ro'yxatdan o'tkazish - Lumos{% endblock %}
+{% block title %}Savdo Agentini Sozlash — Lumos{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-xl shadow-slate-200/40 border border-slate-100">
-        
-        <!-- Header / Stepper Info -->
-        <div class="mb-8 border-b border-slate-100 pb-6">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold uppercase mb-3">
-                <i class="fa-solid fa-sparkles"></i> 2-Qadam: Biznes ma'lumotlari
-            </div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                Biznesingizni ro'yxatdan o'tkazing
-            </h1>
-            <p class="text-slate-600 mt-2 text-sm">
-                Dashboard boshqaruv panelingiz va AI Chatbotingizni shakllantirish uchun quyidagi ma'lumotlarni to'ldiring.
-            </p>
-        </div>
+<div class="min-h-screen flex flex-col justify-center items-center bg-[#FAFAF9] dark:bg-[#0A0A0A] py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
 
-        <form method="POST" enctype="multipart/form-data" id="onboardingForm" class="space-y-6" novalidate>
+    <!-- Main Wizard Card Container (Distraction-Free, No Header) -->
+    <main class="max-w-6xl w-full">
+        <form method="POST" enctype="multipart/form-data" id="onboardingForm" novalidate>
             {% csrf_token %}
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Business Name -->
-                <div class="md:col-span-2">
-                    <label for="{{ form.name.id_for_label }}" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                        <i class="fa-solid fa-building text-indigo-500 mr-1.5"></i> Biznes / Kompaniya nomi <span class="text-rose-500">*</span>
-                    </label>
-                    {{ form.name }}
-                    {% if form.name.errors %}
-                        <p class="text-rose-500 text-xs mt-1">{{ form.name.errors.0 }}</p>
-                    {% endif %}
-                </div>
+            <div class="bg-white dark:bg-[#141414] rounded-3xl border border-[#E7E5E1] dark:border-[#262626] shadow-sm overflow-hidden min-h-[580px] grid grid-cols-1 lg:grid-cols-12">
 
-                <!-- Category (Dropdown Select) -->
-                <div class="md:col-span-2">
-                    <label for="{{ form.category.id_for_label }}" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                        <i class="fa-solid fa-tag text-indigo-500 mr-1.5"></i> Soha / Faoliyat turi (Tanlang)
-                    </label>
-                    {{ form.category }}
-                    {% if form.category.errors %}
-                        <p class="text-rose-500 text-xs mt-1">{{ form.category.errors.0 }}</p>
-                    {% endif %}
-                </div>
-
-                <!-- Dynamic Channels Section -->
-                <div class="md:col-span-2 space-y-4">
+                <!-- ========================================== -->
+                <!-- LEFT COLUMN: Wizard Step Content (7 cols)  -->
+                <!-- ========================================== -->
+                <div class="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-[#E7E5E1] dark:border-[#262626]">
+                    
                     <div>
-                        <span class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                            <i class="fa-solid fa-share-nodes text-indigo-500 mr-1.5"></i> Ijtimoiy tarmoqlar va Vebsayt (Ixtiyoriy)
-                        </span>
-                        <p class="text-xs text-slate-500 mb-3">
-                            Mijozlar siz bilan bog'lanishi uchun kerakli kanallarni tanlab qo'shing:
-                        </p>
-                        
-                        <!-- Add Channel Buttons (Chips) -->
-                        <div class="flex flex-wrap gap-2.5" id="channelChips">
-                            <button type="button" id="addWebsiteBtn" onclick="toggleChannel('website', true)"
-                                class="inline-flex items-center px-4 py-2 rounded-xl text-xs font-bold transition border border-indigo-200 bg-indigo-50/60 text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300">
-                                <i class="fa-solid fa-globe mr-1.5 text-indigo-600"></i> + Vebsayt qo'shish
+                        <!-- ========================================== -->
+                        <!-- STEP 1: Savdo Agentingizni Yarating        -->
+                        <!-- ========================================== -->
+                        <div id="slide1" class="step-slide space-y-6">
+                            <div>
+                                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight">
+                                    Savdo agentingizni yarating
+                                </h1>
+                                <p class="text-slate-500 dark:text-slate-400 mt-2 text-xs sm:text-sm leading-relaxed">
+                                    Lumos AI savdo agenti biznesingiz mahsulotlari va xizmatlarini 24/7 rejimida professional darajada mijozlarga taqdim etadi, buyurtma qabul qiladi va savdolaringizni oshiradi.
+                                </p>
+                            </div>
+
+                            <div class="space-y-3 pt-2">
+                                <h3 class="text-xs font-mono uppercase tracking-wider font-bold text-slate-600 dark:text-slate-300">
+                                    Qayerlarga integratsiya qilish mumkin:
+                                </h3>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] flex items-start space-x-3">
+                                        <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm shrink-0 mt-0.5">
+                                            <i class="fa-solid fa-globe"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-xs font-bold text-slate-800 dark:text-[#F5F1E8]">Vebsayt Vidjeti</h4>
+                                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Har qanday saytga 1 qator kod bilan joylashadi</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] flex items-start space-x-3">
+                                        <div class="w-8 h-8 rounded-xl bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 flex items-center justify-center text-sm shrink-0 mt-0.5">
+                                            <i class="fa-brands fa-telegram"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-xs font-bold text-slate-800 dark:text-[#F5F1E8]">Telegram Bot</h4>
+                                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Mijozlar bilan Telegram orqali suhbatlashadi</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 text-xs text-slate-600 dark:text-slate-300 flex items-start gap-3">
+                                    <i class="fa-solid fa-circle-check text-indigo-600 dark:text-indigo-400 mt-0.5 text-sm"></i>
+                                    <span>Agentingiz mijoz savollariga soniyalar ichida aniq, biznesingiz ma'lumotlariga tayangan holda javob qaytaradi.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ========================================== -->
+                        <!-- STEP 2: RAG Modelni O'qitish (URL & File)  -->
+                        <!-- ========================================== -->
+                        <div id="slide2" class="step-slide space-y-6 hidden">
+                            <div>
+                                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight">
+                                    RAG modelni o'qitish
+                                </h2>
+                                <p class="text-slate-500 dark:text-slate-400 mt-2 text-xs sm:text-sm">
+                                    Agent mijozlaringizga to'g'ri javob berishi uchun vebsaytingiz havolasini kiriting yoki ma'lumotlar yozilgan faylni yuklang.
+                                </p>
+                            </div>
+
+                            <div class="space-y-4">
+                                <!-- Website URL Field -->
+                                <div>
+                                    <label for="{{ form.website.id_for_label }}" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-300 font-semibold mb-2">
+                                        <i class="fa-solid fa-globe mr-1 text-indigo-500"></i> Vebsayt havolasi
+                                    </label>
+                                    {{ form.website }}
+                                    {% if form.website.errors %}
+                                        <p class="text-rose-500 text-xs mt-1">{{ form.website.errors.0 }}</p>
+                                    {% endif %}
+                                    <p class="text-[11px] text-slate-400 mt-1">
+                                        Agent vebsaytingizdagi mahsulotlar, narxlar va xizmatlarni avtomatik o'rganib chiqadi.
+                                    </p>
+                                </div>
+
+                                <div class="relative flex py-1 items-center">
+                                    <div class="flex-grow border-t border-[#E7E5E1] dark:border-[#262626]"></div>
+                                    <span class="flex-shrink mx-4 text-xs font-mono text-slate-400 uppercase">yoki fayl yuklang</span>
+                                    <div class="flex-grow border-t border-[#E7E5E1] dark:border-[#262626]"></div>
+                                </div>
+
+                                <!-- File Upload Button (Opens Modal) -->
+                                <div>
+                                    <label class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-300 font-semibold mb-2">
+                                        <i class="fa-solid fa-file-lines mr-1 text-indigo-500"></i> Biznes ma'lumotlari fayli
+                                    </label>
+
+                                    <!-- Upload button -->
+                                    <button type="button" onclick="openFileUploadModal()"
+                                        class="w-full p-4 rounded-2xl border-2 border-dashed border-[#E7E5E1] dark:border-[#262626] hover:border-indigo-500 dark:hover:border-indigo-500 bg-slate-50 dark:bg-[#1E1E1E] hover:bg-indigo-50/20 dark:hover:bg-indigo-950/20 text-slate-700 dark:text-slate-300 transition flex items-center justify-between group">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-base group-hover:scale-110 transition shrink-0">
+                                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                            </div>
+                                            <div class="text-left">
+                                                <div class="text-xs font-bold text-slate-800 dark:text-[#F5F1E8]">Fayllarni yuklash</div>
+                                                <div class="text-[11px] text-slate-400">Biznes ma'lumotlari, narxlar yoki FAQ (.txt)</div>
+                                            </div>
+                                        </div>
+                                        <span class="px-3.5 py-1.5 rounded-xl bg-white dark:bg-[#141414] border border-[#E7E5E1] dark:border-[#262626] text-xs font-semibold text-slate-800 dark:text-[#F5F1E8] shadow-2xs group-hover:bg-[#0A0A0A] group-hover:text-white dark:group-hover:bg-[#F5F1E8] dark:group-hover:text-[#0A0A0A] transition">
+                                            Fayl tanlash
+                                        </span>
+                                    </button>
+
+                                    <!-- Loaded File Status Card (if file was selected) -->
+                                    <div id="fileLoadedBadge" class="hidden mt-3 p-3.5 bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] rounded-2xl flex items-center justify-between">
+                                        <div class="flex items-center space-x-2.5">
+                                            <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs">
+                                                <i class="fa-solid fa-file-lines"></i>
+                                            </div>
+                                            <div>
+                                                <span id="fileLoadedName" class="text-xs font-bold text-slate-800 dark:text-[#F5F1E8] block">fayl.txt</span>
+                                                <span class="text-[10px] text-emerald-500 font-mono font-medium flex items-center gap-1">
+                                                    <i class="fa-solid fa-check"></i> Yuklandi
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <button type="button" onclick="openFileUploadModal()" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+                                                O'zgartirish
+                                            </button>
+                                            <span class="text-slate-300 dark:text-slate-600">|</span>
+                                            <button type="button" onclick="clearUploadedFile()" class="text-xs font-semibold text-rose-500 hover:underline">
+                                                O'chirish
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <p class="text-[11px] text-slate-400 mt-2">
+                                        <i class="fa-solid fa-circle-info mr-1 text-slate-400"></i> Agar yuqorida vebsayt havolasi kiritilgan bo'lsa, fayl yuklash shart emas.
+                                    </p>
+
+                                    <!-- Hidden form inputs for description & file -->
+                                    <div class="hidden">
+                                        {{ form.description }}
+                                        {{ form.description_file }}
+                                    </div>
+                                    {% if form.description.errors %}
+                                        <p class="text-rose-500 text-xs mt-1">{{ form.description.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ========================================== -->
+                        <!-- STEP 3: Savdo Agenti Ismi & Biznes Nomi    -->
+                        <!-- ========================================== -->
+                        <div id="slide3" class="step-slide space-y-6 hidden">
+                            <div>
+                                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight">
+                                    Agent va biznesingiz nomi
+                                </h2>
+                                <p class="text-slate-500 dark:text-slate-400 mt-2 text-xs sm:text-sm">
+                                    Mijozlaringiz chatbot bilan gaplashganda ko'rinadigan agent ismi va kompaniya nomini belgilang.
+                                </p>
+                            </div>
+
+                            <div class="space-y-4">
+                                <!-- Bot Name -->
+                                <div>
+                                    <label for="botNameInput" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-300 font-semibold mb-2">
+                                        Savdo agenti ismi <span class="text-rose-500">*</span>
+                                    </label>
+                                    <input type="text" name="bot_name" id="botNameInput" 
+                                        placeholder="Masalan: Anvar" 
+                                        class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 text-sm">
+                                    <p class="text-[11px] text-slate-400 mt-1">Mijozlar suhbat oynasi yuqori qismida ushbu nomni ko'rishadi.</p>
+                                </div>
+
+                                <!-- Business Name -->
+                                <div>
+                                    <label for="{{ form.name.id_for_label }}" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-300 font-semibold mb-2">
+                                        Biznes nomi <span class="text-rose-500">*</span>
+                                    </label>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                        <p class="text-rose-500 text-xs mt-1">{{ form.name.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Optional channels: Telegram & Instagram -->
+                                <div class="pt-2 border-t border-[#E7E5E1] dark:border-[#262626] space-y-3">
+                                    <span class="block text-[11px] font-mono uppercase tracking-wider text-slate-500 font-semibold">Qo'shimcha kanallar (Ixtiyoriy):</span>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-[10px] font-mono uppercase text-slate-500 mb-1">
+                                                <i class="fa-brands fa-telegram text-sky-500"></i> Telegram
+                                            </label>
+                                            {{ form.telegram }}
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-mono uppercase text-slate-500 mb-1">
+                                                <i class="fa-brands fa-instagram text-pink-500"></i> Instagram
+                                            </label>
+                                            {{ form.instagram }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ========================================== -->
+                        <!-- STEP 4: Human-like Delay (2 Delays)        -->
+                        <!-- ========================================== -->
+                        <div id="slide4" class="step-slide space-y-6 hidden">
+                            <div>
+                                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight">
+                                    Inson kabi kechiktirib javob yozish
+                                </h2>
+                                <p class="text-slate-500 dark:text-slate-400 mt-2 text-xs sm:text-sm">
+                                    Agent savolga darhol emas, xuddi haqiqiy savdo menejeri yozayotgandek biroz o'ylab, tabiiy kechikish bilan javob beradi.
+                                </p>
+                            </div>
+
+                            <!-- Main Delay Toggle Switch (DEFAULT: CHECKED) -->
+                            <div class="p-4 rounded-2xl bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-between">
+                                <div>
+                                    <span class="font-bold text-xs sm:text-sm text-slate-800 dark:text-[#F5F1E8] block">
+                                        Insoniy kechikishni yoqish
+                                    </span>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                        Mijozga «yozmoqda...» ko'rsatkichi bilan tabiiy xabar yuboriladi.
+                                    </p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                    <input type="checkbox" name="response_delay_enabled" id="responseDelayToggle" checked class="sr-only peer" onchange="toggleDelayOptions(this.checked)">
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                </label>
+                            </div>
+
+                            <!-- Configurable Two Delays (DEFAULT ACTIVE) -->
+                            <div id="delayOptionsContainer" class="space-y-4 transition-all duration-200">
+                                
+                                <!-- 1. First message delay (default 5s) -->
+                                <div class="p-4 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] bg-white dark:bg-[#1E1E1E]">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div>
+                                            <span class="text-xs font-bold text-slate-800 dark:text-[#F5F1E8] flex items-center gap-1.5">
+                                                <span class="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-[10px] font-mono font-bold">1</span>
+                                                Birinchi xabarga kechikib javob yozish
+                                            </span>
+                                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                                Mijoz yangi murojaat qilganda birinchi javobgacha bo'lgan vaqt
+                                            </p>
+                                        </div>
+                                        <div class="flex items-center space-x-1">
+                                            <input type="number" name="first_message_delay_seconds" id="firstDelayInput" value="5" min="1" max="60" 
+                                                class="w-16 px-2 py-1 text-center font-mono font-bold text-xs rounded-lg border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#141414] text-indigo-600 dark:text-indigo-400 outline-none focus:ring-1 focus:ring-indigo-500"
+                                                onchange="updateFirstDelayVal(this.value)">
+                                            <span class="text-xs font-mono text-slate-500">soniya</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Quick Preset Buttons -->
+                                    <div class="flex items-center gap-2 pt-1">
+                                        <span class="text-[10px] font-mono uppercase text-slate-400 font-semibold mr-1">Tanlash:</span>
+                                        <button type="button" onclick="setFirstDelay(3)" class="first-preset-btn px-2.5 py-1 rounded-lg text-xs font-mono border border-[#E7E5E1] dark:border-[#262626] hover:bg-slate-100 dark:hover:bg-[#262626] text-slate-600 dark:text-slate-400 transition">3s</button>
+                                        <button type="button" onclick="setFirstDelay(5)" class="first-preset-btn px-2.5 py-1 rounded-lg text-xs font-mono font-bold border border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 transition">5s (Tavsiya)</button>
+                                        <button type="button" onclick="setFirstDelay(8)" class="first-preset-btn px-2.5 py-1 rounded-lg text-xs font-mono border border-[#E7E5E1] dark:border-[#262626] hover:bg-slate-100 dark:hover:bg-[#262626] text-slate-600 dark:text-slate-400 transition">8s</button>
+                                    </div>
+                                </div>
+
+                                <!-- 2. Subsequent messages delay (default 10s) -->
+                                <div class="p-4 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] bg-white dark:bg-[#1E1E1E]">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div>
+                                            <span class="text-xs font-bold text-slate-800 dark:text-[#F5F1E8] flex items-center gap-1.5">
+                                                <span class="w-5 h-5 rounded-full bg-violet-100 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400 flex items-center justify-center text-[10px] font-mono font-bold">2</span>
+                                                Qolgan (keyingi) xabarlarga kechikib javob yozish
+                                            </span>
+                                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                                Suhbat davomida keyingi savollarga fikrlab javob yozish vaqti
+                                            </p>
+                                        </div>
+                                        <div class="flex items-center space-x-1">
+                                            <input type="number" name="subsequent_message_delay_seconds" id="subsequentDelayInput" value="10" min="1" max="60" 
+                                                class="w-16 px-2 py-1 text-center font-mono font-bold text-xs rounded-lg border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#141414] text-violet-600 dark:text-violet-400 outline-none focus:ring-1 focus:ring-violet-500"
+                                                onchange="updateSubsequentDelayVal(this.value)">
+                                            <span class="text-xs font-mono text-slate-500">soniya</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Quick Preset Buttons -->
+                                    <div class="flex items-center gap-2 pt-1">
+                                        <span class="text-[10px] font-mono uppercase text-slate-400 font-semibold mr-1">Tanlash:</span>
+                                        <button type="button" onclick="setSubsequentDelay(5)" class="sub-preset-btn px-2.5 py-1 rounded-lg text-xs font-mono border border-[#E7E5E1] dark:border-[#262626] hover:bg-slate-100 dark:hover:bg-[#262626] text-slate-600 dark:text-slate-400 transition">5s</button>
+                                        <button type="button" onclick="setSubsequentDelay(10)" class="sub-preset-btn px-2.5 py-1 rounded-lg text-xs font-mono font-bold border border-violet-500 bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 transition">10s (Tavsiya)</button>
+                                        <button type="button" onclick="setSubsequentDelay(15)" class="sub-preset-btn px-2.5 py-1 rounded-lg text-xs font-mono border border-[#E7E5E1] dark:border-[#262626] hover:bg-slate-100 dark:hover:bg-[#262626] text-slate-600 dark:text-slate-400 transition">15s</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- ========================================== -->
+                        <!-- STEP 5: Matnlarni Ajratib Yuborish         -->
+                        <!-- ========================================== -->
+                        <div id="slide5" class="step-slide space-y-6 hidden">
+                            <div>
+                                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight">
+                                    Matnlarni bo'laklarga ajratib yuborish
+                                </h2>
+                                <p class="text-slate-500 dark:text-slate-400 mt-2 text-xs sm:text-sm">
+                                    Katta uzun matn o'rniga agent ma'lumotlarni ketma-ket bir nechta qisqa xabarlar qilib yuboradi. Bu o'qishni ancha osonlashtiradi.
+                                </p>
+                            </div>
+
+                            <!-- Split Messages Toggle Card (DEFAULT: CHECKED) -->
+                            <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-between">
+                                <div>
+                                    <span class="font-bold text-xs sm:text-sm text-slate-800 dark:text-[#F5F1E8] block">
+                                        Matnlarni ajratib yuborish
+                                    </span>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 max-w-sm">
+                                        Har bir fikr yoki band alohida xabar sifatida ketma-ket yuboriladi.
+                                    </p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                    <input type="checkbox" name="split_messages" id="splitMessagesToggle" checked class="sr-only peer" onchange="toggleSplitVisual(this.checked)">
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                                </label>
+                            </div>
+
+                            <!-- Comparison explanation cards -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                                <div class="p-3.5 rounded-xl border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/50 dark:bg-emerald-950/20">
+                                    <span class="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5 mb-1">
+                                        <i class="fa-solid fa-check"></i> Yoqilgan holatda
+                                    </span>
+                                    <p class="text-slate-600 dark:text-slate-300 text-[11px] leading-relaxed">
+                                        Xabarlar ixcham, o'qilishi oson va messenjerlarda jonli inson yozayotgandek taassurot qoldiradi.
+                                    </p>
+                                </div>
+
+                                <div class="p-3.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-white dark:bg-[#141414]">
+                                    <span class="font-bold text-slate-500 flex items-center gap-1.5 mb-1">
+                                        <i class="fa-solid fa-ban"></i> O'chirilgan holatda
+                                    </span>
+                                    <p class="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed">
+                                        Barcha ma'lumotlar bitta yagona katta blok xabar ko'rinishida jo'natiladi.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ========================================== -->
+                        <!-- STEP 6: Shaxsiy Profil (Biznes Egasi)      -->
+                        <!-- ========================================== -->
+                        <div id="slide6" class="step-slide space-y-6 hidden">
+                            <div>
+                                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight">
+                                    Shaxsiy profilingizni tasdiqlang
+                                </h2>
+                                <p class="text-slate-500 dark:text-slate-400 mt-2 text-xs sm:text-sm">
+                                    Savdo agenti sozlandi! Endi boshqaruv panelida biznes egasi sifatida ko'rinadigan shaxsiy ma'lumotlaringizni to'ldiring yoki tasdiqlang.
+                                </p>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <!-- Ism -->
+                                    <div>
+                                        <label for="ownerFirstNameInput" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-300 font-semibold mb-2">
+                                            Ismingiz <span class="text-rose-500">*</span>
+                                        </label>
+                                        <input type="text" name="owner_first_name" id="ownerFirstNameInput" 
+                                            value="{{ request.user.first_name|default:'' }}" 
+                                            placeholder="Ismingizni kiriting" 
+                                            class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 text-sm"
+                                            required>
+                                    </div>
+
+                                    <!-- Email -->
+                                    <div>
+                                        <label for="ownerEmailInput" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-300 font-semibold mb-2">
+                                            Elektron pochta <span class="text-rose-500">*</span>
+                                        </label>
+                                        <input type="email" name="owner_email" id="ownerEmailInput" 
+                                            value="{{ request.user.email|default:'' }}" 
+                                            placeholder="elektron@pochta.uz" 
+                                            class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 text-sm"
+                                            required>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <!-- Password -->
+                                    <div>
+                                        <label for="passwordInput" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-300 font-semibold mb-2">
+                                            Parol <span class="text-rose-500">*</span>
+                                        </label>
+                                        <input type="password" name="password" id="passwordInput" 
+                                            placeholder="Parol kiriting" 
+                                            class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 text-sm"
+                                            required>
+                                    </div>
+
+                                    <!-- Confirm Password -->
+                                    <div>
+                                        <label for="passwordConfirmInput" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-300 font-semibold mb-2">
+                                            Parolni tasdiqlang <span class="text-rose-500">*</span>
+                                        </label>
+                                        <input type="password" name="password_confirm" id="passwordConfirmInput" 
+                                            placeholder="Parolni qayta kiriting" 
+                                            class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 text-sm"
+                                            required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Bottom Navigation & Step Indicators (Pastda joylashgan) -->
+                    <div class="pt-6 mt-8 border-t border-[#E7E5E1] dark:border-[#262626] flex items-center justify-between">
+                        <div class="w-24">
+                            <button type="button" id="prevBtn" onclick="nextPrev(-1)" 
+                                class="hidden px-5 py-2.5 rounded-full border border-[#E7E5E1] dark:border-[#262626] text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-50 dark:hover:bg-[#1E1E1E] transition">
+                                <i class="fa-solid fa-arrow-left mr-1.5 text-[10px]"></i> Ortga
+                            </button>
+                        </div>
+
+                        <!-- Step Indicator Dots (Pastda, qora rangli) -->
+                        <div class="flex items-center justify-center gap-2" id="stepIndicatorContainer">
+                            <button type="button" id="stepDot1" onclick="goToStep(1)" class="step-dot transition-all duration-300 h-2 rounded-full bg-[#0A0A0A] dark:bg-[#F5F1E8] w-7 shadow-xs" aria-label="1-qadam"></button>
+                            <button type="button" id="stepDot2" onclick="goToStep(2)" class="step-dot transition-all duration-300 h-2 rounded-full bg-slate-300 dark:bg-[#333333] w-2 hover:bg-slate-400" aria-label="2-qadam"></button>
+                            <button type="button" id="stepDot3" onclick="goToStep(3)" class="step-dot transition-all duration-300 h-2 rounded-full bg-slate-300 dark:bg-[#333333] w-2 hover:bg-slate-400" aria-label="3-qadam"></button>
+                            <button type="button" id="stepDot4" onclick="goToStep(4)" class="step-dot transition-all duration-300 h-2 rounded-full bg-slate-300 dark:bg-[#333333] w-2 hover:bg-slate-400" aria-label="4-qadam"></button>
+                            <button type="button" id="stepDot5" onclick="goToStep(5)" class="step-dot transition-all duration-300 h-2 rounded-full bg-slate-300 dark:bg-[#333333] w-2 hover:bg-slate-400" aria-label="5-qadam"></button>
+                            <button type="button" id="stepDot6" onclick="goToStep(6)" class="step-dot transition-all duration-300 h-2 rounded-full bg-slate-300 dark:bg-[#333333] w-2 hover:bg-slate-400" aria-label="6-qadam"></button>
+                        </div>
+
+                        <div class="flex items-center space-x-3">
+                            <button type="button" id="nextBtn" onclick="nextPrev(1)" 
+                                class="px-7 py-3 bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] text-white font-bold text-xs rounded-full shadow-xs transition flex items-center">
+                                <span>Keyingisi</span>
+                                <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
                             </button>
                             
-                            <button type="button" id="addTelegramBtn" onclick="toggleChannel('telegram', true)"
-                                class="inline-flex items-center px-4 py-2 rounded-xl text-xs font-bold transition border border-sky-200 bg-sky-50/60 text-sky-700 hover:bg-sky-100 hover:border-sky-300">
-                                <i class="fa-brands fa-telegram mr-1.5 text-sky-500"></i> + Telegram qo'shish
-                            </button>
-                            
-                            <button type="button" id="addInstagramBtn" onclick="toggleChannel('instagram', true)"
-                                class="inline-flex items-center px-4 py-2 rounded-xl text-xs font-bold transition border border-pink-200 bg-pink-50/60 text-pink-700 hover:bg-pink-100 hover:border-pink-300">
-                                <i class="fa-brands fa-instagram mr-1.5 text-pink-500"></i> + Instagram qo'shish
+                            <button type="button" id="submitBtn" onclick="submitOnboarding()" 
+                                class="hidden px-8 py-3 bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] text-white font-bold text-xs rounded-full shadow-md transition flex items-center">
+                                <span>Boshqaruv paneliga o'tish</span>
+                                <i class="fa-solid fa-rocket ml-2 text-[11px]"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Dynamic Input Containers (Hidden by default until clicked) -->
-                    <div class="space-y-3.5 pt-1">
-                        
-                        <!-- Website Input Container -->
-                        <div id="websiteContainer" class="hidden p-4 rounded-2xl bg-slate-50 border border-indigo-100 transition duration-200">
-                            <div class="flex items-center justify-between mb-2">
-                                <label for="{{ form.website.id_for_label }}" class="text-xs font-bold text-slate-800 flex items-center">
-                                    <i class="fa-solid fa-globe text-indigo-600 mr-1.5"></i> Vebsayt manzili
-                                </label>
-                                <button type="button" onclick="toggleChannel('website', false)" class="text-xs text-rose-500 hover:text-rose-700 font-semibold flex items-center">
-                                    <i class="fa-solid fa-xmark mr-1"></i> O'chirish
-                                </button>
-                            </div>
-                            {{ form.website }}
-                            {% if form.website.errors %}
-                                <p class="text-rose-500 text-xs mt-1">{{ form.website.errors.0 }}</p>
-                            {% endif %}
-                        </div>
-
-                        <!-- Telegram Input Container -->
-                        <div id="telegramContainer" class="hidden p-4 rounded-2xl bg-slate-50 border border-sky-100 transition duration-200">
-                            <div class="flex items-center justify-between mb-2">
-                                <label for="{{ form.telegram.id_for_label }}" class="text-xs font-bold text-slate-800 flex items-center">
-                                    <i class="fa-brands fa-telegram text-sky-500 mr-1.5"></i> Telegram manzili (@username yoki havola)
-                                </label>
-                                <button type="button" onclick="toggleChannel('telegram', false)" class="text-xs text-rose-500 hover:text-rose-700 font-semibold flex items-center">
-                                    <i class="fa-solid fa-xmark mr-1"></i> O'chirish
-                                </button>
-                            </div>
-                            {{ form.telegram }}
-                            {% if form.telegram.errors %}
-                                <p class="text-rose-500 text-xs mt-1">{{ form.telegram.errors.0 }}</p>
-                            {% endif %}
-                        </div>
-
-                        <!-- Instagram Input Container -->
-                        <div id="instagramContainer" class="hidden p-4 rounded-2xl bg-slate-50 border border-pink-100 transition duration-200">
-                            <div class="flex items-center justify-between mb-2">
-                                <label for="{{ form.instagram.id_for_label }}" class="text-xs font-bold text-slate-800 flex items-center">
-                                    <i class="fa-brands fa-instagram text-pink-500 mr-1.5"></i> Instagram manzili (@username yoki havola)
-                                </label>
-                                <button type="button" onclick="toggleChannel('instagram', false)" class="text-xs text-rose-500 hover:text-rose-700 font-semibold flex items-center">
-                                    <i class="fa-solid fa-xmark mr-1"></i> O'chirish
-                                </button>
-                            </div>
-                            {{ form.instagram }}
-                            {% if form.instagram.errors %}
-                                <p class="text-rose-500 text-xs mt-1">{{ form.instagram.errors.0 }}</p>
-                            {% endif %}
-                        </div>
-
-                    </div>
                 </div>
 
-                <!-- Description & .txt File Upload -->
-                <div class="md:col-span-2">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2">
-                        <label for="descriptionTextarea" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                            <i class="fa-solid fa-align-left text-indigo-500 mr-1.5"></i> Biznes haqida to'liq ma'lumot <span class="text-rose-500">*</span>
-                        </label>
-                        
-                        <!-- Upload .txt Button -->
-                        <div class="flex items-center space-x-2">
-                            {{ form.description_file }}
-                            <button type="button" onclick="document.getElementById('descriptionFileInput').click()"
-                                class="inline-flex items-center px-3.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition border border-indigo-200/80 shadow-xs">
-                                <i class="fa-solid fa-file-arrow-up mr-1.5 text-indigo-600"></i> Fayldan yuklash
-                            </button>
+                <!-- ========================================== -->
+                <!-- RIGHT COLUMN: Interactive Visual Animation -->
+                <!-- ========================================== -->
+                <div class="lg:col-span-5 bg-slate-50 dark:bg-[#0A0A0A] p-6 sm:p-8 flex flex-col justify-center items-center relative overflow-hidden">
+                    
+                    <!-- Background ambient decorative circles -->
+                    <div class="absolute -top-12 -right-12 w-48 h-48 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div class="absolute -bottom-12 -left-12 w-48 h-48 bg-purple-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                    <!-- PREVIEW CONTAINER 1: Live Interactive Widget Simulation -->
+                    <div id="preview1" class="preview-panel w-full max-w-sm space-y-4">
+                        <div class="text-center mb-3">
+                            <span class="text-[11px] font-mono uppercase font-bold text-indigo-600 dark:text-indigo-400 tracking-wider">
+                                Vebsayt vidjeti simulyatsiyasi
+                            </span>
+                        </div>
+
+                        <!-- Mini Mock Browser Frame -->
+                        <div class="bg-white dark:bg-[#141414] rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xl overflow-hidden">
+                            <div class="bg-slate-100 dark:bg-[#1E1E1E] px-3.5 py-2 border-b border-[#E7E5E1] dark:border-[#262626] flex items-center justify-between">
+                                <div class="flex space-x-1.5">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-rose-400"></div>
+                                    <div class="w-2.5 h-2.5 rounded-full bg-amber-400"></div>
+                                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+                                </div>
+                                <div class="text-[10px] font-mono text-slate-400 bg-white dark:bg-[#141414] px-3 py-0.5 rounded-md border border-[#E7E5E1] dark:border-[#262626]">
+                                    sizningsaytingiz.uz
+                                </div>
+                                <div class="w-3"></div>
+                            </div>
+
+                            <div class="p-4 space-y-3 relative min-h-[260px] flex flex-col justify-between">
+                                <div class="space-y-2">
+                                    <div class="h-2 bg-slate-100 dark:bg-[#1E1E1E] rounded-full w-2/3"></div>
+                                    <div class="h-2 bg-slate-100 dark:bg-[#1E1E1E] rounded-full w-4/5"></div>
+                                    <div class="h-2 bg-slate-100 dark:bg-[#1E1E1E] rounded-full w-1/2"></div>
+                                </div>
+
+                                <!-- Floating Widget Dialog Bubble -->
+                                <div class="border border-[#E7E5E1] dark:border-[#262626] rounded-2xl p-3 bg-white dark:bg-[#1E1E1E] shadow-lg space-y-2.5">
+                                    <div class="flex items-center space-x-2 pb-2 border-b border-[#E7E5E1] dark:border-[#262626]">
+                                        <div class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px]">
+                                            <i class="fa-solid fa-robot"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-[11px] font-bold text-slate-800 dark:text-[#F5F1E8] preview-agent-name">AI Savdo Yordamchisi</div>
+                                            <div class="text-[9px] text-emerald-500 font-semibold flex items-center gap-1">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Onlayn
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-1.5 text-[11px]">
+                                        <div class="bg-slate-100 dark:bg-[#262626] text-slate-800 dark:text-slate-200 p-2.5 rounded-xl rounded-bl-xs leading-relaxed">
+                                            Assalomu alaykum! Sizga qanday xizmat yoki tovar bo'yicha ma'lumot kerak?
+                                        </div>
+                                        <div class="bg-indigo-600 text-white p-2 rounded-xl rounded-br-xs ml-auto max-w-[80%] text-right text-[10px]">
+                                            Narxlar va yetkazib berish qanday?
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Mini trigger launcher button -->
+                                <div class="flex justify-end">
+                                    <div class="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-lg text-xs">
+                                        <i class="fa-solid fa-comment-dots"></i>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- File loaded confirmation badge -->
-                    <div id="fileLoadedBadge" class="hidden mb-2 p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800 flex items-center justify-between">
-                        <span class="flex items-center">
-                            <i class="fa-solid fa-circle-check mr-2 text-emerald-600"></i>
-                            <span id="fileLoadedName">Fayl yuklandi</span>
-                        </span>
-                        <button type="button" onclick="clearUploadedFile()" class="text-emerald-700 hover:text-emerald-900 text-xs underline">
-                            Tozalash
-                        </button>
+                    <!-- PREVIEW CONTAINER 2: RAG Indexing Visual Simulation -->
+                    <div id="preview2" class="preview-panel w-full max-w-sm space-y-4 hidden">
+                        <div class="text-center mb-3">
+                            <span class="text-[11px] font-mono uppercase font-bold text-purple-600 dark:text-purple-400 tracking-wider">
+                                RAG Bilimlar Bazasi Indeksatsiyasi
+                            </span>
+                        </div>
+
+                        <div class="bg-white dark:bg-[#141414] rounded-2xl border border-[#E7E5E1] dark:border-[#262626] p-5 shadow-xl space-y-4">
+                            <div class="flex items-center space-x-3 pb-3 border-b border-[#E7E5E1] dark:border-[#262626]">
+                                <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-network-wired"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-800 dark:text-[#F5F1E8]">Vektorli Bilimlar Ombori</h4>
+                                    <p class="text-[10px] text-slate-400 font-mono">Real-time Embeddings</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between text-xs font-medium">
+                                    <span class="text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-magnifying-glass text-purple-500 text-[11px]"></i> Sayt ma'lumotlari tahlili
+                                    </span>
+                                    <span class="text-emerald-500 font-mono text-[11px] font-bold">100%</span>
+                                </div>
+                                <div class="w-full bg-slate-100 dark:bg-[#262626] h-2 rounded-full overflow-hidden">
+                                    <div class="bg-purple-600 h-full rounded-full w-full"></div>
+                                </div>
+
+                                <div class="p-3 rounded-xl bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] space-y-1.5 font-mono text-[10px]">
+                                    <div class="text-slate-400 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-circle-check text-emerald-500"></i> Mahsulotlar & Xizmatlar
+                                    </div>
+                                    <div class="text-slate-400 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-circle-check text-emerald-500"></i> Narxlar va chegirmalar
+                                    </div>
+                                    <div class="text-slate-400 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-circle-check text-emerald-500"></i> FAQ va bog'lanish manzillari
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    {{ form.description }}
-                    {% if form.description.errors %}
-                        <p class="text-rose-500 text-xs mt-1">{{ form.description.errors.0 }}</p>
-                    {% endif %}
-                    <p class="text-slate-400 text-xs mt-1.5 leading-relaxed">
-                        Biznesingiz haqida qo'lda yozishingiz yoki tayyor ma'lumotlar yozilgan <b>.txt faylini</b> yuklashingiz mumkin. Bot ushbu ma'lumotlar asosida mijozlarga javob beradi.
-                    </p>
-                </div>
-            </div>
+                    <!-- PREVIEW CONTAINER 3: Live Brand & Bot Profile Card -->
+                    <div id="preview3" class="preview-panel w-full max-w-sm space-y-4 hidden">
+                        <div class="text-center mb-3">
+                            <span class="text-[11px] font-mono uppercase font-bold text-blue-600 dark:text-blue-400 tracking-wider">
+                                Savdo Agenti Profili
+                            </span>
+                        </div>
 
-            <!-- Submit button -->
-            <div class="pt-4 border-t border-slate-100 flex items-center justify-end">
-                <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition duration-150 transform hover:-translate-y-0.5">
-                    <i class="fa-solid fa-circle-check mr-2"></i> Dashboardga o'tish
-                </button>
+                        <div class="bg-white dark:bg-[#141414] rounded-2xl border border-[#E7E5E1] dark:border-[#262626] p-6 shadow-xl text-center space-y-4">
+                            <div class="relative inline-block">
+                                <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-3xl shadow-lg mx-auto">
+                                    <i class="fa-solid fa-robot"></i>
+                                </div>
+                                <span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-white dark:border-[#141414]"></span>
+                            </div>
+
+                            <div>
+                                <h3 id="previewAgentName" class="text-base font-bold text-slate-900 dark:text-[#F5F1E8]">
+                                    Lumos AI Savdo Yordamchisi
+                                </h3>
+                                <p id="previewBusinessName" class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold mt-0.5">
+                                    Sizning Biznesingiz
+                                </p>
+                            </div>
+
+                            <div class="pt-3 border-t border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center gap-4 text-xs text-slate-500 dark:text-slate-400 font-mono">
+                                <span class="flex items-center gap-1"><i class="fa-solid fa-bolt text-amber-500"></i> 24/7 Faol</span>
+                                <span class="flex items-center gap-1"><i class="fa-solid fa-shield-check text-emerald-500"></i> B2B AI</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PREVIEW CONTAINER 4: Human-like Delay Simulation -->
+                    <div id="preview4" class="preview-panel w-full max-w-sm space-y-4 hidden">
+                        <div class="text-center mb-3">
+                            <span id="delayPreviewLabel" class="text-[11px] font-mono uppercase font-bold text-amber-600 dark:text-amber-400 tracking-wider">
+                                Insoniy Kechikish Jarayoni (5s & 10s)
+                            </span>
+                        </div>
+
+                        <div class="bg-white dark:bg-[#141414] rounded-2xl border border-[#E7E5E1] dark:border-[#262626] p-4 shadow-xl space-y-3 text-xs">
+                            <div class="bg-indigo-600 text-white p-2.5 rounded-xl rounded-br-xs ml-auto max-w-[85%] text-[11px]">
+                                Salom, ushbu mahsulot narxi va dostavkasi qanday?
+                            </div>
+
+                            <!-- Typing Indicator for First Message -->
+                            <div class="bg-slate-100 dark:bg-[#1E1E1E] text-slate-500 p-3 rounded-xl rounded-bl-xs max-w-[90%] border border-[#E7E5E1] dark:border-[#262626] flex items-center space-x-2">
+                                <div class="flex space-x-1">
+                                    <div class="w-2 h-2 rounded-full bg-slate-400 animate-bounce"></div>
+                                    <div class="w-2 h-2 rounded-full bg-slate-400 animate-bounce [animation-delay:0.2s]"></div>
+                                    <div class="w-2 h-2 rounded-full bg-slate-400 animate-bounce [animation-delay:0.4s]"></div>
+                                </div>
+                                <span id="delayVisualBadge1" class="text-[10px] font-mono font-bold text-amber-600 dark:text-amber-400">1-javob: 5s kechikish bilan...</span>
+                            </div>
+
+                            <div class="bg-slate-50 dark:bg-[#1E1E1E] p-2.5 rounded-xl text-slate-800 dark:text-slate-200 border border-[#E7E5E1] dark:border-[#262626] text-[11px]">
+                                Assalomu alaykum! Narximiz 250 000 so'm, yetkazib berish Toshkent bo'yicha bepul.
+                            </div>
+
+                            <div class="bg-indigo-600 text-white p-2 rounded-xl rounded-br-xs ml-auto max-w-[80%] text-[11px]">
+                                Viloyatlarga ham bormi?
+                            </div>
+
+                            <!-- Typing Indicator for Subsequent Message -->
+                            <div class="bg-slate-100 dark:bg-[#1E1E1E] text-slate-500 p-2.5 rounded-xl rounded-bl-xs max-w-[90%] border border-[#E7E5E1] dark:border-[#262626] flex items-center space-x-2">
+                                <div class="flex space-x-1">
+                                    <div class="w-2 h-2 rounded-full bg-slate-400 animate-bounce"></div>
+                                    <div class="w-2 h-2 rounded-full bg-slate-400 animate-bounce [animation-delay:0.2s]"></div>
+                                    <div class="w-2 h-2 rounded-full bg-slate-400 animate-bounce [animation-delay:0.4s]"></div>
+                                </div>
+                                <span id="delayVisualBadge2" class="text-[10px] font-mono font-bold text-violet-600 dark:text-violet-400">Keyingi javob: 10s kechikish bilan...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PREVIEW CONTAINER 5: Split Messages Simulation -->
+                    <div id="preview5" class="preview-panel w-full max-w-sm space-y-4 hidden">
+                        <div class="text-center mb-3">
+                            <span class="text-[11px] font-mono uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-wider">
+                                Xabarlar Oqimi Simulyatsiyasi
+                            </span>
+                        </div>
+
+                        <div class="bg-white dark:bg-[#141414] rounded-2xl border border-[#E7E5E1] dark:border-[#262626] p-4 shadow-xl space-y-2">
+                            <div class="text-[10px] font-mono text-slate-400 uppercase font-semibold pb-1 border-b border-[#E7E5E1] dark:border-[#262626]">
+                                Agentdan mijozga ketma-ket xabarlar:
+                            </div>
+
+                            <div id="splitPreviewContent" class="space-y-2 pt-1">
+                                <div class="bg-emerald-50 dark:bg-emerald-950/30 text-slate-800 dark:text-slate-200 border border-emerald-200 dark:border-emerald-800/60 p-2.5 rounded-xl rounded-bl-xs text-[11px] shadow-2xs">
+                                    Ha, ushbu tovarimiz omborda bor! Narxi: 320 000 so'm.
+                                </div>
+                                <div class="bg-emerald-50 dark:bg-emerald-950/30 text-slate-800 dark:text-slate-200 border border-emerald-200 dark:border-emerald-800/60 p-2.5 rounded-xl rounded-bl-xs text-[11px] shadow-2xs">
+                                    Agar hozir buyurtma qilsangiz, bepul yetkazib berish imkoniyati mavjud.
+                                </div>
+                                <div class="bg-emerald-50 dark:bg-emerald-950/30 text-slate-800 dark:text-slate-200 border border-emerald-200 dark:border-emerald-800/60 p-2.5 rounded-xl rounded-bl-xs text-[11px] shadow-2xs">
+                                    Sizga rasmiylashtirib beraymi?
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PREVIEW CONTAINER 6: Business Owner Profile Card -->
+                    <div id="preview6" class="preview-panel w-full max-w-sm space-y-4 hidden">
+                        <div class="text-center mb-3">
+                            <span class="text-[11px] font-mono uppercase font-bold text-indigo-600 dark:text-indigo-400 tracking-wider">
+                                Biznes Egasi Profili
+                            </span>
+                        </div>
+
+                        <div class="bg-white dark:bg-[#141414] rounded-2xl border border-[#E7E5E1] dark:border-[#262626] p-6 shadow-xl text-center space-y-4">
+                            <div class="relative inline-block">
+                                <div id="previewOwnerAvatar" class="w-20 h-20 rounded-full bg-gradient-to-tr from-slate-900 to-indigo-700 text-white flex items-center justify-center text-2xl font-bold font-mono shadow-md mx-auto">
+                                    {{ request.user.first_name|slice:':1'|default:'U' }}
+                                </div>
+                                <span class="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] border-2 border-white dark:border-[#141414] flex items-center justify-center text-[10px]">
+                                    <i class="fa-solid fa-check"></i>
+                                </span>
+                            </div>
+
+                            <div>
+                                <h3 id="previewOwnerFullName" class="text-base font-bold text-slate-900 dark:text-[#F5F1E8]">
+                                    {{ request.user.first_name|default:'Biznes Egasi' }}
+                                </h3>
+                                <p class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold mt-0.5">
+                                    Biznes Administratori
+                                </p>
+                            </div>
+
+                            <div class="bg-slate-50 dark:bg-[#1E1E1E] p-3 rounded-xl border border-[#E7E5E1] dark:border-[#262626] space-y-2 text-left text-xs font-mono">
+                                <div class="text-slate-500 flex items-center justify-between">
+                                    <span>Email:</span>
+                                    <span id="previewOwnerEmail" class="text-slate-800 dark:text-[#F5F1E8] font-bold">{{ request.user.email|default:'—' }}</span>
+                                </div>
+                                <div class="text-slate-500 flex items-center justify-between">
+                                    <span>Parol:</span>
+                                    <span id="previewPasswordStatus" class="text-slate-600 dark:text-slate-400 font-medium">••••••••</span>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 text-left space-y-2 text-[11px]">
+                                <div class="flex items-center gap-2 text-slate-800 dark:text-[#F5F1E8] font-medium">
+                                    <i class="fa-solid fa-circle-check text-slate-900 dark:text-[#F5F1E8]"></i>
+                                    <span>AI Savdo Agenti faollashtirildi</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-slate-800 dark:text-[#F5F1E8] font-medium">
+                                    <i class="fa-solid fa-circle-check text-slate-900 dark:text-[#F5F1E8]"></i>
+                                    <span>RAG Bilimlar ombori tayyor</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-slate-800 dark:text-[#F5F1E8] font-medium">
+                                    <i class="fa-solid fa-circle-check text-slate-900 dark:text-[#F5F1E8]"></i>
+                                    <span>Boshqaruv paneli yuklanmoqda</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
         </form>
+    </main>
+
+    <!-- File Upload Modal Popup -->
+    <div id="fileUploadModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-[#141414] rounded-3xl border border-[#E7E5E1] dark:border-[#262626] max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-5">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-3 border-b border-[#E7E5E1] dark:border-[#262626]">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-file-arrow-up"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-[#F5F1E8]">Fayllarni yuklash</h3>
+                </div>
+                <button type="button" onclick="closeFileUploadModal()" class="w-8 h-8 rounded-full border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] transition text-xs">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="space-y-4">
+                <!-- Drag & drop / file picker zone -->
+                <div onclick="document.getElementById('modalFileInput').click()"
+                    class="cursor-pointer p-6 rounded-2xl border-2 border-dashed border-[#E7E5E1] dark:border-[#262626] hover:border-indigo-500 dark:hover:border-indigo-500 bg-slate-50 dark:bg-[#1E1E1E] text-center space-y-2 transition group">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl mx-auto group-hover:scale-110 transition">
+                        <i class="fa-solid fa-folder-open"></i>
+                    </div>
+                    <div class="text-xs font-bold text-slate-800 dark:text-[#F5F1E8]">
+                        Faylni tanlash uchun bosing yoki shu yerga tashlang
+                    </div>
+                    <p class="text-[11px] text-slate-400">
+                        Qo'llab-quvvatlanadigan format: <strong>.txt</strong> (oddiy matnli fayl)
+                    </p>
+                    <input type="file" id="modalFileInput" accept=".txt,text/plain" class="hidden" onchange="handleModalFileSelect(this)">
+                </div>
+
+                <!-- Modal Loaded File Indicator -->
+                <div id="modalSelectedFileBox" class="hidden p-3 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200/60 dark:border-indigo-800/50 rounded-2xl flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 dark:text-indigo-400 text-sm"></i>
+                        <span id="modalSelectedFileName" class="text-xs font-semibold text-slate-800 dark:text-[#F5F1E8]">nomi.txt</span>
+                    </div>
+                    <button type="button" onclick="clearModalFile()" class="text-xs text-rose-500 hover:underline">
+                        O'chirish
+                    </button>
+                </div>
+
+                <!-- Optional Text Paste Option in Modal -->
+                <div class="pt-2 border-t border-[#E7E5E1] dark:border-[#262626]">
+                    <label for="modalTextInput" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-300 font-semibold mb-1.5">
+                        Yoki matnni shu yerga nusxalab qo'ying:
+                    </label>
+                    <textarea id="modalTextInput" rows="4" placeholder="Biznesingiz haqida, xizmatlar, narxlar yoki FAQ matnini shu yerga yozishingiz ham mumkin..."
+                        class="w-full p-3 text-xs rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] focus:border-indigo-500 outline-none leading-relaxed"></textarea>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-end space-x-3 pt-3 border-t border-[#E7E5E1] dark:border-[#262626]">
+                <button type="button" onclick="closeFileUploadModal()"
+                    class="px-4 py-2 rounded-full border border-[#E7E5E1] dark:border-[#262626] text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#1E1E1E] text-xs font-semibold transition">
+                    Bekor qilish
+                </button>
+                <button type="button" onclick="saveModalData()"
+                    class="px-5 py-2 rounded-full bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] text-white text-xs font-bold shadow-xs transition">
+                    Tayyor va saqlash
+                </button>
+            </div>
+
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-    function toggleChannel(channel, show) {
-        const container = document.getElementById(channel + 'Container');
-        const btn = document.getElementById('add' + channel.charAt(0).toUpperCase() + channel.slice(1) + 'Btn');
-        const input = document.getElementById('id_' + channel);
+    let currentStep = 1;
+    const totalSteps = 6;
 
-        if (show) {
-            container.classList.remove('hidden');
-            btn.classList.add('hidden');
-            if (input) input.focus();
+    function updateStepUI() {
+        // Show current slide and preview, hide others
+        for (let i = 1; i <= totalSteps; i++) {
+            const slide = document.getElementById('slide' + i);
+            const preview = document.getElementById('preview' + i);
+            const dot = document.getElementById('stepDot' + i);
+
+            if (i === currentStep) {
+                if (slide) slide.classList.remove('hidden');
+                if (preview) preview.classList.remove('hidden');
+                if (dot) {
+                    // Current step: elongated pill in solid black/onyx
+                    dot.className = 'step-dot transition-all duration-300 h-2 rounded-full bg-[#0A0A0A] dark:bg-[#F5F1E8] w-7 shadow-xs';
+                }
+            } else if (i < currentStep) {
+                if (slide) slide.classList.add('hidden');
+                if (preview) preview.classList.add('hidden');
+                if (dot) {
+                    // Completed step: small circle in solid black/onyx (NOT green)
+                    dot.className = 'step-dot transition-all duration-300 h-2 rounded-full bg-[#0A0A0A] dark:bg-[#F5F1E8] w-2';
+                }
+            } else {
+                if (slide) slide.classList.add('hidden');
+                if (preview) preview.classList.add('hidden');
+                if (dot) {
+                    // Future step: small circle in muted gray
+                    dot.className = 'step-dot transition-all duration-300 h-2 rounded-full bg-slate-300 dark:bg-[#333333] w-2 hover:bg-slate-400';
+                }
+            }
+        }
+
+        // Prev & Next Buttons
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+
+        if (currentStep === 1) {
+            if (prevBtn) prevBtn.classList.add('hidden');
         } else {
-            container.classList.add('hidden');
-            btn.classList.remove('hidden');
-            if (input) input.value = '';
+            if (prevBtn) prevBtn.classList.remove('hidden');
+        }
+
+        if (currentStep === totalSteps) {
+            if (nextBtn) nextBtn.classList.add('hidden');
+            if (submitBtn) submitBtn.classList.remove('hidden');
+        } else {
+            if (nextBtn) nextBtn.classList.remove('hidden');
+            if (submitBtn) submitBtn.classList.add('hidden');
+        }
+    }
+
+    function nextPrev(n) {
+        // Validation on Step 2 (Website or File required; if website is entered, file is NOT required)
+        if (n === 1 && currentStep === 2) {
+            const websiteInput = document.getElementById('id_website');
+            const descInput = document.getElementById('descriptionTextarea');
+            const fileInput = document.getElementById('descriptionFileInput');
+            const hasWebsite = websiteInput && websiteInput.value.trim().length > 0;
+            const hasDesc = descInput && descInput.value.trim().length > 0;
+            const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
+
+            if (!hasWebsite && !hasDesc && !hasFile) {
+                alert("Iltimos, vebsayt havolasini kiriting yoki ma'lumot faylini yuklang!");
+                if (websiteInput) websiteInput.focus();
+                return false;
+            }
+        }
+
+        // Validation on Step 3 (Business Name required)
+        if (n === 1 && currentStep === 3) {
+            const businessNameInput = document.getElementById('id_name');
+            if (businessNameInput && !businessNameInput.value.trim()) {
+                alert("Iltimos, biznesingiz nomini kiriting!");
+                businessNameInput.focus();
+                return false;
+            }
+        }
+
+        // Validation on Step 6 (Owner Profile & Password)
+        if (n === 1 && currentStep === 6) {
+            const ownerFirstInput = document.getElementById('ownerFirstNameInput');
+            const ownerEmailInput = document.getElementById('ownerEmailInput');
+            const passwordInput = document.getElementById('passwordInput');
+            const passwordConfirmInput = document.getElementById('passwordConfirmInput');
+
+            if (ownerFirstInput && !ownerFirstInput.value.trim()) {
+                alert("Iltimos, ismingizni kiriting!");
+                ownerFirstInput.focus();
+                return false;
+            }
+            if (ownerEmailInput && !ownerEmailInput.value.trim()) {
+                alert("Iltimos, elektron pochtangizni kiriting!");
+                ownerEmailInput.focus();
+                return false;
+            }
+            if (passwordInput && !passwordInput.value) {
+                alert("Iltimos, parol kiriting!");
+                passwordInput.focus();
+                return false;
+            }
+            if (passwordInput && passwordInput.value.length < 6) {
+                alert("Parol kamida 6 ta belgidan iborat bo'lishi kerak!");
+                passwordInput.focus();
+                return false;
+            }
+            if (passwordInput && passwordConfirmInput && passwordInput.value !== passwordConfirmInput.value) {
+                alert("Parollar bir-biriga mos kelmadi. Iltimos, qaytadan tekshiring!");
+                passwordConfirmInput.focus();
+                return false;
+            }
+        }
+
+        currentStep += n;
+        if (currentStep > totalSteps) currentStep = totalSteps;
+        if (currentStep < 1) currentStep = 1;
+        updateStepUI();
+    }
+
+    function goToStep(step) {
+        if (step <= currentStep) {
+            currentStep = step;
+            updateStepUI();
+        } else {
+            // Validate step 2 if jumping past step 2
+            if (currentStep === 2 || step > 2) {
+                const websiteInput = document.getElementById('id_website');
+                const descInput = document.getElementById('descriptionTextarea');
+                const fileInput = document.getElementById('descriptionFileInput');
+                const hasWebsite = websiteInput && websiteInput.value.trim().length > 0;
+                const hasDesc = descInput && descInput.value.trim().length > 0;
+                const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
+
+                if (!hasWebsite && !hasDesc && !hasFile) {
+                    alert("Iltimos, vebsayt havolasini kiriting yoki ma'lumot faylini yuklang!");
+                    if (websiteInput) websiteInput.focus();
+                    return;
+                }
+            }
+            // Validate step 3 if jumping past step 3
+            if (currentStep === 3 || step > 3) {
+                const businessNameInput = document.getElementById('id_name');
+                if (businessNameInput && !businessNameInput.value.trim()) {
+                    alert("Iltimos, biznesingiz nomini kiriting!");
+                    businessNameInput.focus();
+                    return;
+                }
+            }
+            currentStep = step;
+            updateStepUI();
+        }
+    }
+
+    function submitOnboarding() {
+        const ownerFirstInput = document.getElementById('ownerFirstNameInput');
+        const ownerEmailInput = document.getElementById('ownerEmailInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const passwordConfirmInput = document.getElementById('passwordConfirmInput');
+
+        if (ownerFirstInput && !ownerFirstInput.value.trim()) {
+            alert("Iltimos, ismingizni kiriting!");
+            ownerFirstInput.focus();
+            return;
+        }
+        if (ownerEmailInput && !ownerEmailInput.value.trim()) {
+            alert("Iltimos, elektron pochtangizni kiriting!");
+            ownerEmailInput.focus();
+            return;
+        }
+        if (passwordInput && !passwordInput.value) {
+            alert("Iltimos, parol kiriting!");
+            passwordInput.focus();
+            return;
+        }
+        if (passwordInput && passwordInput.value.length < 6) {
+            alert("Parol kamida 6 ta belgidan iborat bo'lishi kerak!");
+            passwordInput.focus();
+            return;
+        }
+        if (passwordInput && passwordConfirmInput && passwordInput.value !== passwordConfirmInput.value) {
+            alert("Parollar bir-biriga mos kelmadi. Iltimos, qaytadan tekshiring!");
+            passwordConfirmInput.focus();
+            return;
+        }
+
+        document.getElementById('onboardingForm').submit();
+    }
+
+    // Delay Toggle handler
+    function toggleDelayOptions(enabled) {
+        const container = document.getElementById('delayOptionsContainer');
+        const label = document.getElementById('delayPreviewLabel');
+        if (enabled) {
+            container.classList.remove('opacity-50', 'pointer-events-none');
+            if (label) label.textContent = "Insoniy Kechikish Jarayoni (5s & 10s)";
+        } else {
+            container.classList.add('opacity-50', 'pointer-events-none');
+            if (label) label.textContent = "Kechikish o'chiq (Darhol javob beriladi)";
+        }
+    }
+
+    // First delay presets
+    function setFirstDelay(seconds) {
+        const input = document.getElementById('firstDelayInput');
+        if (input) input.value = seconds;
+        updateFirstDelayVal(seconds);
+    }
+
+    function updateFirstDelayVal(seconds) {
+        const badge = document.getElementById('delayVisualBadge1');
+        if (badge) badge.textContent = `1-javob: ${seconds}s kechikish bilan...`;
+        document.querySelectorAll('.first-preset-btn').forEach(btn => {
+            if (parseInt(btn.textContent) === parseInt(seconds)) {
+                btn.className = 'first-preset-btn px-2.5 py-1 rounded-lg text-xs font-mono font-bold border border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 transition';
+            } else {
+                btn.className = 'first-preset-btn px-2.5 py-1 rounded-lg text-xs font-mono border border-[#E7E5E1] dark:border-[#262626] hover:bg-slate-100 dark:hover:bg-[#262626] text-slate-600 dark:text-slate-400 transition';
+            }
+        });
+    }
+
+    // Subsequent delay presets
+    function setSubsequentDelay(seconds) {
+        const input = document.getElementById('subsequentDelayInput');
+        if (input) input.value = seconds;
+        updateSubsequentDelayVal(seconds);
+    }
+
+    function updateSubsequentDelayVal(seconds) {
+        const badge = document.getElementById('delayVisualBadge2');
+        if (badge) badge.textContent = `Keyingi javob: ${seconds}s kechikish bilan...`;
+        document.querySelectorAll('.sub-preset-btn').forEach(btn => {
+            if (parseInt(btn.textContent) === parseInt(seconds)) {
+                btn.className = 'sub-preset-btn px-2.5 py-1 rounded-lg text-xs font-mono font-bold border border-violet-500 bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 transition';
+            } else {
+                btn.className = 'sub-preset-btn px-2.5 py-1 rounded-lg text-xs font-mono border border-[#E7E5E1] dark:border-[#262626] hover:bg-slate-100 dark:hover:bg-[#262626] text-slate-600 dark:text-slate-400 transition';
+            }
+        });
+    }
+
+    // Split Messages Visual Toggle
+    function toggleSplitVisual(enabled) {
+        const previewWrap = document.getElementById('splitPreviewContent');
+        if (!previewWrap) return;
+        if (enabled) {
+            previewWrap.innerHTML = `
+                <div class="bg-emerald-50 dark:bg-emerald-950/30 text-slate-800 dark:text-slate-200 border border-emerald-200 dark:border-emerald-800/60 p-2.5 rounded-xl rounded-bl-xs text-[11px] shadow-2xs">
+                    Ha, ushbu tovarimiz omborda bor! Narxi: 320 000 so'm.
+                </div>
+                <div class="bg-emerald-50 dark:bg-emerald-950/30 text-slate-800 dark:text-slate-200 border border-emerald-200 dark:border-emerald-800/60 p-2.5 rounded-xl rounded-bl-xs text-[11px] shadow-2xs">
+                    Agar hozir buyurtma qilsangiz, bepul yetkazib berish imkoniyati mavjud.
+                </div>
+                <div class="bg-emerald-50 dark:bg-emerald-950/30 text-slate-800 dark:text-slate-200 border border-emerald-200 dark:border-emerald-800/60 p-2.5 rounded-xl rounded-bl-xs text-[11px] shadow-2xs">
+                    Sizga rasmiylashtirib beraymi?
+                </div>
+            `;
+        } else {
+            previewWrap.innerHTML = `
+                <div class="bg-slate-100 dark:bg-[#1E1E1E] text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-[#262626] p-3 rounded-xl rounded-bl-xs text-[11px] shadow-2xs leading-relaxed">
+                    Ha, ushbu tovarimiz omborda bor! Narxi: 320 000 so'm. Agar hozir buyurtma qilsangiz, bepul yetkazib berish imkoniyati mavjud. Sizga rasmiylashtirib beraymi?
+                </div>
+            `;
         }
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        // Check if any channel fields already have initial values (e.g. from validation reload)
-        ['website', 'telegram', 'instagram'].forEach(function (channel) {
-            const input = document.getElementById('id_' + channel);
-            if (input && input.value.trim().length > 0) {
-                toggleChannel(channel, true);
-            }
-        });
+        updateStepUI();
 
-        // .txt file reader logic
+        // Live sync bot name and business name to preview cards
+        const botInput = document.getElementById('botNameInput');
+        const nameInput = document.getElementById('id_name');
+
+        if (botInput) {
+            botInput.addEventListener('input', function(e) {
+                const val = e.target.value.trim() || 'AI Savdo Maslahatchisi';
+                document.querySelectorAll('.preview-agent-name').forEach(el => el.textContent = val);
+                const el3 = document.getElementById('previewAgentName');
+                if (el3) el3.textContent = val;
+            });
+        }
+
+        if (nameInput) {
+            nameInput.addEventListener('input', function(e) {
+                const val = e.target.value.trim() || 'Sizning Biznesingiz';
+                const el3 = document.getElementById('previewBusinessName');
+                if (el3) el3.textContent = val;
+            });
+        }
+
+        // Live sync owner profile to preview card 6
+        const ownerFirstInput = document.getElementById('ownerFirstNameInput');
+        const ownerEmailInput = document.getElementById('ownerEmailInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const passwordConfirmInput = document.getElementById('passwordConfirmInput');
+
+        function updateOwnerPreview() {
+            const first = (ownerFirstInput ? ownerFirstInput.value.trim() : '') || 'Biznes Egasi';
+            const email = (ownerEmailInput ? ownerEmailInput.value.trim() : '') || '—';
+
+            const nameEl = document.getElementById('previewOwnerFullName');
+            if (nameEl) nameEl.textContent = first;
+
+            const emailEl = document.getElementById('previewOwnerEmail');
+            if (emailEl) emailEl.textContent = email;
+
+            const avatarEl = document.getElementById('previewOwnerAvatar');
+            if (avatarEl) {
+                avatarEl.textContent = (first[0] || 'U').toUpperCase();
+            }
+
+            const passStatusEl = document.getElementById('previewPasswordStatus');
+            if (passStatusEl && passwordInput) {
+                if (passwordInput.value.length >= 6) {
+                    if (passwordConfirmInput && passwordConfirmInput.value && passwordInput.value === passwordConfirmInput.value) {
+                        passStatusEl.textContent = "Mos keldi (••••••••)";
+                        passStatusEl.className = "text-emerald-600 dark:text-emerald-400 font-bold";
+                    } else {
+                        passStatusEl.textContent = "Kiritildi (••••••••)";
+                        passStatusEl.className = "text-indigo-600 dark:text-indigo-400 font-bold";
+                    }
+                } else if (passwordInput.value.length > 0) {
+                    passStatusEl.textContent = "Kamida 6 belgi";
+                    passStatusEl.className = "text-amber-500 font-bold";
+                } else {
+                    passStatusEl.textContent = "••••••••";
+                    passStatusEl.className = "text-slate-600 dark:text-slate-400 font-medium";
+                }
+            }
+        }
+
+        if (ownerFirstInput) ownerFirstInput.addEventListener('input', updateOwnerPreview);
+        if (ownerEmailInput) ownerEmailInput.addEventListener('input', updateOwnerPreview);
+        if (passwordInput) passwordInput.addEventListener('input', updateOwnerPreview);
+        if (passwordConfirmInput) passwordConfirmInput.addEventListener('input', updateOwnerPreview);
+
+        // File upload listener (.txt)
         const fileInput = document.getElementById('descriptionFileInput');
         const textarea = document.getElementById('descriptionTextarea');
         const badge = document.getElementById('fileLoadedBadge');
@@ -223,19 +1179,94 @@
                     } else {
                         textarea.value = text.trim();
                     }
-                    badgeName.textContent = `✓ .txt fayldan yuklandi: ${file.name}`;
-                    badge.classList.remove('hidden');
+                    if (badgeName) badgeName.textContent = `✓ Fayldan yuklandi: ${file.name}`;
+                    if (badge) badge.classList.remove('hidden');
                 };
                 reader.readAsText(file, 'UTF-8');
             });
         }
     });
 
+    // Modal Functions for File Upload
+    function openFileUploadModal() {
+        const modal = document.getElementById('fileUploadModal');
+        if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeFileUploadModal() {
+        const modal = document.getElementById('fileUploadModal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    let modalSelectedFile = null;
+
+    function handleModalFileSelect(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        modalSelectedFile = file;
+
+        const nameEl = document.getElementById('modalSelectedFileName');
+        if (nameEl) nameEl.textContent = file.name;
+        const box = document.getElementById('modalSelectedFileBox');
+        if (box) box.classList.remove('hidden');
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const text = e.target.result;
+            const textInput = document.getElementById('modalTextInput');
+            if (textInput) textInput.value = text.trim();
+        };
+        reader.readAsText(file, 'UTF-8');
+    }
+
+    function clearModalFile() {
+        modalSelectedFile = null;
+        const fileInput = document.getElementById('modalFileInput');
+        if (fileInput) fileInput.value = '';
+        const box = document.getElementById('modalSelectedFileBox');
+        if (box) box.classList.add('hidden');
+    }
+
+    function saveModalData() {
+        const textInput = document.getElementById('modalTextInput');
+        const mainTextarea = document.getElementById('descriptionTextarea');
+        const mainFileInput = document.getElementById('descriptionFileInput');
+        const badge = document.getElementById('fileLoadedBadge');
+        const badgeName = document.getElementById('fileLoadedName');
+
+        const textVal = textInput ? textInput.value.trim() : '';
+
+        if (textVal || modalSelectedFile) {
+            if (mainTextarea) mainTextarea.value = textVal;
+            if (badgeName) {
+                badgeName.textContent = modalSelectedFile ? modalSelectedFile.name : "Ma'lumotlar kiritildi";
+            }
+            if (badge) badge.classList.remove('hidden');
+
+            if (modalSelectedFile && mainFileInput && window.DataTransfer) {
+                try {
+                    const dt = new DataTransfer();
+                    dt.items.add(modalSelectedFile);
+                    mainFileInput.files = dt.files;
+                } catch(err) {
+                    console.log(err);
+                }
+            }
+        }
+
+        closeFileUploadModal();
+    }
+
     function clearUploadedFile() {
         const fileInput = document.getElementById('descriptionFileInput');
+        const textarea = document.getElementById('descriptionTextarea');
         const badge = document.getElementById('fileLoadedBadge');
         if (fileInput) fileInput.value = '';
+        if (textarea) textarea.value = '';
         if (badge) badge.classList.add('hidden');
+        clearModalFile();
+        const textInput = document.getElementById('modalTextInput');
+        if (textInput) textInput.value = '';
     }
 </script>
 {% endblock %}

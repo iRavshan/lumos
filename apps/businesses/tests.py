@@ -42,7 +42,6 @@ class BusinessSystemTests(TestCase):
         # Register business
         onboard_response = self.client.post(reverse('businesses:onboarding'), {
             'name': 'Lumos Tech Solutions',
-            'category': 'IT & Dasturlash',
             'website': 'https://lumostech.uz',
             'telegram': '@lumostech',
             'instagram': 'lumos_tech',
@@ -75,7 +74,6 @@ class BusinessSystemTests(TestCase):
 
         res = self.client.post(reverse('businesses:onboarding'), {
             'name': 'Aziz Consulting Group',
-            'category': 'Moliya & Konsalting',
             'telegram': '@aziz_consulting',
             'description_file': txt_file
         })
@@ -89,7 +87,6 @@ class BusinessSystemTests(TestCase):
         business = Business.objects.create(
             user=self.user,
             name='Eski Nomi',
-            category='Savdo & Do\'kon',
             website='https://old.uz',
             telegram='old_tg',
             instagram='old_ig',
@@ -100,7 +97,6 @@ class BusinessSystemTests(TestCase):
         
         edit_response = self.client.post(reverse('businesses:edit'), {
             'name': 'Yangi Nomi',
-            'category': 'IT & Dasturlash',
             'website': 'https://new.uz',
             'telegram': '@new_tg',
             'instagram': '@new_ig',
@@ -110,13 +106,11 @@ class BusinessSystemTests(TestCase):
 
         business.refresh_from_db()
         self.assertEqual(business.name, 'Yangi Nomi')
-        self.assertEqual(business.category, 'IT & Dasturlash')
 
     def test_business_analytics_view_and_calculations(self):
         business = Business.objects.create(
             user=self.user,
             name='Super Market AI',
-            category='Supermarket',
             phone='+998901234567',
             description='Oziq-ovqat va maishiy tovarlar savdosi.'
         )

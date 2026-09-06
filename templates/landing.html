@@ -1,102 +1,278 @@
 {% extends 'shared/_base.html' %}
 
-{% block title %}Lumos - Biznesingizni Onlayn Boshqaring{% endblock %}
+{% block title %}Lumos — B2B AI Sales Agent & Omnichannel CRM{% endblock %}
 
 {% block content %}
-<div class="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-32">
-    <!-- Background glow decoration -->
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 w-[600px] h-[600px] bg-gradient-to-tr from-indigo-300/30 to-violet-300/30 rounded-full blur-3xl pointer-events-none"></div>
+<div class="space-y-0">
+    
+    <!-- 1. Hero Section (Pleep-style Deep Onyx Dark Background with Warm Chalk Typography & Pill CTAs) -->
+    <section class="relative bg-[#0D0B08] text-[#F5F1E8] pt-20 pb-28 sm:pt-28 sm:pb-36 overflow-hidden border-b border-[#262626]">
+        <!-- Subtle Glow Background Element -->
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(245,241,232,0.06),transparent_70%)] pointer-events-none"></div>
+        <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <!-- Badge -->
-        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-8">
-            <span class="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
-            O'zbekistondagi bizneslar uchun yangi imkoniyat
-        </div>
-
-        <!-- Hero Headline -->
-        <h1 class="text-4xl sm:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight max-w-4xl mx-auto">
-            Biznesingizni ro'yxatdan o'tkazing va <span class="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">shaxsiy dashboard</span>ga ega bo'ling
-        </h1>
-
-        <!-- Subtitle -->
-        <p class="mt-6 text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Biznesingiz nomi, rasmiy vebsayti, Telegram va Instagram kanallaringiz hamda xizmatlaringiz haqidagi to'liq ma'lumotlarni bir joyda to'plang va boshqaring.
-        </p>
-
-        <!-- CTA Buttons -->
-        <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="{% url 'accounts:register' %}" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-2xl shadow-lg shadow-indigo-600/25 hover:shadow-indigo-600/40 transition duration-200">
-                <i class="fa-solid fa-rocket mr-2.5"></i> Biznesni ro'yxatdan o'tkazish
-            </a>
-            <a href="{% url 'accounts:login' %}" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl shadow-sm transition duration-200">
-                <i class="fa-solid fa-right-to-bracket mr-2.5 text-slate-500"></i> Tizimga kirish
-            </a>
-        </div>
-
-        <!-- Features Grid -->
-        <div class="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition duration-200">
-                <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl mb-6">
-                    <i class="fa-solid fa-building"></i>
-                </div>
-                <h3 class="text-xl font-bold text-slate-900 mb-2">Biznes Profili</h3>
-                <p class="text-slate-600 leading-relaxed text-sm">
-                    Biznesingiz haqida to'liq ma'lumot, rasmiy vebsayt va aloqa ma'lumotlarini qulay tarzda kiriting.
-                </p>
+        <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
+            
+            <!-- Mono Badge -->
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-mono uppercase tracking-widest text-[#F5F1E8]/80 backdrop-blur-md">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>B2B Multi-modal AI Agent Platform</span>
             </div>
 
-            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition duration-200">
-                <div class="w-12 h-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center text-xl mb-6">
-                    <i class="fa-solid fa-share-nodes"></i>
-                </div>
-                <h3 class="text-xl font-bold text-slate-900 mb-2">Ijtimoiy Tarmoqlar</h3>
-                <p class="text-slate-600 leading-relaxed text-sm">
-                    Telegram kanalingiz va Instagram sahifangizni bog'lang, mijozlar sizni tezda topishsin.
-                </p>
+            <!-- Main Punchy Headline -->
+            <h1 class="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-[#F5F1E8] leading-[1.08] max-w-4xl mx-auto font-sans">
+                Mijozlar bilan bitimlarni <br class="hidden sm:inline" />
+                <span class="text-white">oxirigacha yopuvchi</span> AI agent.
+            </h1>
+
+            <!-- Subheadline -->
+            <p class="text-base sm:text-lg lg:text-xl text-[#F5F1E8]/70 max-w-2xl mx-auto leading-relaxed font-normal">
+                Lumos vebsayt vidjeti va Telegram bot orqali 24/7 sotadi, mijozlar e'tirozlarini hal qiladi, ma'lumotlarni Inbox CRM da to'playdi va operatorlarga avtomat uzatadi.
+            </p>
+
+            <!-- Pill CTA Buttons -->
+            <div class="flex flex-wrap items-center justify-center gap-3.5 pt-2">
+                <a href="{% url 'accounts:register' %}" class="inline-flex items-center justify-center px-7 py-3.5 rounded-full text-sm font-bold text-[#0A0A0A] bg-[#F5F1E8] hover:bg-white hover:shadow-lg hover:shadow-white/10 transition duration-200">
+                    <span>3 daqiqada sinab ko'rish</span>
+                    <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
+                </a>
+                <a href="{% url 'accounts:login' %}" class="inline-flex items-center justify-center px-7 py-3.5 rounded-full text-sm font-semibold text-[#F5F1E8] bg-white/5 hover:bg-white/10 border border-white/15 backdrop-blur-md transition duration-200">
+                    <i class="fa-solid fa-right-to-bracket mr-2 text-xs opacity-70"></i>
+                    <span>Tizimga kirish</span>
+                </a>
             </div>
 
-            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition duration-200">
-                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl mb-6">
-                    <i class="fa-solid fa-gauge-high"></i>
+            <!-- Trust / Micro Stats -->
+            <div class="pt-8 flex flex-wrap items-center justify-center gap-6 sm:gap-12 text-xs font-mono uppercase tracking-wider text-[#A3A39F]">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-bolt text-emerald-400"></i>
+                    <span>99.8% Aniqlikdagi RAG</span>
                 </div>
-                <h3 class="text-xl font-bold text-slate-900 mb-2">Qulay Dashboard</h3>
-                <p class="text-slate-600 leading-relaxed text-sm">
-                    Har bir foydalanuvchiga taqdim etiladigan shaxsiy boshqaruv paneli orqali ma'lumotlaringizni doimo yangilab turing.
-                </p>
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-clock text-sky-400"></i>
+                    <span>24/7 Avtonom ishlash</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-amber-400"></i>
+                    <span>SLA & Eskalatsiya nazorati</span>
+                </div>
             </div>
+
         </div>
+    </section>
 
-        {% if recent_businesses %}
-        <!-- Recent Registered Businesses Showcase -->
-        <div class="mt-24 text-left">
-            <div class="flex items-center justify-between mb-8">
+    <!-- 2. "Proof, not promises" Metric Tiles (Clean High-Contrast Cards) -->
+    <section class="py-20 bg-white dark:bg-[#0A0A0A] border-b border-[#E7E5E1] dark:border-[#262626]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-900">Ro'yxatdan o'tgan bizneslar</h2>
-                    <p class="text-slate-500 text-sm mt-1">Platformamizga qo'shilgan so'nggi bizneslar</p>
+                    <span class="text-xs font-mono uppercase tracking-widest text-slate-400 font-semibold">Isbotlangan Natijalar</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-[#F5F1E8] tracking-tight mt-2">
+                        Biznesingiz uchun real ko'rsatkichlar
+                    </h2>
                 </div>
-                <span class="text-sm font-semibold text-indigo-600 bg-indigo-50 px-3.5 py-1.5 rounded-full">
-                    Jami: {{ total_businesses }} ta biznes
-                </span>
+                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md">
+                    Lumos AI orqali mijozlarni qamrab olish vaqti 24/7 ga oshadi, kutish vaqti esa soniyalarga qisqaradi.
+                </p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {% for b in recent_businesses %}
-                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs hover:border-indigo-200 hover:shadow-md transition duration-200 flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between mb-3">
-                            <h4 class="font-bold text-slate-900 text-lg">{{ b.name }}</h4>
-                            {% if b.category %}
-                            <span class="text-xs px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 font-medium">
-                                {{ b.category }}
-                            </span>
-                            {% endif %}
-                        </div>
-                        <p class="text-slate-600 text-sm line-clamp-3 mb-4">{{ b.description }}</p>
+                <!-- Card 1 (Dark Inverted) -->
+                <div class="p-8 rounded-2xl bg-[#0A0A0A] text-white border border-[#0A0A0A] flex flex-col justify-between min-h-[260px]">
+                    <div class="flex items-center justify-between">
+                        <span class="text-base font-bold text-[#F5F1E8]">Javob tezligi</span>
+                        <span class="text-[10px] font-mono uppercase tracking-wider text-white/50">Response Time</span>
                     </div>
-                    <div class="flex items-center justify-between pt-4 border-t border-slate-100 text-xs">
-                        <div class="flex space-x-3 text-slate-400">
-                            {% if b.website %}<a href="{{ b.website }}" target="_blank" class="hover:text-indigo-600"><i class="fa-solid fa-globe"></i></a>{% endif %}
+                    <div class="my-6">
+                        <div class="text-5xl sm:text-6xl font-black text-[#F5F1E8] tracking-tight">&lt; 1 soniya</div>
+                        <p class="text-xs text-white/60 mt-2">Inson operatori o'rniga AI 1 soniya ichida to'liq aniq javob beradi</p>
+                    </div>
+                    <div class="text-xs font-mono text-emerald-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-check"></i> Bir vaqtning o'zida 10,000+ mijoz
+                    </div>
+                </div>
+
+                <!-- Card 2 (Clean Light/Paper Card) -->
+                <div class="p-8 rounded-2xl bg-[#FAFAF9] dark:bg-[#141414] border border-[#E7E5E1] dark:border-[#262626] flex flex-col justify-between min-h-[260px]">
+                    <div class="flex items-center justify-between">
+                        <span class="text-base font-bold text-slate-900 dark:text-[#F5F1E8]">Murojaatlar qamrovi</span>
+                        <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400">Coverage</span>
+                    </div>
+                    <div class="my-6">
+                        <div class="text-5xl sm:text-6xl font-black text-slate-900 dark:text-[#F5F1E8] tracking-tight">24 / 7</div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Kechasi yoki dam olish kunlarida birorta ham yo'qotilgan mijoz qolmaydi</p>
+                    </div>
+                    <div class="text-xs font-mono text-sky-600 dark:text-sky-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrow-trend-up"></i> 100% savollar qayta ishlanadi
+                    </div>
+                </div>
+
+                <!-- Card 3 (Clean Light/Paper Card) -->
+                <div class="p-8 rounded-2xl bg-[#FAFAF9] dark:bg-[#141414] border border-[#E7E5E1] dark:border-[#262626] flex flex-col justify-between min-h-[260px]">
+                    <div class="flex items-center justify-between">
+                        <span class="text-base font-bold text-slate-900 dark:text-[#F5F1E8]">Konversiya o'sishi</span>
+                        <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400">Conversion</span>
+                    </div>
+                    <div class="my-6">
+                        <div class="text-5xl sm:text-6xl font-black text-slate-900 dark:text-[#F5F1E8] tracking-tight">+ 35%</div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Mijoz telefon raqami va buyurtmasi avtomatik olinib, Inbox CRM ga kiritiladi</p>
+                    </div>
+                    <div class="text-xs font-mono text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrow-up-right-dots"></i> Avtomatik lead generatsiya
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. Core B2B Capabilities Grid (6 Clean Cards) -->
+    <section class="py-24 bg-[#FAFAF9] dark:bg-[#0D0D0D] border-b border-[#E7E5E1] dark:border-[#262626]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-xs font-mono uppercase tracking-widest text-slate-400 font-semibold">Tizim Imkoniyatlari</span>
+                <h2 class="text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-[#F5F1E8] tracking-tight mt-3">
+                    Bitimlarni yopish uchun barcha vositalar
+                </h2>
+                <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400 mt-3">
+                    Vebsayt vidjeti, Telegram bot, real vaqtdagi CRM, xodimlar nazorati va chuqur biznes analitikasi.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <!-- Feature 1: Website AI Widget -->
+                <div class="bg-white dark:bg-[#141414] p-7 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] hover:border-slate-400 transition duration-200 flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white flex items-center justify-center text-base mb-5">
+                            <i class="fa-solid fa-globe"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-[#F5F1E8]">Vebsayt AI Vidjeti</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+                            Bir qator kod orqali istalgan vebsaytga o'rnatiladi. Mijozlarning mahsulot va xizmatlar haqidagi savollariga darhol javob beradi.
+                        </p>
+                    </div>
+                    <div class="pt-6 border-t border-[#E7E5E1] dark:border-[#262626] mt-6 flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        <span>Jonli sinov & Iframe</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </div>
+                </div>
+
+                <!-- Feature 2: Telegram AI Bot -->
+                <div class="bg-white dark:bg-[#141414] p-7 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] hover:border-slate-400 transition duration-200 flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 flex items-center justify-center text-base mb-5">
+                            <i class="fa-brands fa-telegram"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-[#F5F1E8]">Telegram Bot Integratsiyasi</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+                            Mavjud yoki yangi Telegram botingizni 1 daqiqada ulang. AI Telegramdagi barcha xabarlarga matn va havola orqali javob qaytaradi.
+                        </p>
+                    </div>
+                    <div class="pt-6 border-t border-[#E7E5E1] dark:border-[#262626] mt-6 flex items-center justify-between text-xs font-semibold text-sky-600 dark:text-sky-400">
+                        <span>Webhook & Real-vaqt</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </div>
+                </div>
+
+                <!-- Feature 3: Live Inbox CRM -->
+                <div class="bg-white dark:bg-[#141414] p-7 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] hover:border-slate-400 transition duration-200 flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white flex items-center justify-center text-base mb-5">
+                            <i class="fa-solid fa-inbox"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-[#F5F1E8]">Unified Inbox & CRM</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+                            Vebsayt va Telegramdan kelgan barcha mijozlar bitta qulay oynada. Mijoz ismi, telefoni va buyurtma holatini boshqaring.
+                        </p>
+                    </div>
+                    <div class="pt-6 border-t border-[#E7E5E1] dark:border-[#262626] mt-6 flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        <span>Excel export & Filterlar</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </div>
+                </div>
+
+                <!-- Feature 4: Team & SLA Routing -->
+                <div class="bg-white dark:bg-[#141414] p-7 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] hover:border-slate-400 transition duration-200 flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white flex items-center justify-center text-base mb-5">
+                            <i class="fa-solid fa-users-gear"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-[#F5F1E8]">Jamoa & SLA Marshrutizatsiyasi</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+                            Operatorlar va Supervisorlar tizimi. Agar operator belgilangan SLA daqiqa ichida javob bermasa, chat avtomatik supervisorga o'tadi.
+                        </p>
+                    </div>
+                    <div class="pt-6 border-t border-[#E7E5E1] dark:border-[#262626] mt-6 flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        <span>Telegram Mini App</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </div>
+                </div>
+
+                <!-- Feature 5: Deep Analytics -->
+                <div class="bg-white dark:bg-[#141414] p-7 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] hover:border-slate-400 transition duration-200 flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white flex items-center justify-center text-base mb-5">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-[#F5F1E8]">Chuqur Biznes Analitikasi</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+                            Eng ko'p so'ralgan tovarlar, yo'qotilgan imkoniyatlar (lost opportunities), eng faol soatlar va avtomatlashtirish foizi grafiklarda.
+                        </p>
+                    </div>
+                    <div class="pt-6 border-t border-[#E7E5E1] dark:border-[#262626] mt-6 flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        <span>9 ta analitika moduli</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </div>
+                </div>
+
+                <!-- Feature 6: Smart Knowledge Base -->
+                <div class="bg-white dark:bg-[#141414] p-7 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] hover:border-slate-400 transition duration-200 flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white flex items-center justify-center text-base mb-5">
+                            <i class="fa-solid fa-brain"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-[#F5F1E8]">Bilimlar Bazasi (.txt / FAQ)</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+                            Biznesingiz narxlari, manzili va shartlarini .txt faylda yuklang yoki FAQ bo'limiga yozing. AI ma'lumotlarni darhol o'rganadi.
+                        </p>
+                    </div>
+                    <div class="pt-6 border-t border-[#E7E5E1] dark:border-[#262626] mt-6 flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        <span>Zero Hallucination</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Recent Registered Businesses Directory (Minimalist B2B Cards) -->
+    {% if recent_businesses %}
+    <section class="py-20 bg-white dark:bg-[#0A0A0A]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between mb-8 pb-4 border-b border-[#E7E5E1] dark:border-[#262626]">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-[#F5F1E8]">Platformadagi bizneslar</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Lumos orqali mijozlar bilan muloqot qilayotgan kompaniyalar</p>
+                </div>
+                <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626]">
+                    Jami: {{ total_businesses }} ta
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {% for b in recent_businesses %}
+                <div class="p-5 rounded-2xl bg-[#FAFAF9] dark:bg-[#141414] border border-[#E7E5E1] dark:border-[#262626] flex flex-col justify-between hover:border-slate-400 transition">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-bold text-sm text-slate-900 dark:text-[#F5F1E8]">{{ b.name }}</h4>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">{{ b.description }}</p>
+                    </div>
+                    <div class="flex items-center justify-between pt-3 mt-4 border-t border-[#E7E5E1] dark:border-[#262626] text-xs">
+                        <span class="text-[11px] text-slate-400">{{ b.created_at|date:"d.m.Y" }}</span>
+                        <div class="flex space-x-2 text-slate-400">
+                            {% if b.website %}<a href="{{ b.website }}" target="_blank" class="hover:text-slate-900 dark:hover:text-white"><i class="fa-solid fa-globe"></i></a>{% endif %}
                             {% if b.telegram_link %}<a href="{{ b.telegram_link }}" target="_blank" class="hover:text-sky-500"><i class="fa-brands fa-telegram"></i></a>{% endif %}
                             {% if b.instagram_link %}<a href="{{ b.instagram_link }}" target="_blank" class="hover:text-pink-500"><i class="fa-brands fa-instagram"></i></a>{% endif %}
                         </div>
@@ -105,8 +281,26 @@
                 {% endfor %}
             </div>
         </div>
-        {% endif %}
+    </section>
+    {% endif %}
 
-    </div>
+    <!-- 5. Final High-Impact Bottom Call to Action -->
+    <section class="py-20 bg-[#0D0B08] text-[#F5F1E8] text-center border-t border-[#262626]">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight">
+                Biznesingiz savdosini bugunoq <br />AI bilan avtomatlashtiring.
+            </h2>
+            <p class="text-sm sm:text-base text-[#F5F1E8]/70 max-w-xl mx-auto">
+                Hech qanday dasturchi yoki murakkab sozlamalarsiz 3 daqiqada shaxsiy AI botingizni ishga tushiring.
+            </p>
+            <div class="pt-4">
+                <a href="{% url 'accounts:register' %}" class="inline-flex items-center justify-center px-8 py-4 rounded-full text-sm font-bold text-[#0A0A0A] bg-[#F5F1E8] hover:bg-white shadow-xl transition">
+                    <span>Bepul hisob ochish</span>
+                    <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
 </div>
 {% endblock %}

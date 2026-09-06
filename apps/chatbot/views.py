@@ -31,6 +31,9 @@ def api_chatbot_config(request, api_key):
         return cors_json_response({})
 
     chatbot = get_object_or_404(ChatbotConfig, api_key=api_key)
+    # Build favicon proxy URL for the JS widget
+    from django.urls import reverse
+    logo_url = reverse('businesses:favicon_proxy', kwargs={'business_id': chatbot.business.id})
     return cors_json_response({
         'status': 'success',
         'is_active': chatbot.is_active,
@@ -39,6 +42,12 @@ def api_chatbot_config(request, api_key):
         'welcome_message': chatbot.welcome_message,
         'theme_color': chatbot.theme_color,
         'suggested_questions': chatbot.get_suggested_questions_list(),
+        'business_logo_url': logo_url if (chatbot.business.website or chatbot.business.telegram) else None,
+        'response_delay_enabled': chatbot.response_delay_enabled,
+        'response_delay_seconds': chatbot.first_message_delay_seconds,
+        'first_message_delay_seconds': chatbot.first_message_delay_seconds,
+        'subsequent_message_delay_seconds': chatbot.subsequent_message_delay_seconds,
+        'split_messages': chatbot.split_messages,
     })
 
 
@@ -132,9 +141,27 @@ def api_chat_message(request, api_key):
         content=reply
     )
 
+    # Split messages if enabled
+    message_parts = [reply]
+    if chatbot.split_messages and ('\n\n' in reply or '. ' in reply):
+        raw_parts = [p.strip() for p in reply.split('\n\n') if p.strip()]
+        if len(raw_parts) > 1:
+            message_parts = raw_parts
+
+    user_msg_count = session.messages.filter(role='user').count() if session else 1
+    if chatbot.response_delay_enabled:
+        active_delay = chatbot.first_message_delay_seconds if user_msg_count <= 1 else chatbot.subsequent_message_delay_seconds
+    else:
+        active_delay = 0
+
     return cors_json_response({
         'status': 'success',
         'reply': reply,
+        'parts': message_parts,
+        'delay_seconds': active_delay,
+        'first_message_delay_seconds': chatbot.first_message_delay_seconds,
+        'subsequent_message_delay_seconds': chatbot.subsequent_message_delay_seconds,
+        'split_messages': chatbot.split_messages,
         'bot_name': chatbot.bot_name,
         'business_name': chatbot.business.name,
         'is_escalated': bool(session and session.is_escalated),

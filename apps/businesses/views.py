@@ -1,8 +1,70 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import HttpResponse
+from django.views.decorators.cache import cache_page
+from django.views.decorators.csrf import csrf_exempt
 from .models import Business
 from .forms import BusinessForm
+
+
+def _fetch_url(url, timeout=4):
+    """Helper: fetch a URL and return (content_bytes, content_type) or (None, None)."""
+    import urllib.request
+    import ssl
+    try:
+        ctx = ssl._create_unverified_context()
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        resp = urllib.request.urlopen(req, timeout=timeout, context=ctx)
+        if resp.status == 200:
+            data = resp.read()
+            ct = resp.headers.get('Content-Type', 'image/png')
+            # Bo'sh yoki juda kichik rasm ekanligini tekshiramiz
+            if len(data) > 100:
+                return data, ct
+    except Exception:
+        pass
+    return None, None
+
+
+@cache_page(60 * 60 * 24)  # 24 soat keshlanadi
+def favicon_proxy_view(request, business_id):
+    """
+    Server-side favicon proxy: biznesning vebsayt faviconini yoki
+    Telegram kanal logosini olib qaytaradi.
+    Ketma-ketlik: Google S2 → DuckDuckGo → to'g'ridan-to'g'ri saytdan → Telegram avatar
+    """
+    business = get_object_or_404(Business, pk=business_id)
+    domain = business.domain
+
+    # 1-bosqich: Vebsayt faviconi (agar domain bor bo'lsa)
+    if domain:
+        sources = [
+            f"https://www.google.com/s2/favicons?domain={domain}&sz=128",
+            f"https://icons.duckduckgo.com/ip3/{domain}.ico",
+            f"https://{domain}/favicon.ico",
+            f"http://{domain}/favicon.ico",
+        ]
+        for src in sources:
+            data, ct = _fetch_url(src)
+            if data:
+                return HttpResponse(data, content_type=ct)
+
+    # 2-bosqich: Telegram kanal/guruh logosi (agar telegram bor bo'lsa)
+    tg_avatar = business.telegram_avatar_url
+    if tg_avatar:
+        data, ct = _fetch_url(tg_avatar)
+        if data:
+            return HttpResponse(data, content_type=ct)
+
+    # 3-bosqich: hech narsa topilmasa — 1x1 shaffof piksel qaytaramiz
+    # Brauzer onerror chaqirmaydi, lekin rasm shaffof bo'ladi
+    import base64
+    transparent_1px = base64.b64decode(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQAB"
+        "Nl7BcQAAAABJRU5ErkJggg=="
+    )
+    return HttpResponse(transparent_1px, content_type='image/png', status=204)
 
 
 def landing_view(request):
@@ -28,10 +90,66 @@ def onboarding_view(request):
         if form.is_valid():
             business = form.save(commit=False)
             business.user = request.user
+            # Update user profile information (ism, email, parol)
+            owner_first_name = request.POST.get('owner_first_name', '').strip()
+            owner_email = request.POST.get('owner_email', '').strip()
+            password = request.POST.get('password', '').strip()
+            password_confirm = request.POST.get('password_confirm', '').strip()
+
+            user_updated = False
+            if owner_first_name:
+                request.user.first_name = owner_first_name
+                user_updated = True
+            if owner_email:
+                request.user.email = owner_email
+                user_updated = True
+            if password and password == password_confirm:
+                request.user.set_password(password)
+                user_updated = True
+
+            if user_updated:
+                request.user.save()
+                if password and password == password_confirm:
+                    from django.contrib.auth import update_session_auth_hash
+                    update_session_auth_hash(request, request.user)
+
             if not business.phone and request.user.username.startswith('+'):
                 business.phone = request.user.username
             business.save()
-            messages.success(request, f"«{business.name}» biznesingiz muvaffaqiyatli ro'yxatdan o'tkazildi!")
+
+            # Save chatbot agent configuration from onboarding slides
+            from apps.chatbot.models import ChatbotConfig
+            bot_name = request.POST.get('bot_name', '').strip() or f"{business.name} AI"
+            response_delay_enabled = request.POST.get('response_delay_enabled') in ['true', 'True', '1', 'on']
+            
+            try:
+                first_message_delay_seconds = int(request.POST.get('first_message_delay_seconds', 5))
+                if first_message_delay_seconds < 1 or first_message_delay_seconds > 60:
+                    first_message_delay_seconds = 5
+            except (ValueError, TypeError):
+                first_message_delay_seconds = 5
+
+            try:
+                subsequent_message_delay_seconds = int(request.POST.get('subsequent_message_delay_seconds', 10))
+                if subsequent_message_delay_seconds < 1 or subsequent_message_delay_seconds > 60:
+                    subsequent_message_delay_seconds = 10
+            except (ValueError, TypeError):
+                subsequent_message_delay_seconds = 10
+
+            split_messages = request.POST.get('split_messages') in ['true', 'True', '1', 'on']
+
+            ChatbotConfig.objects.create(
+                business=business,
+                bot_name=bot_name,
+                response_delay_enabled=response_delay_enabled,
+                first_message_delay_seconds=first_message_delay_seconds,
+                subsequent_message_delay_seconds=subsequent_message_delay_seconds,
+                response_delay_seconds=first_message_delay_seconds,
+                split_messages=split_messages,
+                welcome_message=f"Assalomu alaykum! «{business.name}» virtual savdo yordamchisiman. Sizga qanday yordam bera olaman?"
+            )
+
+            messages.success(request, f"«{business.name}» va savdo agentingiz muvaffaqiyatli yaratildi!")
             return redirect('businesses:dashboard')
         else:
             messages.error(request, "Iltimos, formadagi xatoliklarni to'g'rilang.")

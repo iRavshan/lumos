@@ -74,6 +74,27 @@ class ChatbotConfig(models.Model):
         default=False, 
         verbose_name="Telegram Bot faolmi?"
     )
+    # Human-like delay and split messages settings
+    response_delay_enabled = models.BooleanField(
+        default=True,
+        verbose_name="Inson kabi kechiktirib javob berish (Human-like delay)"
+    )
+    first_message_delay_seconds = models.IntegerField(
+        default=5,
+        verbose_name="Birinchi xabarga kechikish (soniya)"
+    )
+    subsequent_message_delay_seconds = models.IntegerField(
+        default=10,
+        verbose_name="Keyingi xabarlarga kechikish (soniya)"
+    )
+    response_delay_seconds = models.IntegerField(
+        default=5,
+        verbose_name="Kechikish davomiyligi"
+    )
+    split_messages = models.BooleanField(
+        default=True,
+        verbose_name="Matnlarni bo'laklarga ajratib yuborish"
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan sana")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Yangilangan sana")
 

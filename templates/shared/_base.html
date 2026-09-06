@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="uz" class="h-full bg-slate-50">
+<html lang="uz" class="h-full bg-[#FAFAF9]">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Biznes Portali - Lumos{% endblock %}</title>
+    <title>{% block title %}Lumos — B2B AI Mijozlar va Savdo Platformasi{% endblock %}</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -13,17 +13,24 @@
                 extend: {
                     colors: {
                         brand: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            800: '#3730a3',
-                            900: '#312e81',
-                        }
+                            50: '#fafaf9',
+                            100: '#f5f1e8',
+                            200: '#e7e5e1',
+                            300: '#d4d0c7',
+                            400: '#a3a39f',
+                            500: '#71716e',
+                            600: '#3f3f3e',
+                            700: '#262624',
+                            800: '#18140e',
+                            900: '#0a0a0a',
+                        },
+                        onyx: '#0A0A0A',
+                        sand: '#F5F1E8',
+                        paper: '#FAFAF9',
                     },
                     fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
                     }
                 }
             }
@@ -40,7 +47,7 @@
     <!-- Google Fonts & Font Awesome Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -48,95 +55,67 @@
         /* Universal seamless dark mode adjustments */
         html.dark {
             color-scheme: dark;
-            background-color: #0f172a;
+            background-color: #0A0A0A;
         }
         html.dark body {
-            background-color: #0f172a;
-            color: #f1f5f9;
+            background-color: #0A0A0A;
+            color: #F5F1E8;
         }
         html.dark .bg-white {
-            background-color: #1e293b !important;
-            color: #f1f5f9;
+            background-color: #141414 !important;
+            color: #F5F1E8;
         }
-        html.dark .bg-slate-50, html.dark .bg-slate-50\/40, html.dark .bg-slate-50\/50, html.dark .bg-slate-100, html.dark .bg-slate-100\/80 {
-            background-color: #0f172a !important;
+        html.dark .bg-slate-50, html.dark .bg-slate-50\/40, html.dark .bg-slate-50\/50, html.dark .bg-slate-100, html.dark .bg-slate-100\/80, html.dark .bg-\[\#FAFAF9\] {
+            background-color: #0A0A0A !important;
         }
-        html.dark .border-slate-100, html.dark .border-slate-200, html.dark .border-slate-200\/80, html.dark .border-slate-200\/90, html.dark .border-slate-200\/60 {
-            border-color: #334155 !important;
+        html.dark .border-slate-100, html.dark .border-slate-200, html.dark .border-slate-200\/80, html.dark .border-slate-200\/90, html.dark .border-slate-200\/60, html.dark .border-\[\#E7E5E1\] {
+            border-color: #262626 !important;
         }
-        html.dark .border-indigo-100, html.dark .border-indigo-100\/80, html.dark .border-indigo-100\/90, html.dark .border-emerald-100, html.dark .border-emerald-100\/90, html.dark .border-violet-100, html.dark .border-violet-100\/90, html.dark .border-rose-100, html.dark .border-amber-100 {
-            border-color: #334155 !important;
+        html.dark .text-slate-900, html.dark .text-slate-800, html.dark .text-slate-700 {
+            color: #F5F1E8 !important;
         }
-        html.dark .text-slate-900, html.dark .text-slate-800 {
-            color: #f8fafc !important;
-        }
-        html.dark .text-slate-700, html.dark .text-slate-600 {
-            color: #cbd5e1 !important;
-        }
-        html.dark .text-slate-500, html.dark .text-slate-400 {
-            color: #94a3b8 !important;
+        html.dark .text-slate-600, html.dark .text-slate-500, html.dark .text-slate-400 {
+            color: #A3A39F !important;
         }
         html.dark input, html.dark textarea, html.dark select {
-            background-color: #0f172a !important;
-            color: #f8fafc !important;
-            border-color: #334155 !important;
+            background-color: #141414 !important;
+            color: #F5F1E8 !important;
+            border-color: #262626 !important;
         }
         html.dark input::placeholder, html.dark textarea::placeholder {
-            color: #64748b !important;
+            color: #71716E !important;
         }
         html.dark .divide-slate-100 > * + * {
-            border-color: #334155 !important;
+            border-color: #262626 !important;
         }
-        html.dark .hover\:bg-slate-50:hover, html.dark .hover\:bg-slate-100:hover, html.dark .hover\:bg-white:hover {
-            background-color: #334155 !important;
-        }
-        html.dark .bg-indigo-50 {
-            background-color: rgba(99, 102, 241, 0.15) !important;
-            color: #818cf8 !important;
-        }
-        html.dark .bg-emerald-50 {
-            background-color: rgba(16, 185, 129, 0.15) !important;
-            color: #34d399 !important;
-        }
-        html.dark .bg-violet-50 {
-            background-color: rgba(139, 92, 246, 0.15) !important;
-            color: #a78bfa !important;
-        }
-        html.dark .bg-sky-50 {
-            background-color: rgba(14, 165, 233, 0.15) !important;
-            color: #38bdf8 !important;
-        }
-        html.dark .bg-amber-50, html.dark .bg-amber-50\/70 {
-            background-color: rgba(245, 158, 11, 0.15) !important;
-            color: #fbbf24 !important;
-        }
-        html.dark .bg-rose-50 {
-            background-color: rgba(244, 63, 94, 0.15) !important;
-            color: #fb7185 !important;
+        html.dark .hover\:bg-slate-50:hover, html.dark .hover\:bg-slate-100:hover {
+            background-color: #1E1E1E !important;
         }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="flex flex-col min-h-full text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-200">
+<body class="flex flex-col min-h-full text-slate-900 dark:text-[#F5F1E8] bg-[#FAFAF9] dark:bg-[#0A0A0A] antialiased selection:bg-[#0A0A0A] selection:text-white dark:selection:bg-[#F5F1E8] dark:selection:text-[#0A0A0A] transition-colors duration-200">
 
+    {% block header %}
     {% include 'shared/_header.html' %}
+    {% endblock %}
 
     <!-- Django Messages (Toasts) -->
     {% if messages %}
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 w-full">
         {% for message in messages %}
-        <div class="flex items-center p-4 mb-3 text-sm rounded-2xl shadow-sm border transition-all duration-300
-            {% if message.tags == 'error' %}bg-rose-50 border-rose-200 text-rose-800
-            {% elif message.tags == 'success' %}bg-emerald-50 border-emerald-200 text-emerald-800
-            {% elif message.tags == 'warning' %}bg-amber-50 border-amber-200 text-amber-800
-            {% else %}bg-indigo-50 border-indigo-200 text-indigo-800{% endif %}" role="alert">
-            <div class="mr-3 text-lg">
+        <div class="flex items-center p-4 mb-3 text-xs sm:text-sm font-medium rounded-2xl border transition-all duration-300
+            {% if message.tags == 'error' %}bg-rose-50/80 border-rose-200 text-rose-900 dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-200
+            {% elif message.tags == 'success' %}bg-emerald-50/80 border-emerald-200 text-emerald-900 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-200
+            {% elif message.tags == 'warning' %}bg-amber-50/80 border-amber-200 text-amber-900 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-200
+            {% else %}bg-slate-100 border-slate-200 text-slate-900 dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-100{% endif %}" role="alert">
+            <div class="mr-3 text-base shrink-0">
                 {% if message.tags == 'error' %}<i class="fa-solid fa-circle-exclamation text-rose-500"></i>
-                {% elif message.tags == 'success' %}<i class="fa-solid fa-circle-check text-emerald-500"></i>
+                {% elif message.tags == 'success' %}<i class="fa-solid fa-circle-check text-emerald-600"></i>
                 {% elif message.tags == 'warning' %}<i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
-                {% else %}<i class="fa-solid fa-circle-info text-indigo-500"></i>{% endif %}
+                {% else %}<i class="fa-solid fa-circle-info text-slate-700 dark:text-slate-300"></i>{% endif %}
             </div>
-            <div class="font-medium flex-1">
+            <div class="flex-1">
                 {{ message }}
             </div>
         </div>
@@ -148,7 +127,9 @@
         {% block content %}{% endblock %}
     </main>
 
+    {% block footer %}
     {% include 'shared/_footer.html' %}
+    {% endblock %}
 
     {% block extra_scripts %}{% endblock %}
 </body>

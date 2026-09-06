@@ -18,8 +18,16 @@
     <!-- Header -->
     <header class="px-5 py-4 text-white flex items-center justify-between shadow-md shrink-0" style="background-color: {{ chatbot.theme_color }};">
         <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center font-bold text-sm">
-                AI
+            <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center font-bold text-sm overflow-hidden">
+                {% if chatbot.business.website or chatbot.business.telegram %}
+                    <img src="{% url 'businesses:favicon_proxy' chatbot.business.id %}" 
+                         alt="{{ chatbot.business.name }}" 
+                         class="w-full h-full object-contain p-1.5"
+                         onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                    <span class="hidden">{{ chatbot.business.name|first|upper }}</span>
+                {% else %}
+                    {{ chatbot.business.name|first|upper }}
+                {% endif %}
             </div>
             <div>
                 <h3 class="font-bold text-base leading-tight">{{ chatbot.bot_name }}</h3>
@@ -121,12 +129,21 @@
             })
             .then(res => res.json())
             .then(data => {
-                typingIndicator.classList.add('hidden');
-                if (data.reply) {
-                    appendMessage(data.reply, 'assistant');
-                } else if (data.error) {
-                    appendMessage('Xatolik: ' + data.error, 'assistant');
-                }
+                const delayMs = (data.delay_seconds || 0) * 1000;
+                setTimeout(() => {
+                    typingIndicator.classList.add('hidden');
+                    if (data.parts && data.parts.length > 1) {
+                        data.parts.forEach((part, index) => {
+                            setTimeout(() => {
+                                appendMessage(part, 'assistant');
+                            }, index * 800);
+                        });
+                    } else if (data.reply) {
+                        appendMessage(data.reply, 'assistant');
+                    } else if (data.error) {
+                        appendMessage('Xatolik: ' + data.error, 'assistant');
+                    }
+                }, delayMs);
             })
             .catch(() => {
                 typingIndicator.classList.add('hidden');

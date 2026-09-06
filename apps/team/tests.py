@@ -21,7 +21,6 @@ class TeamAndEscalationTests(TestCase):
         self.business = Business.objects.create(
             user=self.user,
             name='Ali Gadgets & Electronics',
-            category='Elektronika do\'koni',
             phone='+998901112233',
             description='Smartfonlar va aksessuarlar sotuvi.'
         )

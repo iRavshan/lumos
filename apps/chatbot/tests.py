@@ -18,7 +18,6 @@ class ChatbotTests(TestCase):
         self.business = Business.objects.create(
             user=self.user,
             name='Fast Delivery Express',
-            category='Yetkazib berish xizmati',
             website='https://fastdelivery.uz',
             telegram='@fastdelivery_bot',
             instagram='fastdelivery_uz',
@@ -34,7 +33,6 @@ class ChatbotTests(TestCase):
     def test_business_context_builder(self):
         context = build_business_context(self.chatbot)
         self.assertIn('Fast Delivery Express', context)
-        self.assertIn('Yetkazib berish xizmati', context)
         self.assertIn('+998712001122', context)
         self.assertIn('https://fastdelivery.uz', context)
         self.assertIn('https://t.me/fastdelivery_bot', context)
@@ -122,15 +120,13 @@ class ChatbotTests(TestCase):
 
         post_res = self.client.post(url, {
             'bot_name': 'Yangilangan Bot',
-            'welcome_message': 'Salom! Qanday yordam beray?',
             'theme_color': '#2563eb',
             'is_active': 'on',
-            'suggested_questions': 'Savol 1\nSavol 2',
-            'extra_knowledge': 'Yangi bilim'
         })
         self.assertRedirects(post_res, reverse('businesses:dashboard'))
         self.chatbot.refresh_from_db()
-        self.assertEqual(self.chatbot.bot_name, 'Yangilangan Bot')
+        # Bot nomi settings orqali o'zgarmaydi
+        self.assertEqual(self.chatbot.bot_name, 'Fast Delivery AI Bot')
         self.assertEqual(self.chatbot.theme_color, '#2563eb')
 
     def test_contact_auto_extraction_and_inbox_flow(self):
@@ -185,7 +181,7 @@ class ChatbotTests(TestCase):
         url = reverse('chatbot:telegram_settings')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Telegram Bot Boshqaruvi')
+        self.assertContains(response, 'Telegram Bot boshqaruvi')
         self.assertContains(response, 'BotFather')
 
         # Mock token verification

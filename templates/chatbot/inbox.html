@@ -13,80 +13,87 @@
         display: block;
     }
     .emoji-tab-btn.active {
-        background-color: #e0e7ff;
-        color: #4338ca;
+        background-color: #0A0A0A;
+        color: #ffffff;
+    }
+    .dark .emoji-tab-btn.active {
+        background-color: #F5F1E8;
+        color: #0A0A0A;
     }
 </style>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
     
     <!-- 1. Header Card -->
-    <div class="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-[#E7E5E1] dark:border-[#262626] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-                <i class="fa-solid fa-inbox text-indigo-600"></i> Murojaatlar va chatlar
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] flex items-center justify-center text-xs shrink-0">
+                    <i class="fa-solid fa-inbox"></i>
+                </span>
+                <span>Murojaatlar va chatlar</span>
             </h1>
-            <p class="text-slate-500 text-xs mt-0.5">Vebsayt vidjeti va Telegram botdan kelgan barcha mijozlar bilan muloqot qilish paneli</p>
+            <p class="text-slate-500 dark:text-slate-400 text-xs mt-2">Vebsayt vidjeti va Telegram botdan kelgan barcha mijozlar bilan muloqot qilish paneli</p>
         </div>
 
         <div class="flex items-center gap-2.5">
             <a href="{% url 'chatbot:export_excel' %}" 
-               class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 shadow-2xs transition"
+               class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-800 dark:text-[#F5F1E8] bg-white dark:bg-[#1E1E1E] hover:bg-slate-50 dark:hover:bg-[#262626] border border-[#E7E5E1] dark:border-[#262626] shadow-xs transition"
                title="Mijozlar ro'yxatini Excel (.xlsx) formatida yuklab olish (Vebsayt & Telegram)">
-                <i class="fa-solid fa-file-excel text-emerald-600 text-sm"></i>
+                <i class="fa-solid fa-file-excel text-slate-700 dark:text-slate-300 text-sm"></i>
                 <span>Excelda yuklab olish</span>
             </a>
         </div>
     </div>
 
     <!-- 2. Main 3-Pane Responsive Inbox Layout -->
-    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[600px] max-h-[780px]">
+    <div class="bg-white dark:bg-[#141414] rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xs overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[600px] max-h-[780px]">
         
         <!-- Left Pane: Sessions List (3 cols on desktop) -->
-        <div class="lg:col-span-3 border-r border-slate-100 flex flex-col h-full max-h-[780px] bg-slate-50/40">
+        <div class="lg:col-span-3 border-r border-[#E7E5E1] dark:border-[#262626] flex flex-col h-full max-h-[780px] bg-slate-50/40 dark:bg-[#0A0A0A]">
             
             <!-- Channel Filter Tabs -->
-            <div class="p-3 border-b border-slate-100 bg-white">
-                <div class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold text-center">
+            <div class="p-3 border-b border-[#E7E5E1] dark:border-[#262626] bg-white dark:bg-[#141414]">
+                <div class="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-[#1E1E1E] p-1 rounded-xl text-xs font-bold text-center">
                     <a href="?channel=all{% if search_query %}&q={{ search_query }}{% endif %}" 
-                       class="py-1.5 px-1 rounded-lg transition flex items-center justify-center gap-1 {% if channel_filter == 'all' %}bg-white text-indigo-700 shadow-2xs font-extrabold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+                       class="py-1.5 px-1 rounded-lg transition flex items-center justify-center gap-1 {% if channel_filter == 'all' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs font-bold{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8]{% endif %}">
                         <span>Barchasi</span>
-                        <span class="text-[10px] px-1 py-0.2 rounded-full {% if channel_filter == 'all' %}bg-indigo-100 text-indigo-800{% else %}bg-slate-200 text-slate-600{% endif %}">{{ counts.all }}</span>
+                        <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'all' %}bg-white/20 text-white dark:bg-black/15 dark:text-[#0A0A0A]{% else %}bg-slate-200 dark:bg-[#262626] text-slate-600 dark:text-slate-400{% endif %}">{{ counts.all }}</span>
                     </a>
                     <a href="?channel=website{% if search_query %}&q={{ search_query }}{% endif %}" 
-                       class="py-1.5 px-1 rounded-lg transition flex items-center justify-center gap-1 {% if channel_filter == 'website' %}bg-white text-indigo-700 shadow-2xs font-extrabold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
-                        <i class="fa-solid fa-globe text-[11px] text-indigo-500"></i>
+                       class="py-1.5 px-1 rounded-lg transition flex items-center justify-center gap-1 {% if channel_filter == 'website' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs font-bold{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8]{% endif %}">
+                        <i class="fa-solid fa-globe text-[11px]"></i>
                         <span>Veb</span>
-                        <span class="text-[10px] px-1 py-0.2 rounded-full {% if channel_filter == 'website' %}bg-indigo-100 text-indigo-800{% else %}bg-slate-200 text-slate-600{% endif %}">{{ counts.website }}</span>
+                        <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'website' %}bg-white/20 text-white dark:bg-black/15 dark:text-[#0A0A0A]{% else %}bg-slate-200 dark:bg-[#262626] text-slate-600 dark:text-slate-400{% endif %}">{{ counts.website }}</span>
                     </a>
                     <a href="?channel=telegram{% if search_query %}&q={{ search_query }}{% endif %}" 
-                       class="py-1.5 px-1 rounded-lg transition flex items-center justify-center gap-1 {% if channel_filter == 'telegram' %}bg-white text-sky-700 shadow-2xs font-extrabold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
-                        <i class="fa-brands fa-telegram text-[12px] text-sky-500"></i>
+                       class="py-1.5 px-1 rounded-lg transition flex items-center justify-center gap-1 {% if channel_filter == 'telegram' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs font-bold{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8]{% endif %}">
+                        <i class="fa-brands fa-telegram text-[12px]"></i>
                         <span>TG</span>
-                        <span class="text-[10px] px-1 py-0.2 rounded-full {% if channel_filter == 'telegram' %}bg-sky-100 text-sky-800{% else %}bg-slate-200 text-slate-600{% endif %}">{{ counts.telegram }}</span>
+                        <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'telegram' %}bg-white/20 text-white dark:bg-black/15 dark:text-[#0A0A0A]{% else %}bg-slate-200 dark:bg-[#262626] text-slate-600 dark:text-slate-400{% endif %}">{{ counts.telegram }}</span>
                     </a>
                 </div>
             </div>
 
             <!-- Search Form -->
-            <div class="p-3 border-b border-slate-100 bg-white">
+            <div class="p-3 border-b border-[#E7E5E1] dark:border-[#262626] bg-white dark:bg-[#141414]">
                 <form method="GET" class="relative">
                     {% if channel_filter and channel_filter != 'all' %}
                         <input type="hidden" name="channel" value="{{ channel_filter }}">
                     {% endif %}
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-                    <input type="text" name="q" value="{{ search_query }}" placeholder="Qidirish..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:bg-white transition">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 dark:text-slate-500 text-xs"></i>
+                    <input type="text" name="q" value="{{ search_query }}" placeholder="Qidirish..." class="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] rounded-xl text-xs text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] transition">
                 </form>
             </div>
 
             <!-- Sessions List -->
-            <div class="flex-1 overflow-y-auto divide-y divide-slate-100">
+            <div class="flex-1 overflow-y-auto divide-y divide-[#E7E5E1] dark:divide-[#262626]">
                 {% if sessions %}
                     {% for s in sessions %}
-                    <a href="{% url 'chatbot:inbox_detail' s.session_id %}?channel={{ channel_filter }}{% if search_query %}&q={{ search_query }}{% endif %}" class="block p-3.5 transition duration-150 relative hover:bg-white {% if active_session and active_session.session_id == s.session_id %}bg-white shadow-xs border-l-4 border-indigo-600{% endif %}">
+                    <a href="{% url 'chatbot:inbox_detail' s.session_id %}?channel={{ channel_filter }}{% if search_query %}&q={{ search_query }}{% endif %}" class="block p-3.5 transition duration-150 relative hover:bg-white dark:hover:bg-[#141414] {% if active_session and active_session.session_id == s.session_id %}bg-white dark:bg-[#141414] shadow-xs border-l-4 border-[#0A0A0A] dark:border-[#F5F1E8]{% endif %}">
                         <div class="flex items-center justify-between gap-2.5">
                             <div class="flex items-center space-x-2.5 min-w-0">
-                                <div class="w-8 h-8 rounded-xl {% if s.session_id|slice:':3' == 'tg_' %}bg-sky-50 text-sky-600 border border-sky-100{% else %}bg-indigo-50 text-indigo-600 border border-indigo-100{% endif %} flex items-center justify-center font-bold text-xs shrink-0">
+                                <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#1E1E1E] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center font-bold text-xs shrink-0">
                                     {% if s.session_id|slice:':3' == 'tg_' %}
                                         <i class="fa-brands fa-telegram text-sm"></i>
                                     {% else %}
@@ -94,29 +101,29 @@
                                     {% endif %}
                                 </div>
                                 <div class="min-w-0">
-                                    <h4 class="font-bold text-slate-800 text-xs truncate leading-tight">
+                                    <h4 class="font-bold text-slate-800 dark:text-[#F5F1E8] text-xs truncate leading-tight">
                                         {{ s.display_name }}
                                     </h4>
                                     {% if s.visitor_phone %}
-                                        <span class="text-[11px] text-slate-500 block truncate mt-0.5">{{ s.visitor_phone }}</span>
+                                        <span class="text-[11px] text-slate-500 dark:text-slate-400 block truncate mt-0.5">{{ s.visitor_phone }}</span>
                                     {% endif %}
                                 </div>
                             </div>
                             
                             <div class="flex flex-col items-end shrink-0 space-y-0.5">
-                                <span class="text-[9px] text-slate-400 font-medium">
+                                <span class="text-[9px] text-slate-400 dark:text-slate-500 font-medium">
                                     {{ s.last_message_at|date:"d M" }}
                                 </span>
-                                <span class="text-[9px] text-slate-400">
-                                    <i class="fa-solid fa-message mr-0.5 text-slate-300"></i> {{ s.messages.count }}
+                                <span class="text-[9px] text-slate-400 dark:text-slate-500">
+                                    <i class="fa-solid fa-message mr-0.5 text-slate-300 dark:text-slate-600"></i> {{ s.messages.count }}
                                 </span>
                             </div>
                         </div>
                     </a>
                     {% endfor %}
                 {% else %}
-                    <div class="p-8 text-center text-slate-400">
-                        <i class="fa-solid fa-comments text-2xl mb-2 text-slate-300 block"></i>
+                    <div class="p-8 text-center text-slate-400 dark:text-slate-500">
+                        <i class="fa-solid fa-comments text-2xl mb-2 text-slate-300 dark:text-slate-600 block"></i>
                         <p class="text-xs">Murojaatlar topilmadi</p>
                     </div>
                 {% endif %}
@@ -127,12 +134,12 @@
         <!-- Middle & Right Pane: Active Conversation & Insights Panel -->
         {% if active_session %}
             <!-- Middle: Active Chat Area -->
-            <div id="chatAreaPane" class="lg:col-span-6 border-r border-slate-100 flex flex-col h-full max-h-[780px] bg-slate-100/50 transition-all duration-300">
+            <div id="chatAreaPane" class="lg:col-span-6 border-r border-[#E7E5E1] dark:border-[#262626] flex flex-col h-full max-h-[780px] bg-slate-100/50 dark:bg-[#0A0A0A] transition-all duration-300">
                 
                 <!-- Active Conversation Header -->
-                <div class="p-4 border-b border-slate-100 flex items-center justify-between gap-3 bg-white shrink-0">
+                <div class="p-4 border-b border-[#E7E5E1] dark:border-[#262626] flex items-center justify-between gap-3 bg-white dark:bg-[#141414] shrink-0">
                     <div class="flex items-center space-x-3 min-w-0">
-                        <div class="w-10 h-10 rounded-xl {% if active_session.session_id|slice:':3' == 'tg_' %}bg-sky-500 text-white{% else %}bg-indigo-600 text-white{% endif %} flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
+                        <div class="w-10 h-10 rounded-xl bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
                             {% if active_session.session_id|slice:':3' == 'tg_' %}
                                 <i class="fa-brands fa-telegram"></i>
                             {% else %}
@@ -140,10 +147,10 @@
                             {% endif %}
                         </div>
                         <div class="min-w-0">
-                            <h3 class="font-bold text-slate-900 text-sm leading-snug truncate">{{ active_session.display_name }}</h3>
+                            <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm leading-snug truncate">{{ active_session.display_name }}</h3>
                             {% if active_session.visitor_phone %}
-                            <div class="flex items-center space-x-2 text-[11px] text-slate-500 mt-0.5 truncate">
-                                <span class="font-medium text-slate-700"><i class="fa-solid fa-phone text-indigo-500 mr-1"></i> {{ active_session.visitor_phone }}</span>
+                            <div class="flex items-center space-x-2 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                                <span class="font-medium text-slate-700 dark:text-slate-300"><i class="fa-solid fa-phone text-slate-400 dark:text-slate-500 mr-1"></i> {{ active_session.visitor_phone }}</span>
                             </div>
                             {% endif %}
                         </div>
@@ -154,17 +161,17 @@
                         <button type="button" 
                                 onclick="toggleAiPanel()" 
                                 id="aiPanelToggleBtn"
-                                class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl transition flex items-center gap-1.5 border border-indigo-100"
+                                class="px-3 py-1.5 bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white text-white dark:text-[#0A0A0A] text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-2xs"
                                 title="AI Tahlil panelini ko'rsatish yoki yopish">
-                            <i class="fa-solid fa-wand-magic-sparkles text-indigo-600"></i>
+                            <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
                             <span id="aiToggleText" class="hidden sm:inline">AI Tahlil</span>
                         </button>
                         {% if active_session.visitor_phone %}
-                        <a href="tel:{{ active_session.visitor_phone }}" class="w-8 h-8 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs transition" title="Qo'ng'iroq qilish">
+                        <a href="tel:{{ active_session.visitor_phone }}" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-xs transition" title="Qo'ng'iroq qilish">
                             <i class="fa-solid fa-phone"></i>
                         </a>
                         {% endif %}
-                        <button onclick="document.getElementById('editLeadModal').classList.remove('hidden')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition flex items-center gap-1" title="Mijoz ma'lumotlarini tahrirlash">
+                        <button onclick="document.getElementById('editLeadModal').classList.remove('hidden')" class="px-3 py-1.5 bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-xl transition flex items-center gap-1 border border-[#E7E5E1] dark:border-[#262626]" title="Mijoz ma'lumotlarini tahrirlash">
                             <i class="fa-solid fa-user-pen"></i>
                             <span class="hidden sm:inline">Tahrirlash</span>
                         </button>
@@ -173,197 +180,197 @@
 
                 <!-- Notes Banner if exists -->
                 {% if active_session.notes %}
-                <div class="bg-amber-50/80 border-b border-amber-100 px-4 py-2 text-xs text-amber-900 flex items-center justify-between shrink-0">
+                <div class="bg-amber-50/80 dark:bg-amber-950/30 border-b border-amber-100 dark:border-amber-900/40 px-4 py-2 text-xs text-amber-900 dark:text-amber-300 flex items-center justify-between shrink-0">
                     <div class="flex items-center space-x-2 truncate">
-                        <i class="fa-solid fa-note-sticky text-amber-600 shrink-0"></i>
+                        <i class="fa-solid fa-note-sticky text-amber-600 dark:text-amber-400 shrink-0"></i>
                         <span class="truncate"><strong>Eslatma:</strong> {{ active_session.notes }}</span>
                     </div>
-                    <button onclick="document.getElementById('editLeadModal').classList.remove('hidden')" class="text-[10px] text-amber-700 underline font-semibold shrink-0 ml-2">O'zgartirish</button>
+                    <button onclick="document.getElementById('editLeadModal').classList.remove('hidden')" class="text-[10px] text-amber-700 dark:text-amber-400 underline font-semibold shrink-0 ml-2">O'zgartirish</button>
                 </div>
                 {% endif %}
 
                 <!-- Messages Timeline (Styled Wallpaper / Slate background - flex-1 fills entire remaining height) -->
-                <div class="flex-1 p-4 sm:p-5 overflow-y-auto space-y-3.5 bg-slate-100/70">
+                <div class="flex-1 p-4 sm:p-5 overflow-y-auto space-y-3.5 bg-[#FAFAF9] dark:bg-[#0A0A0A]">
                     {% for msg in active_session.messages.all %}
                     <div class="flex flex-col {% if msg.role == 'user' %}items-start{% else %}items-end{% endif %}">
-                        <div class="text-[10px] text-slate-400 mb-1 px-1 flex items-center space-x-1.5">
+                        <div class="text-[10px] text-slate-400 dark:text-slate-500 mb-1 px-1 flex items-center space-x-1.5">
                             {% if msg.role == 'user' %}
-                                <span class="text-slate-400 font-medium">{{ msg.created_at|date:"H:i" }}</span>
+                                <span class="text-slate-400 dark:text-slate-500 font-medium">{{ msg.created_at|date:"H:i" }}</span>
                             {% elif msg.role == 'staff' %}
-                                <span class="inline-flex items-center gap-1 font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded text-[10px] border border-emerald-100">
+                                <span class="inline-flex items-center gap-1 font-bold text-slate-800 dark:text-[#F5F1E8] bg-slate-200/70 dark:bg-[#262626] px-1.5 py-0.5 rounded text-[10px] border border-slate-300 dark:border-slate-700">
                                     <i class="fa-solid fa-headset text-[10px]"></i>
                                     <span>{{ msg.sender_staff.name|default:business.name }} (Operator)</span>
                                 </span>
-                                <span class="text-slate-300">&bull;</span>
-                                <span class="text-slate-400 font-medium">{{ msg.created_at|date:"H:i" }}</span>
+                                <span class="text-slate-300 dark:text-slate-600">&bull;</span>
+                                <span class="text-slate-400 dark:text-slate-500 font-medium">{{ msg.created_at|date:"H:i" }}</span>
                             {% else %}
-                                <span class="inline-flex items-center gap-1 font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded text-[10px] border border-indigo-100">
+                                <span class="inline-flex items-center gap-1 font-bold text-slate-800 dark:text-[#F5F1E8] bg-slate-200/70 dark:bg-[#262626] px-1.5 py-0.5 rounded text-[10px] border border-slate-300 dark:border-slate-700">
                                     <i class="fa-solid fa-robot text-[10px]"></i>
                                     <span>{{ chatbot.bot_name }}</span>
                                 </span>
-                                <span class="text-slate-300">&bull;</span>
-                                <span class="text-slate-400 font-medium">{{ msg.created_at|date:"H:i" }}</span>
+                                <span class="text-slate-300 dark:text-slate-600">&bull;</span>
+                                <span class="text-slate-400 dark:text-slate-500 font-medium">{{ msg.created_at|date:"H:i" }}</span>
                             {% endif %}
                         </div>
 
                         <div class="max-w-[88%] p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed whitespace-pre-line shadow-2xs
                             {% if msg.role == 'user' %}
-                                bg-white text-slate-800 border border-slate-200/90 rounded-tl-xs shadow-xs
+                                bg-white dark:bg-[#141414] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] rounded-tl-xs shadow-xs
                             {% elif msg.role == 'staff' %}
-                                bg-emerald-600 text-white rounded-tr-xs shadow-xs
+                                bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] rounded-tr-xs shadow-xs
                             {% else %}
-                                bg-indigo-600 text-white rounded-tr-xs shadow-xs
+                                bg-[#18181B] dark:bg-[#EAE5DC] text-white dark:text-[#0A0A0A] rounded-tr-xs shadow-xs border border-zinc-800 dark:border-neutral-300
                             {% endif %}">{{ msg.content }}</div>
                     </div>
                     {% empty %}
-                    <div class="text-center py-12 text-slate-400">
+                    <div class="text-center py-12 text-slate-400 dark:text-slate-500">
                         <p class="text-xs">Ushbu suhbatda hali xabarlar yo'q</p>
                     </div>
                     {% endfor %}
                 </div>
 
                 <!-- Send Message Area (Anchored to Bottom) -->
-                <div class="p-3 bg-white border-t border-slate-100 relative shrink-0">
+                <div class="p-3 bg-white dark:bg-[#141414] border-t border-[#E7E5E1] dark:border-[#262626] relative shrink-0">
                     
                     <!-- Formatting Toolbar -->
-                    <div class="flex items-center space-x-1 pb-1.5 mb-1 border-b border-slate-100 text-slate-500">
-                        <button type="button" onclick="formatInputText('bold')" class="w-7 h-7 rounded hover:bg-slate-100 hover:text-slate-800 flex items-center justify-center text-xs font-bold transition" title="Qalin (Bold)">
+                    <div class="flex items-center space-x-1 pb-1.5 mb-1 border-b border-[#E7E5E1] dark:border-[#262626] text-slate-500 dark:text-slate-400">
+                        <button type="button" onclick="formatInputText('bold')" class="w-7 h-7 rounded hover:bg-slate-100 dark:hover:bg-[#1E1E1E] hover:text-slate-800 dark:hover:text-[#F5F1E8] flex items-center justify-center text-xs font-bold transition" title="Qalin (Bold)">
                             <i class="fa-solid fa-bold"></i>
                         </button>
-                        <button type="button" onclick="formatInputText('italic')" class="w-7 h-7 rounded hover:bg-slate-100 hover:text-slate-800 flex items-center justify-center text-xs italic transition" title="Kursiv (Italic)">
+                        <button type="button" onclick="formatInputText('italic')" class="w-7 h-7 rounded hover:bg-slate-100 dark:hover:bg-[#1E1E1E] hover:text-slate-800 dark:hover:text-[#F5F1E8] flex items-center justify-center text-xs italic transition" title="Kursiv (Italic)">
                             <i class="fa-solid fa-italic"></i>
                         </button>
-                        <button type="button" onclick="formatInputText('underline')" class="w-7 h-7 rounded hover:bg-slate-100 hover:text-slate-800 flex items-center justify-center text-xs underline transition" title="Tagiga chizilgan (Underline)">
+                        <button type="button" onclick="formatInputText('underline')" class="w-7 h-7 rounded hover:bg-slate-100 dark:hover:bg-[#1E1E1E] hover:text-slate-800 dark:hover:text-[#F5F1E8] flex items-center justify-center text-xs underline transition" title="Tagiga chizilgan (Underline)">
                             <i class="fa-solid fa-underline"></i>
                         </button>
-                        <button type="button" onclick="formatInputText('strike')" class="w-7 h-7 rounded hover:bg-slate-100 hover:text-slate-800 flex items-center justify-center text-xs line-through transition" title="Ustiga chizilgan (Strikethrough)">
+                        <button type="button" onclick="formatInputText('strike')" class="w-7 h-7 rounded hover:bg-slate-100 dark:hover:bg-[#1E1E1E] hover:text-slate-800 dark:hover:text-[#F5F1E8] flex items-center justify-center text-xs line-through transition" title="Ustiga chizilgan (Strikethrough)">
                             <i class="fa-solid fa-strikethrough"></i>
                         </button>
-                        <button type="button" onclick="formatInputText('code')" class="w-7 h-7 rounded hover:bg-slate-100 hover:text-slate-800 flex items-center justify-center text-xs font-mono transition" title="Monospace kod">
+                        <button type="button" onclick="formatInputText('code')" class="w-7 h-7 rounded hover:bg-slate-100 dark:hover:bg-[#1E1E1E] hover:text-slate-800 dark:hover:text-[#F5F1E8] flex items-center justify-center text-xs font-mono transition" title="Monospace kod">
                             <i class="fa-solid fa-code"></i>
                         </button>
                     </div>
 
                     <!-- Comprehensive Telegram Emoji & Sticker Picker Popup (Continuous Scroll Groups) -->
-                    <div id="stickerPickerPopup" class="hidden absolute bottom-24 right-3 z-30 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 p-3">
-                        <div class="max-h-64 overflow-y-auto pr-1 space-y-3 text-xl text-center select-none divide-y divide-slate-100">
+                    <div id="stickerPickerPopup" class="hidden absolute bottom-24 right-3 z-30 w-80 sm:w-96 bg-white dark:bg-[#141414] rounded-2xl shadow-2xl border border-[#E7E5E1] dark:border-[#262626] p-3">
+                        <div class="max-h-64 overflow-y-auto pr-1 space-y-3 text-xl text-center select-none divide-y divide-[#E7E5E1] dark:divide-[#262626]">
                             
                             <!-- 1. Smiles / Faces -->
                             <div class="pt-1">
-                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block text-left mb-1.5 px-1">😀 Yuzlar va hissiyotlar</span>
+                                <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block text-left mb-1.5 px-1">😀 Yuzlar va hissiyotlar</span>
                                 <div class="grid grid-cols-8 gap-1">
-                                    <button type="button" onclick="insertSticker('😀')" class="p-1 hover:bg-slate-100 rounded-lg">😀</button>
-                                    <button type="button" onclick="insertSticker('😃')" class="p-1 hover:bg-slate-100 rounded-lg">😃</button>
-                                    <button type="button" onclick="insertSticker('😄')" class="p-1 hover:bg-slate-100 rounded-lg">😄</button>
-                                    <button type="button" onclick="insertSticker('😁')" class="p-1 hover:bg-slate-100 rounded-lg">😁</button>
-                                    <button type="button" onclick="insertSticker('😊')" class="p-1 hover:bg-slate-100 rounded-lg">😊</button>
-                                    <button type="button" onclick="insertSticker('😇')" class="p-1 hover:bg-slate-100 rounded-lg">😇</button>
-                                    <button type="button" onclick="insertSticker('🙂')" class="p-1 hover:bg-slate-100 rounded-lg">🙂</button>
-                                    <button type="button" onclick="insertSticker('😉')" class="p-1 hover:bg-slate-100 rounded-lg">😉</button>
-                                    <button type="button" onclick="insertSticker('😍')" class="p-1 hover:bg-slate-100 rounded-lg">😍</button>
-                                    <button type="button" onclick="insertSticker('🥰')" class="p-1 hover:bg-slate-100 rounded-lg">🥰</button>
-                                    <button type="button" onclick="insertSticker('😘')" class="p-1 hover:bg-slate-100 rounded-lg">😘</button>
-                                    <button type="button" onclick="insertSticker('😋')" class="p-1 hover:bg-slate-100 rounded-lg">😋</button>
-                                    <button type="button" onclick="insertSticker('😎')" class="p-1 hover:bg-slate-100 rounded-lg">😎</button>
-                                    <button type="button" onclick="insertSticker('🤩')" class="p-1 hover:bg-slate-100 rounded-lg">🤩</button>
-                                    <button type="button" onclick="insertSticker('🥳')" class="p-1 hover:bg-slate-100 rounded-lg">🥳</button>
-                                    <button type="button" onclick="insertSticker('😏')" class="p-1 hover:bg-slate-100 rounded-lg">😏</button>
-                                    <button type="button" onclick="insertSticker('🤔')" class="p-1 hover:bg-slate-100 rounded-lg">🤔</button>
-                                    <button type="button" onclick="insertSticker('🫡')" class="p-1 hover:bg-slate-100 rounded-lg">🫡</button>
-                                    <button type="button" onclick="insertSticker('🤗')" class="p-1 hover:bg-slate-100 rounded-lg">🤗</button>
-                                    <button type="button" onclick="insertSticker('🤫')" class="p-1 hover:bg-slate-100 rounded-lg">🤫</button>
-                                    <button type="button" onclick="insertSticker('🙄')" class="p-1 hover:bg-slate-100 rounded-lg">🙄</button>
-                                    <button type="button" onclick="insertSticker('😬')" class="p-1 hover:bg-slate-100 rounded-lg">😬</button>
-                                    <button type="button" onclick="insertSticker('🥺')" class="p-1 hover:bg-slate-100 rounded-lg">🥺</button>
-                                    <button type="button" onclick="insertSticker('😭')" class="p-1 hover:bg-slate-100 rounded-lg">😭</button>
+                                    <button type="button" onclick="insertSticker('😀')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😀</button>
+                                    <button type="button" onclick="insertSticker('😃')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😃</button>
+                                    <button type="button" onclick="insertSticker('😄')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😄</button>
+                                    <button type="button" onclick="insertSticker('😁')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😁</button>
+                                    <button type="button" onclick="insertSticker('😊')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😊</button>
+                                    <button type="button" onclick="insertSticker('😇')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😇</button>
+                                    <button type="button" onclick="insertSticker('🙂')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🙂</button>
+                                    <button type="button" onclick="insertSticker('😉')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😉</button>
+                                    <button type="button" onclick="insertSticker('😍')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😍</button>
+                                    <button type="button" onclick="insertSticker('🥰')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🥰</button>
+                                    <button type="button" onclick="insertSticker('😘')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😘</button>
+                                    <button type="button" onclick="insertSticker('😋')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😋</button>
+                                    <button type="button" onclick="insertSticker('😎')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😎</button>
+                                    <button type="button" onclick="insertSticker('🤩')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🤩</button>
+                                    <button type="button" onclick="insertSticker('🥳')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🥳</button>
+                                    <button type="button" onclick="insertSticker('😏')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😏</button>
+                                    <button type="button" onclick="insertSticker('🤔')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🤔</button>
+                                    <button type="button" onclick="insertSticker('🫡')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🫡</button>
+                                    <button type="button" onclick="insertSticker('🤗')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🤗</button>
+                                    <button type="button" onclick="insertSticker('🤫')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🤫</button>
+                                    <button type="button" onclick="insertSticker('🙄')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🙄</button>
+                                    <button type="button" onclick="insertSticker('😬')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😬</button>
+                                    <button type="button" onclick="insertSticker('🥺')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🥺</button>
+                                    <button type="button" onclick="insertSticker('😭')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😭</button>
                                 </div>
                             </div>
 
                             <!-- 2. Gestures / Hands -->
                             <div class="pt-2">
-                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block text-left mb-1.5 px-1">👍 Qo'llar va imo-ishoralar</span>
+                                <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block text-left mb-1.5 px-1">👍 Qo'llar va imo-ishoralar</span>
                                 <div class="grid grid-cols-8 gap-1">
-                                    <button type="button" onclick="insertSticker('👋')" class="p-1 hover:bg-slate-100 rounded-lg">👋</button>
-                                    <button type="button" onclick="insertSticker('👍')" class="p-1 hover:bg-slate-100 rounded-lg">👍</button>
-                                    <button type="button" onclick="insertSticker('👎')" class="p-1 hover:bg-slate-100 rounded-lg">👎</button>
-                                    <button type="button" onclick="insertSticker('👌')" class="p-1 hover:bg-slate-100 rounded-lg">👌</button>
-                                    <button type="button" onclick="insertSticker('✌️')" class="p-1 hover:bg-slate-100 rounded-lg">✌️</button>
-                                    <button type="button" onclick="insertSticker('🤞')" class="p-1 hover:bg-slate-100 rounded-lg">🤞</button>
-                                    <button type="button" onclick="insertSticker('🤝')" class="p-1 hover:bg-slate-100 rounded-lg">🤝</button>
-                                    <button type="button" onclick="insertSticker('👏')" class="p-1 hover:bg-slate-100 rounded-lg">👏</button>
-                                    <button type="button" onclick="insertSticker('🙌')" class="p-1 hover:bg-slate-100 rounded-lg">🙌</button>
-                                    <button type="button" onclick="insertSticker('🫶')" class="p-1 hover:bg-slate-100 rounded-lg">🫶</button>
-                                    <button type="button" onclick="insertSticker('👐')" class="p-1 hover:bg-slate-100 rounded-lg">👐</button>
-                                    <button type="button" onclick="insertSticker('🤲')" class="p-1 hover:bg-slate-100 rounded-lg">🤲</button>
-                                    <button type="button" onclick="insertSticker('🙏')" class="p-1 hover:bg-slate-100 rounded-lg">🙏</button>
-                                    <button type="button" onclick="insertSticker('✍️')" class="p-1 hover:bg-slate-100 rounded-lg">✍️</button>
-                                    <button type="button" onclick="insertSticker('💪')" class="p-1 hover:bg-slate-100 rounded-lg">💪</button>
-                                    <button type="button" onclick="insertSticker('👉')" class="p-1 hover:bg-slate-100 rounded-lg">👉</button>
+                                    <button type="button" onclick="insertSticker('👋')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">👋</button>
+                                    <button type="button" onclick="insertSticker('👍')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">👍</button>
+                                    <button type="button" onclick="insertSticker('👎')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">👎</button>
+                                    <button type="button" onclick="insertSticker('👌')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">👌</button>
+                                    <button type="button" onclick="insertSticker('✌️')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">✌️</button>
+                                    <button type="button" onclick="insertSticker('🤞')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🤞</button>
+                                    <button type="button" onclick="insertSticker('🤝')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🤝</button>
+                                    <button type="button" onclick="insertSticker('👏')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">👏</button>
+                                    <button type="button" onclick="insertSticker('🙌')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🙌</button>
+                                    <button type="button" onclick="insertSticker('🫶')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🫶</button>
+                                    <button type="button" onclick="insertSticker('👐')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">👐</button>
+                                    <button type="button" onclick="insertSticker('🤲')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🤲</button>
+                                    <button type="button" onclick="insertSticker('🙏')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🙏</button>
+                                    <button type="button" onclick="insertSticker('✍️')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">✍️</button>
+                                    <button type="button" onclick="insertSticker('💪')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">💪</button>
+                                    <button type="button" onclick="insertSticker('👉')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">👉</button>
                                 </div>
                             </div>
 
                             <!-- 3. Business & Work -->
                             <div class="pt-2">
-                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block text-left mb-1.5 px-1">💼 Biznes va savdo</span>
+                                <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block text-left mb-1.5 px-1">💼 Biznes va savdo</span>
                                 <div class="grid grid-cols-8 gap-1">
-                                    <button type="button" onclick="insertSticker('💼')" class="p-1 hover:bg-slate-100 rounded-lg">💼</button>
-                                    <button type="button" onclick="insertSticker('📊')" class="p-1 hover:bg-slate-100 rounded-lg">📊</button>
-                                    <button type="button" onclick="insertSticker('📈')" class="p-1 hover:bg-slate-100 rounded-lg">📈</button>
-                                    <button type="button" onclick="insertSticker('💰')" class="p-1 hover:bg-slate-100 rounded-lg">💰</button>
-                                    <button type="button" onclick="insertSticker('💳')" class="p-1 hover:bg-slate-100 rounded-lg">💳</button>
-                                    <button type="button" onclick="insertSticker('💵')" class="p-1 hover:bg-slate-100 rounded-lg">💵</button>
-                                    <button type="button" onclick="insertSticker('🛒')" class="p-1 hover:bg-slate-100 rounded-lg">🛒</button>
-                                    <button type="button" onclick="insertSticker('🏷️')" class="p-1 hover:bg-slate-100 rounded-lg">🏷️</button>
-                                    <button type="button" onclick="insertSticker('📦')" class="p-1 hover:bg-slate-100 rounded-lg">📦</button>
-                                    <button type="button" onclick="insertSticker('🚚')" class="p-1 hover:bg-slate-100 rounded-lg">🚚</button>
-                                    <button type="button" onclick="insertSticker('🏬')" class="p-1 hover:bg-slate-100 rounded-lg">🏬</button>
-                                    <button type="button" onclick="insertSticker('🏢')" class="p-1 hover:bg-slate-100 rounded-lg">🏢</button>
-                                    <button type="button" onclick="insertSticker('📋')" class="p-1 hover:bg-slate-100 rounded-lg">📋</button>
-                                    <button type="button" onclick="insertSticker('📁')" class="p-1 hover:bg-slate-100 rounded-lg">📁</button>
-                                    <button type="button" onclick="insertSticker('🎯')" class="p-1 hover:bg-slate-100 rounded-lg">🎯</button>
-                                    <button type="button" onclick="insertSticker('🚀')" class="p-1 hover:bg-slate-100 rounded-lg">🚀</button>
+                                    <button type="button" onclick="insertSticker('💼')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">💼</button>
+                                    <button type="button" onclick="insertSticker('📊')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">📊</button>
+                                    <button type="button" onclick="insertSticker('📈')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">📈</button>
+                                    <button type="button" onclick="insertSticker('💰')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">💰</button>
+                                    <button type="button" onclick="insertSticker('💳')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">💳</button>
+                                    <button type="button" onclick="insertSticker('💵')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">💵</button>
+                                    <button type="button" onclick="insertSticker('🛒')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🛒</button>
+                                    <button type="button" onclick="insertSticker('🏷️')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🏷️</button>
+                                    <button type="button" onclick="insertSticker('📦')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">📦</button>
+                                    <button type="button" onclick="insertSticker('🚚')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🚚</button>
+                                    <button type="button" onclick="insertSticker('🏬')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🏬</button>
+                                    <button type="button" onclick="insertSticker('🏢')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🏢</button>
+                                    <button type="button" onclick="insertSticker('📋')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">📋</button>
+                                    <button type="button" onclick="insertSticker('📁')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">📁</button>
+                                    <button type="button" onclick="insertSticker('🎯')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🎯</button>
+                                    <button type="button" onclick="insertSticker('🚀')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🚀</button>
                                 </div>
                             </div>
 
                             <!-- 4. Symbols & Highlights -->
                             <div class="pt-2">
-                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block text-left mb-1.5 px-1">⚡ Belgilar va e'tibor</span>
+                                <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block text-left mb-1.5 px-1">⚡ Belgilar va e'tibor</span>
                                 <div class="grid grid-cols-8 gap-1">
-                                    <button type="button" onclick="insertSticker('✅')" class="p-1 hover:bg-slate-100 rounded-lg">✅</button>
-                                    <button type="button" onclick="insertSticker('✨')" class="p-1 hover:bg-slate-100 rounded-lg">✨</button>
-                                    <button type="button" onclick="insertSticker('🔥')" class="p-1 hover:bg-slate-100 rounded-lg">🔥</button>
-                                    <button type="button" onclick="insertSticker('⚡')" class="p-1 hover:bg-slate-100 rounded-lg">⚡</button>
-                                    <button type="button" onclick="insertSticker('⭐')" class="p-1 hover:bg-slate-100 rounded-lg">⭐</button>
-                                    <button type="button" onclick="insertSticker('🌟')" class="p-1 hover:bg-slate-100 rounded-lg">🌟</button>
-                                    <button type="button" onclick="insertSticker('💡')" class="p-1 hover:bg-slate-100 rounded-lg">💡</button>
-                                    <button type="button" onclick="insertSticker('💯')" class="p-1 hover:bg-slate-100 rounded-lg">💯</button>
-                                    <button type="button" onclick="insertSticker('🎉')" class="p-1 hover:bg-slate-100 rounded-lg">🎉</button>
-                                    <button type="button" onclick="insertSticker('📌')" class="p-1 hover:bg-slate-100 rounded-lg">📌</button>
-                                    <button type="button" onclick="insertSticker('📍')" class="p-1 hover:bg-slate-100 rounded-lg">📍</button>
-                                    <button type="button" onclick="insertSticker('⏰')" class="p-1 hover:bg-slate-100 rounded-lg">⏰</button>
-                                    <button type="button" onclick="insertSticker('🔔')" class="p-1 hover:bg-slate-100 rounded-lg">🔔</button>
-                                    <button type="button" onclick="insertSticker('❗')" class="p-1 hover:bg-slate-100 rounded-lg">❗</button>
-                                    <button type="button" onclick="insertSticker('❓')" class="p-1 hover:bg-slate-100 rounded-lg">❓</button>
-                                    <button type="button" onclick="insertSticker('❤️')" class="p-1 hover:bg-slate-100 rounded-lg">❤️</button>
+                                    <button type="button" onclick="insertSticker('✅')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">✅</button>
+                                    <button type="button" onclick="insertSticker('✨')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">✨</button>
+                                    <button type="button" onclick="insertSticker('🔥')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🔥</button>
+                                    <button type="button" onclick="insertSticker('⚡')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">⚡</button>
+                                    <button type="button" onclick="insertSticker('⭐')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">⭐</button>
+                                    <button type="button" onclick="insertSticker('🌟')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🌟</button>
+                                    <button type="button" onclick="insertSticker('💡')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">💡</button>
+                                    <button type="button" onclick="insertSticker('💯')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">💯</button>
+                                    <button type="button" onclick="insertSticker('🎉')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🎉</button>
+                                    <button type="button" onclick="insertSticker('📌')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">📌</button>
+                                    <button type="button" onclick="insertSticker('📍')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">📍</button>
+                                    <button type="button" onclick="insertSticker('⏰')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">⏰</button>
+                                    <button type="button" onclick="insertSticker('🔔')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🔔</button>
+                                    <button type="button" onclick="insertSticker('❗')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">❗</button>
+                                    <button type="button" onclick="insertSticker('❓')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">❓</button>
+                                    <button type="button" onclick="insertSticker('❤️')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">❤️</button>
                                 </div>
                             </div>
 
                             <!-- 5. Objects & Tech -->
                             <div class="pt-2">
-                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block text-left mb-1.5 px-1">🎁 Buyumlar va aloqa</span>
+                                <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block text-left mb-1.5 px-1">🎁 Buyumlar va aloqa</span>
                                 <div class="grid grid-cols-8 gap-1">
-                                    <button type="button" onclick="insertSticker('📞')" class="p-1 hover:bg-slate-100 rounded-lg">📞</button>
-                                    <button type="button" onclick="insertSticker('📱')" class="p-1 hover:bg-slate-100 rounded-lg">📱</button>
-                                    <button type="button" onclick="insertSticker('💻')" class="p-1 hover:bg-slate-100 rounded-lg">💻</button>
-                                    <button type="button" onclick="insertSticker('✉️')" class="p-1 hover:bg-slate-100 rounded-lg">✉️</button>
-                                    <button type="button" onclick="insertSticker('🎁')" class="p-1 hover:bg-slate-100 rounded-lg">🎁</button>
-                                    <button type="button" onclick="insertSticker('🏆')" class="p-1 hover:bg-slate-100 rounded-lg">🏆</button>
-                                    <button type="button" onclick="insertSticker('👑')" class="p-1 hover:bg-slate-100 rounded-lg">👑</button>
-                                    <button type="button" onclick="insertSticker('💎')" class="p-1 hover:bg-slate-100 rounded-lg">💎</button>
-                                    <button type="button" onclick="insertSticker('🔑')" class="p-1 hover:bg-slate-100 rounded-lg">🔑</button>
-                                    <button type="button" onclick="insertSticker('🔒')" class="p-1 hover:bg-slate-100 rounded-lg">🔒</button>
-                                    <button type="button" onclick="insertSticker('🎧')" class="p-1 hover:bg-slate-100 rounded-lg">🎧</button>
-                                    <button type="button" onclick="insertSticker('🌐')" class="p-1 hover:bg-slate-100 rounded-lg">🌐</button>
+                                    <button type="button" onclick="insertSticker('📞')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">📞</button>
+                                    <button type="button" onclick="insertSticker('📱')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">📱</button>
+                                    <button type="button" onclick="insertSticker('💻')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">💻</button>
+                                    <button type="button" onclick="insertSticker('✉️')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">✉️</button>
+                                    <button type="button" onclick="insertSticker('🎁')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🎁</button>
+                                    <button type="button" onclick="insertSticker('🏆')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🏆</button>
+                                    <button type="button" onclick="insertSticker('👑')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">👑</button>
+                                    <button type="button" onclick="insertSticker('💎')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">💎</button>
+                                    <button type="button" onclick="insertSticker('🔑')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🔑</button>
+                                    <button type="button" onclick="insertSticker('🔒')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🔒</button>
+                                    <button type="button" onclick="insertSticker('🎧')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🎧</button>
+                                    <button type="button" onclick="insertSticker('🌐')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🌐</button>
                                 </div>
                             </div>
 
@@ -383,14 +390,14 @@
                              data-empty="true"
                              oninput="handleRichInput(this)"
                              onkeydown="handleRichKeyDown(event)"
-                             class="w-full pl-3.5 pr-20 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:bg-white transition text-slate-800 overflow-y-auto max-h-36 min-h-[40px] leading-relaxed break-words whitespace-pre-wrap"></div>
+                             class="w-full pl-3.5 pr-20 py-2.5 bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] transition text-slate-900 dark:text-[#F5F1E8] overflow-y-auto max-h-36 min-h-[40px] leading-relaxed break-words whitespace-pre-wrap"></div>
                         
                         <!-- Actions inside Input container (Sticker & Send) -->
                         <div class="absolute right-1.5 bottom-1.5 flex items-center space-x-1">
                             <!-- Sticker Button -->
                             <button type="button" 
                                     onclick="toggleStickerPicker()" 
-                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-amber-500 hover:bg-slate-100 transition"
+                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-slate-800 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1E1E1E] transition"
                                     title="Stiker yoki emoji qo'shish">
                                 <i class="fa-regular fa-face-smile text-sm"></i>
                             </button>
@@ -399,7 +406,7 @@
                             <button type="submit" 
                                     id="replySendBtn"
                                     disabled
-                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-xs transition duration-150 text-slate-300 bg-transparent cursor-not-allowed disabled:opacity-40"
+                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-xs transition duration-150 text-slate-300 dark:text-slate-600 bg-transparent cursor-not-allowed disabled:opacity-40"
                                     title="Xabarni yuborish">
                                 <i class="fa-solid fa-arrow-up text-xs font-bold"></i>
                             </button>
@@ -409,61 +416,63 @@
             </div>
 
             <!-- Right: Customer Insights & Recommendations Panel (Collapsible) -->
-            <div id="aiInsightsPane" class="lg:col-span-3 flex flex-col h-full bg-gradient-to-b from-indigo-50/70 via-slate-50/80 to-violet-50/50 border-l border-indigo-100/80 p-5 overflow-y-auto space-y-4 transition-all duration-300">
+            <div id="aiInsightsPane" class="lg:col-span-3 flex flex-col h-full bg-slate-50/50 dark:bg-[#141414] border-l border-[#E7E5E1] dark:border-[#262626] p-5 overflow-y-auto space-y-4 transition-all duration-300">
                 
                 <!-- Panel Header -->
-                <div class="flex items-center justify-between border-b border-indigo-100 pb-3">
-                    <h4 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                        <i class="fa-solid fa-wand-magic-sparkles text-indigo-600"></i>
+                <div class="flex items-center justify-between border-b border-[#E7E5E1] dark:border-[#262626] pb-3">
+                    <h4 class="text-xs font-bold text-slate-900 dark:text-[#F5F1E8] uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-md bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] flex items-center justify-center text-[10px]">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </span>
                         <span>AI Tahlil & Tavsiya</span>
                     </h4>
-                    <button type="button" onclick="toggleAiPanel()" class="w-6 h-6 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 flex items-center justify-center text-xs transition" title="Panelni yopish">
+                    <button type="button" onclick="toggleAiPanel()" class="w-6 h-6 rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-[#1E1E1E] flex items-center justify-center text-xs transition" title="Panelni yopish">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
 
                 <!-- 1. Customer Intent & Topic -->
                 <div class="space-y-1.5">
-                    <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Mijoz maqsadi</span>
-                    <div class="p-3.5 bg-white rounded-xl border border-indigo-100/80 shadow-2xs">
-                        <div class="text-xs font-bold text-slate-800 mb-1 flex items-center gap-1.5">
-                            <i class="fa-solid fa-bullseye text-indigo-600 text-xs"></i>
+                    <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Mijoz maqsadi</span>
+                    <div class="p-3.5 bg-white dark:bg-[#1E1E1E] rounded-xl border border-[#E7E5E1] dark:border-[#262626] shadow-2xs">
+                        <div class="text-xs font-bold text-slate-900 dark:text-[#F5F1E8] mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-bullseye text-slate-800 dark:text-[#F5F1E8] text-xs"></i>
                             {{ insights.intent }}
                         </div>
-                        <p class="text-[11px] text-slate-500">Asosiy mavzu: <strong class="text-slate-700">{{ insights.key_topic }}</strong></p>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Asosiy mavzu: <strong class="text-slate-800 dark:text-slate-200">{{ insights.key_topic }}</strong></p>
                     </div>
                 </div>
 
                 <!-- 2. AI Opinion (Fikr) -->
                 <div class="space-y-1.5">
-                    <span class="text-[10px] font-extrabold text-indigo-400 uppercase tracking-wider block">Mijoz haqida xulosa</span>
-                    <div class="p-3.5 bg-white rounded-xl border border-indigo-200/70 shadow-2xs">
+                    <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Mijoz haqida xulosa</span>
+                    <div class="p-3.5 bg-white dark:bg-[#1E1E1E] rounded-xl border border-[#E7E5E1] dark:border-[#262626] shadow-2xs">
                         <div class="flex items-start gap-2">
-                            <i class="fa-solid fa-lightbulb text-amber-500 text-xs mt-0.5 shrink-0"></i>
-                            <p class="text-xs text-slate-700 font-medium leading-relaxed">{{ insights.opinion }}</p>
+                            <i class="fa-solid fa-lightbulb text-amber-500 dark:text-amber-400 text-xs mt-0.5 shrink-0"></i>
+                            <p class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed">{{ insights.opinion }}</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- 3. Actionable Recommendation (Tavsiya) -->
                 <div class="space-y-1.5">
-                    <span class="text-[10px] font-extrabold text-emerald-500 uppercase tracking-wider block">Keyingi qadam tavsiyasi</span>
-                    <div class="p-3.5 bg-emerald-50/80 rounded-xl border border-emerald-200/80 shadow-2xs">
+                    <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Keyingi qadam tavsiyasi</span>
+                    <div class="p-3.5 bg-slate-100 dark:bg-[#1E1E1E] rounded-xl border border-[#E7E5E1] dark:border-[#262626] shadow-2xs">
                         <div class="flex items-start gap-2">
-                            <i class="fa-solid fa-sparkles text-emerald-600 text-xs mt-0.5 shrink-0"></i>
-                            <p class="text-xs text-emerald-950 font-medium leading-relaxed">{{ insights.recommendation }}</p>
+                            <i class="fa-solid fa-sparkles text-slate-900 dark:text-[#F5F1E8] text-xs mt-0.5 shrink-0"></i>
+                            <p class="text-xs text-slate-900 dark:text-[#F5F1E8] font-semibold leading-relaxed">{{ insights.recommendation }}</p>
                         </div>
                     </div>
                 </div>
 
             </div>
         {% else %}
-            <div class="lg:col-span-9 flex flex-col items-center justify-center p-12 text-center text-slate-400 bg-slate-50/50">
-                <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl mb-3">
+            <div class="lg:col-span-9 flex flex-col items-center justify-center p-12 text-center text-slate-400 dark:text-slate-500 bg-slate-50/50 dark:bg-[#0A0A0A]">
+                <div class="w-14 h-14 rounded-2xl bg-white dark:bg-[#1E1E1E] text-slate-800 dark:text-[#F5F1E8] flex items-center justify-center text-xl mb-3 border border-[#E7E5E1] dark:border-[#262626] shadow-2xs">
                     <i class="fa-solid fa-comments"></i>
                 </div>
-                <h3 class="text-sm font-bold text-slate-800">Suhbat tanlanmagan</h3>
-                <p class="text-xs text-slate-500 mt-1 max-w-xs">
+                <h3 class="text-sm font-bold text-slate-900 dark:text-[#F5F1E8]">Suhbat tanlanmagan</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs">
                     Chap tomondagi ro'yxatdan murojaatchini tanlang.
                 </p>
             </div>
@@ -475,41 +484,41 @@
 
 <!-- Edit Lead Details Modal -->
 {% if active_session %}
-<div id="editLeadModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-            <h3 class="font-bold text-slate-900 text-base">Mijoz Ma'lumotlari</h3>
-            <button onclick="document.getElementById('editLeadModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+<div id="editLeadModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 dark:bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-[#141414] rounded-2xl max-w-md w-full p-6 shadow-2xl border border-[#E7E5E1] dark:border-[#262626]">
+        <div class="flex items-center justify-between border-b border-[#E7E5E1] dark:border-[#262626] pb-3 mb-4">
+            <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-base">Mijoz Ma'lumotlari</h3>
+            <button onclick="document.getElementById('editLeadModal').classList.add('hidden')" class="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 text-xl font-bold">&times;</button>
         </div>
 
         <form method="POST" action="{% url 'chatbot:update_lead' active_session.session_id %}" class="space-y-4">
             {% csrf_token %}
 
             <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Ismi</label>
-                <input type="text" name="visitor_name" value="{{ active_session.visitor_name }}" placeholder="Masalan: Anvar Karimov" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-100 outline-none font-medium">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Ismi</label>
+                <input type="text" name="visitor_name" value="{{ active_session.visitor_name }}" placeholder="Masalan: Anvar Karimov" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Telefon raqami</label>
-                <input type="text" name="visitor_phone" value="{{ active_session.visitor_phone }}" placeholder="+998 90 123 45 67" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-100 outline-none font-medium">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Telefon raqami</label>
+                <input type="text" name="visitor_phone" value="{{ active_session.visitor_phone }}" placeholder="+998 90 123 45 67" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Email manzili</label>
-                <input type="email" name="visitor_email" value="{{ active_session.visitor_email }}" placeholder="mijoz@example.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-100 outline-none font-medium">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Email manzili</label>
+                <input type="email" name="visitor_email" value="{{ active_session.visitor_email }}" placeholder="mijoz@example.com" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Shaxsiy eslatma / Izoh</label>
-                <textarea name="notes" rows="3" placeholder="Mijoz haqida maxsus eslatma yoki buyurtma tafsilotlari..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-100 outline-none font-medium">{{ active_session.notes }}</textarea>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Shaxsiy eslatma / Izoh</label>
+                <textarea name="notes" rows="3" placeholder="Mijoz haqida maxsus eslatma yoki buyurtma tafsilotlari..." class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">{{ active_session.notes }}</textarea>
             </div>
 
-            <div class="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
-                <button type="button" onclick="document.getElementById('editLeadModal').classList.add('hidden')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50">
+            <div class="pt-3 border-t border-[#E7E5E1] dark:border-[#262626] flex items-center justify-end space-x-2">
+                <button type="button" onclick="document.getElementById('editLeadModal').classList.add('hidden')" class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] border border-transparent dark:border-[#262626] transition">
                     Bekor qilish
                 </button>
-                <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-xs transition">
+                <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs transition">
                     Saqlash
                 </button>
             </div>
@@ -532,7 +541,7 @@
             chatArea.classList.remove('lg:col-span-9');
             chatArea.classList.add('lg:col-span-6');
             if (btn) {
-                btn.className = 'px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl transition flex items-center gap-1.5 border border-indigo-100';
+                btn.className = 'px-3 py-1.5 bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white text-white dark:text-[#0A0A0A] text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-2xs';
             }
             if (btnText) btnText.textContent = 'AI Tahlil';
             localStorage.setItem('lumos_inbox_ai_panel', 'visible');
@@ -541,7 +550,7 @@
             chatArea.classList.remove('lg:col-span-6');
             chatArea.classList.add('lg:col-span-9');
             if (btn) {
-                btn.className = 'px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition flex items-center gap-1.5 border border-slate-200';
+                btn.className = 'px-3 py-1.5 bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 text-xs font-bold rounded-xl transition flex items-center gap-1.5 border border-[#E7E5E1] dark:border-[#262626]';
             }
             if (btnText) btnText.textContent = 'AI Tahlilni ochish';
             localStorage.setItem('lumos_inbox_ai_panel', 'hidden');
@@ -573,10 +582,10 @@
         if (!btn) return;
         if (text.length > 0) {
             btn.disabled = false;
-            btn.className = 'w-7 h-7 rounded-lg flex items-center justify-center text-xs transition duration-150 text-white bg-indigo-600 hover:bg-indigo-700 shadow-2xs cursor-pointer';
+            btn.className = 'w-7 h-7 rounded-lg flex items-center justify-center text-xs transition duration-150 text-white dark:text-[#0A0A0A] bg-[#0A0A0A] dark:bg-[#F5F1E8] hover:bg-[#18181B] dark:hover:bg-white shadow-2xs cursor-pointer';
         } else {
             btn.disabled = true;
-            btn.className = 'w-7 h-7 rounded-lg flex items-center justify-center text-xs transition duration-150 text-slate-300 bg-transparent cursor-not-allowed disabled:opacity-40';
+            btn.className = 'w-7 h-7 rounded-lg flex items-center justify-center text-xs transition duration-150 text-slate-300 dark:text-slate-600 bg-transparent cursor-not-allowed disabled:opacity-40';
         }
     }
 

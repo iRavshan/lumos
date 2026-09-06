@@ -3,31 +3,28 @@
 {% block title %}Chatbot Sozlamalari - {{ business.name }}{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
     
     <!-- 1. Header Card -->
-    <div class="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-[#E7E5E1] dark:border-[#262626] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <a href="{% url 'businesses:dashboard' %}" class="inline-flex items-center text-xs font-semibold text-indigo-600 hover:text-indigo-800 mb-1.5">
-                <i class="fa-solid fa-arrow-left mr-1.5"></i> Dashboardga qaytish
-            </a>
-            <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-                <i class="fa-solid fa-robot text-indigo-600"></i> AI Chatbot Sozlamalari
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight flex items-center gap-2">
+                <i class="fa-solid fa-robot text-indigo-600 dark:text-indigo-400"></i> AI Chatbot Sozlamalari
             </h1>
-            <p class="text-slate-500 text-xs mt-0.5">«{{ business.name }}» vebsayt vidjeti va sun'iy intellekt javoblarini boshqaring</p>
+            <p class="text-slate-500 dark:text-slate-400 text-xs mt-2">«{{ business.name }}» vebsayt vidjeti va sun'iy intellekt javoblarini boshqaring</p>
         </div>
 
-        <a href="{% url 'chatbot:demo_page' chatbot.api_key %}" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition shrink-0">
+        <a href="{% url 'chatbot:demo_page' chatbot.api_key %}" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] text-white font-bold text-xs shadow-xs transition shrink-0">
             <i class="fa-solid fa-play mr-1.5"></i> Jonli sinov
         </a>
     </div>
 
     <!-- 2. Navigation Tabs (Widget vs Telegram Bot) -->
-    <div class="flex space-x-2 border-b border-slate-200/80 pb-1">
-        <a href="{% url 'chatbot:settings' %}" class="px-4 py-2.5 font-bold text-xs sm:text-sm text-indigo-600 border-b-2 border-indigo-600 transition flex items-center">
-            <i class="fa-solid fa-code mr-2"></i> Vebsayt Vidjeti
+    <div class="flex space-x-2 border-b border-[#E7E5E1] dark:border-[#262626] pb-1">
+        <a href="{% url 'chatbot:settings' %}" class="px-4 py-2.5 font-bold text-xs sm:text-sm text-slate-900 dark:text-[#F5F1E8] border-b-2 border-slate-900 dark:border-[#F5F1E8] transition flex items-center">
+            <i class="fa-solid fa-code mr-2 text-indigo-600 dark:text-indigo-400"></i> Vebsayt Vidjeti
         </a>
-        <a href="{% url 'chatbot:telegram_settings' %}" class="px-4 py-2.5 font-bold text-xs sm:text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent transition flex items-center">
+        <a href="{% url 'chatbot:telegram_settings' %}" class="px-4 py-2.5 font-bold text-xs sm:text-sm text-slate-500 hover:text-slate-800 dark:hover:text-white border-b-2 border-transparent transition flex items-center">
             <i class="fa-brands fa-telegram mr-2 text-sky-500"></i> Telegram Bot
         </a>
     </div>
@@ -35,134 +32,181 @@
     <form method="POST" class="space-y-6" novalidate>
         {% csrf_token %}
 
-        <!-- Card 1: Bot Shaxsi va Nomi -->
-        <div class="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-slate-900 text-sm flex items-center">
-                    <i class="fa-solid fa-signature text-indigo-600 mr-2"></i> Bot Nomi va Holati
-                </h3>
-            </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Left 2 Cols: Form Cards -->
+            <div class="lg:col-span-2 space-y-6">
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-                <div>
-                    <label for="{{ form.bot_name.id_for_label }}" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                        Bot nomi
-                    </label>
-                    {{ form.bot_name }}
-                    {% if form.bot_name.errors %}<p class="text-rose-500 text-xs mt-1">{{ form.bot_name.errors.0 }}</p>{% endif %}
+                <!-- Card 1: Bot Shaxsi va Nomi -->
+                <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-[#262626] pb-3">
+                        <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm flex items-center">
+                            <i class="fa-solid fa-signature text-indigo-600 dark:text-indigo-400 mr-2"></i> Bot Nomi va Holati
+                        </h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                        <div>
+                            <span class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                                Bot nomi
+                            </span>
+                            <div class="flex items-center justify-between px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] text-slate-900 dark:text-[#F5F1E8] font-bold text-sm">
+                                <span class="flex items-center gap-2">
+                                    <i class="fa-solid fa-robot text-indigo-600 dark:text-indigo-400"></i>
+                                    {{ chatbot.bot_name }}
+                                </span>
+                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400 dark:text-slate-500 bg-white dark:bg-[#141414] px-2 py-0.5 rounded-md border border-[#E7E5E1] dark:border-[#262626]" title="Bot nomi o'zgarmas">
+                                    <i class="fa-solid fa-lock text-[10px]"></i> O'zgarmas
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="p-3.5 bg-slate-50 dark:bg-[#1E1E1E] rounded-xl border border-[#E7E5E1] dark:border-[#262626] flex items-center space-x-3 mt-4 sm:mt-6">
+                            {{ form.is_active }}
+                            <label for="{{ form.is_active.id_for_label }}" class="text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer">
+                                Chatbot vebsaytda faol holatda tursin
+                            </label>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center space-x-3 mt-4 sm:mt-6">
-                    {{ form.is_active }}
-                    <label for="{{ form.is_active.id_for_label }}" class="text-xs font-bold text-slate-800 cursor-pointer">
-                        Chatbot vebsaytda faol holatda tursin
-                    </label>
+                <!-- Card 2: Vidjet Asosiy Rangi -->
+                <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-[#262626] pb-3">
+                        <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm flex items-center">
+                            <i class="fa-solid fa-palette text-indigo-600 dark:text-indigo-400 mr-2"></i> Vidjet Asosiy Rangi
+                        </h3>
+                        <span class="text-xs text-slate-400 dark:text-slate-500">Brendingizga mos rang tanlang</span>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <div class="flex items-center space-x-2">
+                            <input type="color" id="themeColorPicker" value="{{ form.theme_color.value|default:'#4f46e5' }}" class="w-11 h-11 p-0.5 rounded-xl border border-slate-300 dark:border-zinc-700 cursor-pointer bg-white dark:bg-[#141414]">
+                            <div class="relative">
+                                {{ form.theme_color }}
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-2 pl-2 sm:border-l border-slate-200 dark:border-[#262626]">
+                            <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Ko'rinishi:</span>
+                            <div id="colorPreviewBadge" class="w-8 h-8 rounded-xl flex items-center justify-center text-white text-xs shadow-xs transition-all duration-200" style="background-color: {{ form.theme_color.value|default:'#4f46e5' }};">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Color Chips -->
+                    <div class="pt-3 border-t border-slate-100 dark:border-[#262626]">
+                        <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-2">Mashhur ranglar:</span>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" onclick="setColor('#4f46e5')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-50 dark:bg-[#1E1E1E] border border-slate-200 dark:border-[#262626] hover:border-indigo-400 transition text-slate-700 dark:text-slate-300">
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#4f46e5]"></span> Indigo
+                            </button>
+                            <button type="button" onclick="setColor('#2563eb')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-50 dark:bg-[#1E1E1E] border border-slate-200 dark:border-[#262626] hover:border-blue-400 transition text-slate-700 dark:text-slate-300">
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#2563eb]"></span> Ko'k
+                            </button>
+                            <button type="button" onclick="setColor('#059669')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-50 dark:bg-[#1E1E1E] border border-slate-200 dark:border-[#262626] hover:border-emerald-400 transition text-slate-700 dark:text-slate-300">
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#059669]"></span> Yashil
+                            </button>
+                            <button type="button" onclick="setColor('#7c3aed')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-50 dark:bg-[#1E1E1E] border border-slate-200 dark:border-[#262626] hover:border-purple-400 transition text-slate-700 dark:text-slate-300">
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#7c3aed]"></span> Binafsha
+                            </button>
+                            <button type="button" onclick="setColor('#e11d48')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-50 dark:bg-[#1E1E1E] border border-slate-200 dark:border-[#262626] hover:border-rose-400 transition text-slate-700 dark:text-slate-300">
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#e11d48]"></span> Qizil
+                            </button>
+                        </div>
+                    </div>
+                    {% if form.theme_color.errors %}<p class="text-rose-500 text-xs mt-1">{{ form.theme_color.errors.0 }}</p>{% endif %}
                 </div>
-            </div>
-        </div>
 
-        <!-- Card 2: Vidjet Asosiy Rangi -->
-        <div class="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-slate-900 text-sm flex items-center">
-                    <i class="fa-solid fa-palette text-indigo-600 mr-2"></i> Vidjet Asosiy Rangi
-                </h3>
-                <span class="text-xs text-slate-400">Brendingizga mos rang tanlang</span>
+                <!-- Action Buttons -->
+                <div class="bg-white dark:bg-[#141414] rounded-2xl p-4 border border-[#E7E5E1] dark:border-[#262626] shadow-xs flex items-center justify-between">
+                    <a href="{% url 'businesses:dashboard' %}" class="px-5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-50 dark:hover:bg-[#1E1E1E] transition">
+                        Bekor qilish
+                    </a>
+                    <button type="submit" class="inline-flex items-center px-7 py-2.5 bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] text-white font-bold rounded-xl shadow-xs transition text-xs">
+                        <i class="fa-solid fa-floppy-disk mr-1.5"></i> Sozlamalarni saqlash
+                    </button>
+                </div>
+
             </div>
 
-            <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-                <div class="flex items-center space-x-2">
-                    <input type="color" id="themeColorPicker" value="{{ form.theme_color.value|default:'#4f46e5' }}" class="w-11 h-11 p-0.5 rounded-xl border border-slate-300 cursor-pointer bg-white">
+            <!-- Right 1 Col: Video Tutorial & Embed Script Sidebar -->
+            <div class="space-y-6">
+
+                <!-- Video Tutorial Card -->
+                <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-[#262626] pb-2.5">
+                        <h4 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-xs uppercase tracking-wider flex items-center">
+                            <i class="fa-brands fa-youtube text-rose-500 mr-2 text-sm"></i> Video Qo'llanma
+                        </h4>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Vebsaytingizga sun'iy intellekt vidjetini ulash va sozlash bo'yicha video qo'llanma:
+                    </p>
+                    <div class="relative w-full aspect-video rounded-xl overflow-hidden shadow-xs border border-slate-200 dark:border-zinc-800 bg-black">
+                        <iframe 
+                            class="w-full h-full" 
+                            src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                            title="Vebsaytga chatbot vidjetini ulash video qo'llanmasi" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-1">
+                        <span class="flex items-center gap-1">
+                            <i class="fa-solid fa-circle-play text-rose-500"></i> Vidjetni sozlash
+                        </span>
+                        <a href="{% url 'chatbot:demo_page' chatbot.api_key %}" target="_blank" class="text-indigo-600 dark:text-indigo-400 font-bold hover:underline inline-flex items-center gap-1">
+                            Jonli sinov <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Embed Script Code Box -->
+                <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-[#262626] pb-2.5">
+                        <h4 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-xs uppercase tracking-wider flex items-center">
+                            <i class="fa-solid fa-code text-indigo-600 dark:text-indigo-400 mr-2 text-sm"></i> Vebsaytga ulash kodi
+                        </h4>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Ushbu script kodini saytingizning <code>&lt;/body&gt;</code> tegi oldiga joylang:
+                    </p>
                     <div class="relative">
-                        {{ form.theme_color }}
+                        <pre class="bg-slate-900 text-slate-200 p-3 rounded-xl text-[11px] font-mono overflow-x-auto select-all leading-relaxed">&lt;script src="{{ request.scheme }}://{{ request.get_host }}/static/js/lumos-widget.js" data-business-key="{{ chatbot.api_key }}"&gt;&lt;/script&gt;</pre>
+                        <button type="button" 
+                                onclick="navigator.clipboard.writeText('&lt;script src=&quot;{{ request.scheme }}://{{ request.get_host }}/static/js/lumos-widget.js&quot; data-business-key=&quot;{{ chatbot.api_key }}&quot;&gt;&lt;/script&gt;'); alert('Vidjet kodi nusxalandi!');"
+                                class="mt-2 w-full py-2 px-3 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-xs font-bold transition flex items-center justify-center gap-1.5 border border-indigo-200 dark:border-indigo-800">
+                            <i class="fa-solid fa-copy"></i> Kodni nusxalash
+                        </button>
                     </div>
                 </div>
 
-                <div class="flex items-center space-x-2 pl-2 sm:border-l border-slate-200">
-                    <span class="text-xs text-slate-500 font-medium">Ko'rinishi:</span>
-                    <div id="colorPreviewBadge" class="w-8 h-8 rounded-xl flex items-center justify-center text-white text-xs shadow-xs transition-all duration-200" style="background-color: {{ form.theme_color.value|default:'#4f46e5' }};">
-                        <i class="fa-solid fa-robot"></i>
+                <!-- Quick Tips Card -->
+                <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
+                    <h4 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-xs uppercase tracking-wider pb-2 border-b border-slate-100 dark:border-[#262626] flex items-center">
+                        <i class="fa-solid fa-lightbulb text-amber-500 mr-1.5"></i> Maslahatlar
+                    </h4>
+                    <div class="space-y-2 pt-1 text-slate-500 dark:text-slate-400 leading-relaxed text-[11px]">
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-check text-emerald-600 dark:text-emerald-400 mt-0.5 text-xs"></i>
+                            <span>Rangni brendingiz asosiy rangiga moslang</span>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-check text-emerald-600 dark:text-emerald-400 mt-0.5 text-xs"></i>
+                            <span>Vidjet faolligini istalgan vaqtda yoqib-o'chirishingiz mumkin</span>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-check text-emerald-600 dark:text-emerald-400 mt-0.5 text-xs"></i>
+                            <span>Saytingizga vidjet skriptini qo'shib, o'zgarishlarni real vaqtda tekshiring</span>
+                        </div>
                     </div>
                 </div>
+
             </div>
 
-            <!-- Color Chips -->
-            <div class="pt-3 border-t border-slate-100">
-                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Mashhur ranglar:</span>
-                <div class="flex flex-wrap gap-2">
-                    <button type="button" onclick="setColor('#4f46e5')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-50 border border-slate-200 hover:border-indigo-400 transition text-slate-700">
-                        <span class="w-2.5 h-2.5 rounded-full bg-[#4f46e5]"></span> Indigo (#4F46E5)
-                    </button>
-                    <button type="button" onclick="setColor('#2563eb')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-50 border border-slate-200 hover:border-blue-400 transition text-slate-700">
-                        <span class="w-2.5 h-2.5 rounded-full bg-[#2563eb]"></span> Ko'k (#2563EB)
-                    </button>
-                    <button type="button" onclick="setColor('#059669')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-50 border border-slate-200 hover:border-emerald-400 transition text-slate-700">
-                        <span class="w-2.5 h-2.5 rounded-full bg-[#059669]"></span> Yashil (#059669)
-                    </button>
-                    <button type="button" onclick="setColor('#7c3aed')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-50 border border-slate-200 hover:border-purple-400 transition text-slate-700">
-                        <span class="w-2.5 h-2.5 rounded-full bg-[#7c3aed]"></span> Binafsha (#7C3AED)
-                    </button>
-                    <button type="button" onclick="setColor('#e11d48')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-50 border border-slate-200 hover:border-rose-400 transition text-slate-700">
-                        <span class="w-2.5 h-2.5 rounded-full bg-[#e11d48]"></span> Qizil (#E11D48)
-                    </button>
-                </div>
-            </div>
-            {% if form.theme_color.errors %}<p class="text-rose-500 text-xs mt-1">{{ form.theme_color.errors.0 }}</p>{% endif %}
-        </div>
-
-        <!-- Card 3: Salomlashish & Tezkor Savollar -->
-        <div class="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-slate-900 text-sm flex items-center">
-                    <i class="fa-solid fa-comments text-indigo-600 mr-2"></i> Salomlashish va Tezkor Savollar
-                </h3>
-            </div>
-
-            <div>
-                <label for="{{ form.welcome_message.id_for_label }}" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                    Salomlashish xabari
-                </label>
-                {{ form.welcome_message }}
-                {% if form.welcome_message.errors %}<p class="text-rose-500 text-xs mt-1">{{ form.welcome_message.errors.0 }}</p>{% endif %}
-            </div>
-
-            <div>
-                <label for="{{ form.suggested_questions.id_for_label }}" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                    Tavsiya etilgan tezkor savollar (Har bir qatorda 1 ta)
-                </label>
-                {{ form.suggested_questions }}
-                {% if form.suggested_questions.errors %}<p class="text-rose-500 text-xs mt-1">{{ form.suggested_questions.errors.0 }}</p>{% endif %}
-            </div>
-        </div>
-
-        <!-- Card 4: Bilimlar Bazasi (RAG FAQ) -->
-        <div class="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-slate-900 text-sm flex items-center">
-                    <i class="fa-solid fa-brain text-indigo-600 mr-2"></i> AI Bilimlar Bazasi va Maxsus FAQ
-                </h3>
-            </div>
-
-            <div>
-                <label for="{{ form.extra_knowledge.id_for_label }}" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                    Qo'shimcha ma'lumotlar, narxlar va qoidalar
-                </label>
-                {{ form.extra_knowledge }}
-                {% if form.extra_knowledge.errors %}<p class="text-rose-500 text-xs mt-1">{{ form.extra_knowledge.errors.0 }}</p>{% endif %}
-                <p class="text-slate-400 text-xs mt-1.5">
-                    Ish vaqtlari, narxlar, yetkazib berish shartlari va kafolatlar haqida yozing. Bot mijozlar so'raganda ushbu ma'lumotlar asosida aniq javob beradi.
-                </p>
-            </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs flex items-center justify-between">
-            <a href="{% url 'businesses:dashboard' %}" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-semibold text-xs hover:bg-slate-50 transition">
-                Bekor qilish
-            </a>
-            <button type="submit" class="inline-flex items-center px-7 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-xs transition text-xs">
-                <i class="fa-solid fa-floppy-disk mr-1.5"></i> Sozlamalarni saqlash
-            </button>
         </div>
     </form>
 </div>

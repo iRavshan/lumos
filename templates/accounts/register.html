@@ -5,27 +5,27 @@
 {% block content %}
 <div class="min-h-[calc(100vh-160px)] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white text-2xl shadow-lg shadow-indigo-500/25 mx-auto mb-4">
-            <i class="fa-solid fa-user-plus"></i>
+        <div class="w-12 h-12 rounded-2xl bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] flex items-center justify-center text-lg mx-auto mb-4 shadow-xs">
+            <i class="fa-solid fa-user-plus text-sm"></i>
         </div>
-        <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Yangi hisob ochish</h2>
-        <p class="mt-2 text-sm text-slate-600">
-            Hisob yaratib, o'z biznesingiz boshqaruv paneliga ega bo'ling
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight">Yangi hisob ochish</h2>
+        <p class="mt-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+            Lumos platformasida biznes hisobingizni shakllantiring
         </p>
     </div>
 
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div class="bg-white py-8 px-6 sm:px-10 shadow-xl shadow-slate-200/50 rounded-3xl border border-slate-100">
+        <div class="bg-white dark:bg-[#141414] py-8 px-6 sm:px-8 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xs">
             <form method="POST" id="registerForm" class="space-y-4" novalidate>
                 {% csrf_token %}
                 
                 <!-- First Name -->
                 <div>
-                    <label for="firstNameInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    <label for="firstNameInput" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-300 font-semibold mb-1.5">
                         Ismingiz <span class="text-rose-500">*</span>
                     </label>
                     <input type="text" id="firstNameInput" name="first_name" value="{{ form.first_name.value|default:'' }}"
-                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 font-medium text-slate-800"
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] focus:border-slate-800 dark:focus:border-white outline-none transition text-sm font-medium text-slate-900 dark:text-white bg-transparent"
                         placeholder="Ismingizni kiriting" autocomplete="given-name" required>
                     {% if form.first_name.errors %}
                         <p class="text-rose-500 text-xs mt-1">{{ form.first_name.errors.0 }}</p>
@@ -34,15 +34,15 @@
 
                 <!-- Phone Number with +998 Prefix -->
                 <div>
-                    <label for="phoneInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                        Telefon raqamingiz <span class="text-rose-500">*</span>
+                    <label for="phoneInput" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-300 font-semibold mb-1.5">
+                        Telefon raqam <span class="text-rose-500">*</span>
                     </label>
-                    <div class="flex rounded-xl shadow-xs border border-gray-200 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-100 overflow-hidden transition duration-200 bg-white">
-                        <span class="inline-flex items-center px-3.5 bg-slate-50 border-r border-gray-200 text-slate-700 font-bold text-sm select-none shrink-0">
-                            🇺🇿 +998
+                    <div class="flex rounded-xl border border-[#E7E5E1] dark:border-[#262626] focus-within:border-slate-800 dark:focus-within:border-white overflow-hidden transition bg-white dark:bg-[#141414]">
+                        <span class="inline-flex items-center px-3.5 bg-slate-50 dark:bg-[#1E1E1E] border-r border-[#E7E5E1] dark:border-[#262626] text-slate-700 dark:text-slate-300 font-mono text-xs select-none shrink-0 font-bold">
+                            +998
                         </span>
                         <input type="tel" id="phoneInput" name="phone" value="{{ form.phone.value|default:'' }}"
-                            class="w-full px-4 py-3 outline-none font-semibold text-slate-800 placeholder-slate-400 text-sm bg-white"
+                            class="w-full px-3.5 py-2.5 outline-none font-medium text-slate-900 dark:text-white placeholder-slate-400 text-sm bg-transparent"
                             placeholder="90 123 45 67" maxlength="14" autocomplete="tel" required>
                     </div>
                     {% if form.phone.errors %}
@@ -52,11 +52,11 @@
 
                 <!-- Password 1 -->
                 <div>
-                    <label for="pass1Input" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    <label for="pass1Input" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-300 font-semibold mb-1.5">
                         Parol <span class="text-rose-500">*</span>
                     </label>
                     <input type="password" id="pass1Input" name="password1"
-                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 font-medium text-slate-800"
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] focus:border-slate-800 dark:focus:border-white outline-none transition text-sm font-medium text-slate-900 dark:text-white bg-transparent"
                         placeholder="Parol kiriting" autocomplete="new-password" required>
                     {% if form.password1.errors %}
                         <p class="text-rose-500 text-xs mt-1">{{ form.password1.errors.0 }}</p>
@@ -65,11 +65,11 @@
 
                 <!-- Password 2 (Confirm) -->
                 <div>
-                    <label for="pass2Input" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    <label for="pass2Input" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-300 font-semibold mb-1.5">
                         Parolni tasdiqlang <span class="text-rose-500">*</span>
                     </label>
                     <input type="password" id="pass2Input" name="password2"
-                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 font-medium text-slate-800"
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] focus:border-slate-800 dark:focus:border-white outline-none transition text-sm font-medium text-slate-900 dark:text-white bg-transparent"
                         placeholder="Parolni qayta kiriting" autocomplete="new-password" required>
                     
                     <!-- Live Password Match Status -->
@@ -83,17 +83,17 @@
                 <!-- Submit Button (Disabled until valid) -->
                 <div class="pt-2">
                     <button type="submit" id="submitBtn" disabled
-                        class="w-full flex justify-center items-center py-3.5 px-4 rounded-xl text-sm font-bold transition duration-200 bg-slate-200 text-slate-400 cursor-not-allowed opacity-75 select-none">
+                        class="w-full flex justify-center items-center py-3 px-4 rounded-full text-xs font-bold transition bg-slate-200 dark:bg-[#262626] text-slate-400 cursor-not-allowed opacity-75 select-none">
                         <span>Davom etish</span>
-                        <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
+                        <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
                     </button>
                 </div>
             </form>
 
-            <div class="mt-6 text-center border-t border-slate-100 pt-6">
-                <p class="text-sm text-slate-600">
+            <div class="mt-6 text-center border-t border-[#E7E5E1] dark:border-[#262626] pt-6">
+                <p class="text-xs text-slate-500 dark:text-slate-400">
                     Profilingiz bormi?
-                    <a href="{% url 'accounts:login' %}" class="font-semibold text-indigo-600 hover:text-indigo-500">
+                    <a href="{% url 'accounts:login' %}" class="font-bold text-slate-900 dark:text-[#F5F1E8] hover:underline ml-1">
                         Tizimga kirish
                     </a>
                 </p>
@@ -188,10 +188,10 @@
 
             if (isFormValid) {
                 submitBtn.disabled = false;
-                submitBtn.className = 'w-full flex justify-center items-center py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/25 cursor-pointer transition duration-150 transform hover:-translate-y-0.5 active:translate-y-0';
+                submitBtn.className = 'w-full flex justify-center items-center py-3 px-4 rounded-full text-xs font-bold text-[#0A0A0A] bg-[#F5F1E8] hover:bg-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] dark:hover:bg-white shadow-xs cursor-pointer transition';
             } else {
                 submitBtn.disabled = true;
-                submitBtn.className = 'w-full flex justify-center items-center py-3.5 px-4 rounded-xl text-sm font-bold transition duration-200 bg-slate-200 text-slate-400 cursor-not-allowed opacity-75 select-none';
+                submitBtn.className = 'w-full flex justify-center items-center py-3 px-4 rounded-full text-xs font-bold transition bg-slate-200 dark:bg-[#262626] text-slate-400 cursor-not-allowed opacity-75 select-none';
             }
         }
 

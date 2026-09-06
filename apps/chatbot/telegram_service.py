@@ -237,5 +237,21 @@ def handle_telegram_update(api_key, update_data):
         content=ai_reply
     )
 
+    # Human-like delay in Telegram
+    if config.response_delay_enabled:
+        import time
+        user_msgs = session.messages.filter(role='user').count()
+        delay = config.first_message_delay_seconds if user_msgs <= 1 else config.subsequent_message_delay_seconds
+        if delay > 0:
+            time.sleep(min(delay, 15))
+
+    # Split messages if enabled
+    if config.split_messages and '\n\n' in ai_reply:
+        parts = [p.strip() for p in ai_reply.split('\n\n') if p.strip()]
+        if len(parts) > 1:
+            for p in parts:
+                send_telegram_bot_message(config.telegram_bot_token, chat_id, p)
+            return {'ok': True}
+
     send_telegram_bot_message(config.telegram_bot_token, chat_id, ai_reply)
     return {'ok': True}

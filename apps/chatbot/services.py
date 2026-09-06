@@ -63,8 +63,6 @@ def build_business_context(chatbot_config):
     context_parts = [
         f"Kompaniya / Biznes nomi: {business.name}",
     ]
-    if business.category:
-        context_parts.append(f"Faoliyat sohasi: {business.category}")
     if business.phone:
         context_parts.append(f"Telefon raqami: {business.phone}")
     if business.website:
@@ -174,10 +172,7 @@ def contextual_fallback_agent(chatbot_config, user_message):
 
     # 7. Services / Description / Company overview queries
     if any(w in msg for w in ['xizmat', 'faoliyat', 'nima qiladi', 'haqida', 'nima ish', 'kompaniya', 'biznes', 'ish', 'tavsif', 'mahsulot']):
-        res = f"«{business.name}» haqida ma'lumot:\n\n{business.description}"
-        if business.category:
-            res = f"«{business.name}» — {business.category} sohasida faoliyat yuritadi.\n\n{business.description}"
-        return res
+        return f"«{business.name}» haqida ma'lumot:\n\n{business.description}"
 
     # 8. Semantic match against description
     words = [w for w in re.findall(r'\w+', msg) if len(w) > 3]
