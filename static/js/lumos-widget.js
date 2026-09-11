@@ -55,7 +55,6 @@
         var botName = config.bot_name || 'AI Yordamchi';
         var businessName = config.business_name || 'Biznes';
         var welcomeMsg = config.welcome_message || 'Assalomu alaykum! Sizga qanday yordam bera olaman?';
-        var suggestedQuestions = config.suggested_questions || [];
         var logoUrl = config.business_logo_url ? (baseUrl + config.business_logo_url) : null;
 
         // Inject Styles
@@ -187,29 +186,6 @@
                 border-bottom-right-radius: 4px;
             }
 
-            .lumos-suggested-wrap {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 6px;
-                margin-top: 4px;
-            }
-            .lumos-suggested-chip {
-                background: #ffffff;
-                border: 1px solid #e2e8f0;
-                border-radius: 12px;
-                padding: 6px 12px;
-                font-size: 12px;
-                color: #475569;
-                cursor: pointer;
-                transition: all 0.15s ease;
-                text-align: left;
-            }
-            .lumos-suggested-chip:hover {
-                border-color: ${themeColor};
-                color: ${themeColor};
-                background: #f8fafc;
-            }
-
             .lumos-typing-indicator {
                 align-self: flex-start;
                 background: #ffffff;
@@ -310,14 +286,6 @@
 
                 <div class="lumos-chat-body" id="lumosChatBody">
                     <div class="lumos-message lumos-msg-bot">${welcomeMsg}</div>
-                    
-                    ${suggestedQuestions.length > 0 ? `
-                        <div class="lumos-suggested-wrap" id="lumosSuggestedWrap">
-                            ${suggestedQuestions.map(function(q) {
-                                return `<button class="lumos-suggested-chip" data-q="${q.replace(/"/g, '&quot;')}">${q}</button>`;
-                            }).join('')}
-                        </div>
-                    ` : ''}
 
                     <div class="lumos-typing-indicator" id="lumosTyping">
                         <div class="lumos-typing-dot"></div>
@@ -348,7 +316,6 @@
         var chatForm = document.getElementById('lumosChatForm');
         var chatInput = document.getElementById('lumosInput');
         var typingIndicator = document.getElementById('lumosTyping');
-        var suggestedWrap = document.getElementById('lumosSuggestedWrap');
 
         var isOpen = false;
 
@@ -380,10 +347,6 @@
         function sendMessage(text) {
             if (!text || !text.trim()) return;
             text = text.trim();
-
-            if (suggestedWrap) {
-                suggestedWrap.style.display = 'none';
-            }
 
             appendMessage(text, 'user');
             chatInput.value = '';
@@ -429,16 +392,5 @@
             e.preventDefault();
             sendMessage(chatInput.value);
         });
-
-        // Suggested chip clicks
-        if (suggestedWrap) {
-            suggestedWrap.addEventListener('click', function (e) {
-                var btn = e.target.closest('.lumos-suggested-chip');
-                if (btn) {
-                    var question = btn.getAttribute('data-q');
-                    sendMessage(question);
-                }
-            });
-        }
     }
 })();

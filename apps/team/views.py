@@ -223,11 +223,13 @@ def tma_send_reply_api(request, token, session_id):
     if session.session_id.startswith('tg_') and session.chatbot.telegram_bot_token:
         try:
             tg_chat_id = session.session_id.replace('tg_', '')
-            from apps.chatbot.telegram_service import send_telegram_bot_message
+            from apps.chatbot.telegram_service import send_telegram_bot_message, sanitize_for_telegram
+            clean_text = sanitize_for_telegram(text)
             send_telegram_bot_message(
                 session.chatbot.telegram_bot_token,
                 tg_chat_id,
-                f"👨‍💼 {staff.name} (Operator):\n{text}"
+                clean_text,
+                parse_mode='HTML'
             )
         except Exception:
             pass

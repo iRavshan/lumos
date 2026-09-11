@@ -269,3 +269,41 @@ class ChatMessage(models.Model):
 
     def __str__(self):
         return f"[{self.role}] {self.content[:40]}..."
+
+    @property
+    def formatted_content(self):
+        """
+        Returns safe HTML formatted content for display in inbox/templates.
+        """
+        if not self.content:
+            return ""
+        if self.role == 'user':
+            import html
+            return html.escape(self.content)
+        from .telegram_service import sanitize_for_telegram
+        return sanitize_for_telegram(self.content)
+
+    @property
+    def date_divider(self):
+        """
+        Returns a Telegram-style date label: 'Bugun', 'Kecha', or formatted date.
+        """
+        from django.utils import timezone
+        now = timezone.localtime(timezone.now())
+        msg_time = timezone.localtime(self.created_at)
+
+        delta_days = (now.date() - msg_time.date()).days
+        if delta_days == 0:
+            return "Bugun"
+        elif delta_days == 1:
+            return "Kecha"
+        else:
+            months = [
+                '', 'yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun',
+                'iyul', 'avgust', 'sentyabr', 'oktyabr', 'noyabr', 'dekabr'
+            ]
+            if now.year == msg_time.year:
+                return f"{msg_time.day}-{months[msg_time.month]}"
+            return f"{msg_time.day}-{months[msg_time.month]}, {msg_time.year}"
+
+

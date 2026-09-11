@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>{% block title %}Lumos — B2B AI Mijozlar va Savdo Platformasi{% endblock %}</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -100,28 +101,116 @@
     {% include 'shared/_header.html' %}
     {% endblock %}
 
-    <!-- Django Messages (Toasts) -->
-    {% if messages %}
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 w-full">
+    <!-- Django Messages (Fixed Bottom-Right Toasts) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[9999] flex flex-col space-y-2.5 max-w-sm w-[calc(100vw-2.5rem)] sm:w-96 pointer-events-none" aria-live="polite">
+        {% if messages %}
         {% for message in messages %}
-        <div class="flex items-center p-4 mb-3 text-xs sm:text-sm font-medium rounded-2xl border transition-all duration-300
-            {% if message.tags == 'error' %}bg-rose-50/80 border-rose-200 text-rose-900 dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-200
-            {% elif message.tags == 'success' %}bg-emerald-50/80 border-emerald-200 text-emerald-900 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-200
-            {% elif message.tags == 'warning' %}bg-amber-50/80 border-amber-200 text-amber-900 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-200
-            {% else %}bg-slate-100 border-slate-200 text-slate-900 dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-100{% endif %}" role="alert">
-            <div class="mr-3 text-base shrink-0">
-                {% if message.tags == 'error' %}<i class="fa-solid fa-circle-exclamation text-rose-500"></i>
-                {% elif message.tags == 'success' %}<i class="fa-solid fa-circle-check text-emerald-600"></i>
-                {% elif message.tags == 'warning' %}<i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
-                {% else %}<i class="fa-solid fa-circle-info text-slate-700 dark:text-slate-300"></i>{% endif %}
+        <div class="toast-item pointer-events-auto flex items-start p-3.5 rounded-2xl bg-white/95 dark:bg-[#141414]/95 backdrop-blur-md border border-[#E7E5E1] dark:border-[#262626] shadow-xl shadow-black/10 dark:shadow-black/40 transition-all duration-300 transform translate-y-3 opacity-0"
+             role="alert"
+             data-auto-dismiss="4500">
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mr-3 text-sm
+                {% if message.tags == 'error' %}bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400 border border-rose-100 dark:border-rose-900/50
+                {% elif message.tags == 'success' %}bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50
+                {% elif message.tags == 'warning' %}bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400 border border-amber-100 dark:border-amber-900/50
+                {% else %}bg-slate-100 text-slate-700 dark:bg-zinc-800 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700{% endif %}">
+                {% if message.tags == 'error' %}<i class="fa-solid fa-circle-exclamation"></i>
+                {% elif message.tags == 'success' %}<i class="fa-solid fa-circle-check"></i>
+                {% elif message.tags == 'warning' %}<i class="fa-solid fa-triangle-exclamation"></i>
+                {% else %}<i class="fa-solid fa-circle-info"></i>{% endif %}
             </div>
-            <div class="flex-1">
+            <div class="flex-1 min-w-0 pt-0.5 text-xs sm:text-sm font-medium text-slate-800 dark:text-[#F5F1E8] leading-snug break-words">
                 {{ message }}
             </div>
+            <button type="button" onclick="dismissToast(this.closest('.toast-item'))" class="ml-2.5 p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1E1E1E] transition shrink-0 text-xs" aria-label="Yopish">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
         {% endfor %}
+        {% endif %}
     </div>
-    {% endif %}
+
+    <script>
+        function dismissToast(el) {
+            if (!el || el.dataset.dismissed) return;
+            el.dataset.dismissed = "true";
+            el.classList.remove('translate-y-0', 'opacity-100');
+            el.classList.add('translate-x-full', 'opacity-0');
+            setTimeout(() => {
+                el.remove();
+            }, 300);
+        }
+
+        function initToasts() {
+            const toasts = document.querySelectorAll('.toast-item:not([data-initialized])');
+            toasts.forEach((toast, index) => {
+                toast.dataset.initialized = "true";
+                // Smooth slide up entrance
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-3', 'opacity-0');
+                    toast.classList.add('translate-y-0', 'opacity-100');
+                }, index * 80 + 50);
+
+                // Auto dismiss timer (default 4500ms)
+                const timeoutMs = parseInt(toast.dataset.autoDismiss, 10) || 4500;
+                let timer = setTimeout(() => dismissToast(toast), timeoutMs + (index * 80));
+
+                // Pause dismissal when user hovers over toast
+                toast.addEventListener('mouseenter', () => clearTimeout(timer));
+                toast.addEventListener('mouseleave', () => {
+                    timer = setTimeout(() => dismissToast(toast), 2000);
+                });
+            });
+        }
+
+        // Global helper to trigger client-side toasts
+        window.showToast = function(message, type = 'success', duration = 4500) {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.className = 'fixed bottom-5 right-5 z-[9999] flex flex-col space-y-2.5 max-w-sm w-[calc(100vw-2.5rem)] sm:w-96 pointer-events-none';
+                document.body.appendChild(container);
+            }
+
+            const icons = {
+                error: 'fa-circle-exclamation',
+                success: 'fa-circle-check',
+                warning: 'fa-triangle-exclamation',
+                info: 'fa-circle-info'
+            };
+            const colorClasses = {
+                error: 'bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400 border border-rose-100 dark:border-rose-900/50',
+                success: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50',
+                warning: 'bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400 border border-amber-100 dark:border-amber-900/50',
+                info: 'bg-slate-100 text-slate-700 dark:bg-zinc-800 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = 'toast-item pointer-events-auto flex items-start p-3.5 rounded-2xl bg-white/95 dark:bg-[#141414]/95 backdrop-blur-md border border-[#E7E5E1] dark:border-[#262626] shadow-xl shadow-black/10 dark:shadow-black/40 transition-all duration-300 transform translate-y-3 opacity-0';
+            toast.dataset.autoDismiss = duration;
+
+            toast.innerHTML = `
+                <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mr-3 text-sm ${colorClasses[type] || colorClasses.info}">
+                    <i class="fa-solid ${icons[type] || icons.info}"></i>
+                </div>
+                <div class="flex-1 min-w-0 pt-0.5 text-xs sm:text-sm font-medium text-slate-800 dark:text-[#F5F1E8] leading-snug break-words">
+                    ${message}
+                </div>
+                <button type="button" onclick="dismissToast(this.closest('.toast-item'))" class="ml-2.5 p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1E1E1E] transition shrink-0 text-xs" aria-label="Yopish">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+
+            container.appendChild(toast);
+            initToasts();
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initToasts);
+        } else {
+            initToasts();
+        }
+    </script>
 
     <main class="flex-grow">
         {% block content %}{% endblock %}

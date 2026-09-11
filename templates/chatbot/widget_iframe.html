@@ -47,17 +47,6 @@
             {{ chatbot.welcome_message }}
         </div>
 
-        <!-- Suggested Questions -->
-        {% if suggested_questions %}
-        <div id="suggestedQuestionsWrap" class="flex flex-wrap gap-2 pt-1">
-            {% for q in suggested_questions %}
-            <button onclick="sendQuickMessage('{{ q|escapejs }}')" class="text-xs bg-white hover:bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs transition duration-150 text-left">
-                {{ q }}
-            </button>
-            {% endfor %}
-        </div>
-        {% endif %}
-
         <!-- Typing Indicator -->
         <div id="typingIndicator" class="hidden self-start bg-white px-4 py-2.5 rounded-2xl rounded-bl-xs border border-slate-100 shadow-xs">
             <div class="flex space-x-1">
@@ -89,7 +78,6 @@
         const chatForm = document.getElementById('chatForm');
         const userInput = document.getElementById('userInput');
         const typingIndicator = document.getElementById('typingIndicator');
-        const suggestedWrap = document.getElementById('suggestedQuestionsWrap');
 
         function scrollToBottom() {
             messagesArea.scrollTop = messagesArea.scrollHeight;
@@ -111,10 +99,6 @@
         function sendMessage(text) {
             if (!text || !text.trim()) return;
             text = text.trim();
-
-            if (suggestedWrap) {
-                suggestedWrap.style.display = 'none';
-            }
 
             appendMessage(text, 'user');
             userInput.value = '';
@@ -155,10 +139,6 @@
             e.preventDefault();
             sendMessage(userInput.value);
         });
-
-        function sendQuickMessage(q) {
-            sendMessage(q);
-        }
     </script>
 </body>
 </html>

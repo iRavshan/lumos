@@ -61,7 +61,7 @@ def set_telegram_webhook(token, webhook_url):
     """
     payload = {
         'url': webhook_url,
-        'drop_pending_updates': True,
+        'drop_pending_updates': False,
         'allowed_updates': ['message', 'callback_query']
     }
     return make_telegram_request(token, 'setWebhook', payload)
@@ -71,12 +71,143 @@ def delete_telegram_webhook(token):
     """
     Deletes the webhook from Telegram.
     """
-    return make_telegram_request(token, 'deleteWebhook', {'drop_pending_updates': True})
+    return make_telegram_request(token, 'deleteWebhook', {'drop_pending_updates': False})
 
 
-def send_telegram_bot_message(token, chat_id, text, reply_markup=None):
+def send_telegram_chat_action(token, chat_id, action='typing'):
     """
-    Sends a message to a Telegram chat using HTML or Markdown formatting.
+    Sends chat action (e.g. typing) to Telegram to show bot activity.
+    """
+    if not token or not chat_id:
+        return {'ok': False}
+    return make_telegram_request(token, 'sendChatAction', {'chat_id': chat_id, 'action': action})
+
+
+from html.parser import HTMLParser
+import html
+import re
+
+
+class TelegramHTMLSanitizer(HTMLParser):
+    ALLOWED_TAGS = {
+        'b': 'b',
+        'strong': 'b',
+        'i': 'i',
+        'em': 'i',
+        'u': 'u',
+        'ins': 'u',
+        's': 's',
+        'strike': 's',
+        'del': 's',
+        'code': 'code',
+        'pre': 'pre',
+    }
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.output = []
+        self.tag_stack = []
+        self.skip_depth = 0
+
+    def handle_starttag(self, tag, attrs):
+        tag_lower = tag.lower()
+        if tag_lower in ('script', 'style'):
+            self.skip_depth += 1
+            return
+
+        if self.skip_depth > 0:
+            return
+
+        if tag_lower in ('div', 'p', 'br'):
+            self.output.append('\n')
+            return
+
+        if tag_lower in self.ALLOWED_TAGS:
+            out_tag = self.ALLOWED_TAGS[tag_lower]
+            self.output.append(f"<{out_tag}>")
+            self.tag_stack.append(out_tag)
+        elif tag_lower == 'span':
+            attrs_dict = dict(attrs)
+            style = attrs_dict.get('style', '').lower()
+            if 'font-weight: bold' in style or 'font-weight:bold' in style or 'font-weight: 700' in style:
+                self.output.append('<b>')
+                self.tag_stack.append('b')
+            elif 'font-style: italic' in style or 'font-style:italic' in style:
+                self.output.append('<i>')
+                self.tag_stack.append('i')
+            elif 'text-decoration: underline' in style or 'text-decoration:underline' in style:
+                self.output.append('<u>')
+                self.tag_stack.append('u')
+            elif 'text-decoration: line-through' in style or 'text-decoration:line-through' in style:
+                self.output.append('<s>')
+                self.tag_stack.append('s')
+            else:
+                self.tag_stack.append(None)
+        elif tag_lower == 'a':
+            attrs_dict = dict(attrs)
+            href = attrs_dict.get('href', '')
+            if href.startswith('http://') or href.startswith('https://'):
+                clean_href = html.escape(href, quote=True)
+                self.output.append(f'<a href="{clean_href}">')
+                self.tag_stack.append('a')
+            else:
+                self.tag_stack.append(None)
+        else:
+            self.tag_stack.append(None)
+
+    def handle_endtag(self, tag):
+        tag_lower = tag.lower()
+        if tag_lower in ('script', 'style'):
+            if self.skip_depth > 0:
+                self.skip_depth -= 1
+            return
+
+        if self.skip_depth > 0:
+            return
+
+        if tag_lower in ('div', 'p'):
+            self.output.append('\n')
+            return
+
+        if self.tag_stack:
+            expected = self.tag_stack.pop()
+            if expected:
+                self.output.append(f"</{expected}>")
+
+    def handle_data(self, data):
+        if self.skip_depth > 0:
+            return
+        escaped = html.escape(data, quote=False)
+        self.output.append(escaped)
+
+    def get_result(self):
+        while self.tag_stack:
+            expected = self.tag_stack.pop()
+            if expected:
+                self.output.append(f"</{expected}>")
+        text = "".join(self.output)
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        return text.strip()
+
+
+def sanitize_for_telegram(raw):
+    """
+    Sanitizes HTML for Telegram Bot API sendMessage, preserving allowed formatting:
+    <b>, <i>, <u>, <s>, <code>, <pre>, <a href="...">, and line breaks.
+    """
+    if not raw:
+        return ""
+    if '<' not in raw and '&' not in raw:
+        return raw.strip()
+    parser = TelegramHTMLSanitizer()
+    parser.feed(raw)
+    return parser.get_result()
+
+
+def send_telegram_bot_message(token, chat_id, text, reply_markup=None, parse_mode=None):
+    """
+    Sends a message to a Telegram chat with optional HTML formatting.
+    Falls back to plain text if Telegram reports parsing error.
     """
     if not token or not chat_id or not text:
         return {'ok': False}
@@ -85,10 +216,19 @@ def send_telegram_bot_message(token, chat_id, text, reply_markup=None):
         'chat_id': chat_id,
         'text': text,
     }
+    if parse_mode:
+        payload['parse_mode'] = parse_mode
     if reply_markup:
         payload['reply_markup'] = reply_markup
         
-    return make_telegram_request(token, 'sendMessage', payload)
+    res = make_telegram_request(token, 'sendMessage', payload)
+    # If HTML parsing failed on Telegram, fallback to plain text so message is never lost
+    if not res.get('ok') and parse_mode:
+        payload.pop('parse_mode', None)
+        plain_text = re.sub(r'<[^>]+>', '', text)
+        payload['text'] = plain_text or text
+        res = make_telegram_request(token, 'sendMessage', payload)
+    return res
 
 
 def handle_telegram_update(api_key, update_data):
@@ -181,6 +321,9 @@ def handle_telegram_update(api_key, update_data):
         content=text
     )
 
+    # Show typing status immediately
+    send_telegram_chat_action(config.telegram_bot_token, chat_id, 'typing')
+
     # 2. Extract contact info if mentioned in text
     extracted = extract_contact_info(text)
     needs_save = False
@@ -237,13 +380,18 @@ def handle_telegram_update(api_key, update_data):
         content=ai_reply
     )
 
-    # Human-like delay in Telegram
+    # Human-like delay in Telegram with continuous typing indicator
     if config.response_delay_enabled:
         import time
         user_msgs = session.messages.filter(role='user').count()
         delay = config.first_message_delay_seconds if user_msgs <= 1 else config.subsequent_message_delay_seconds
-        if delay > 0:
-            time.sleep(min(delay, 15))
+        delay = min(max(delay, 0), 15)
+        elapsed = 0
+        while elapsed < delay:
+            send_telegram_chat_action(config.telegram_bot_token, chat_id, 'typing')
+            chunk = min(4, delay - elapsed)
+            time.sleep(chunk)
+            elapsed += chunk
 
     # Split messages if enabled
     if config.split_messages and '\n\n' in ai_reply:

@@ -41,7 +41,7 @@ def api_chatbot_config(request, api_key):
         'business_name': chatbot.business.name,
         'welcome_message': chatbot.welcome_message,
         'theme_color': chatbot.theme_color,
-        'suggested_questions': chatbot.get_suggested_questions_list(),
+        'suggested_questions': [],
         'business_logo_url': logo_url if (chatbot.business.website or chatbot.business.telegram) else None,
         'response_delay_enabled': chatbot.response_delay_enabled,
         'response_delay_seconds': chatbot.first_message_delay_seconds,
@@ -218,7 +218,6 @@ def widget_iframe_view(request, api_key):
     chatbot = get_object_or_404(ChatbotConfig, api_key=api_key)
     return render(request, 'chatbot/widget_iframe.html', {
         'chatbot': chatbot,
-        'suggested_questions': chatbot.get_suggested_questions_list()
     })
 
 
@@ -402,26 +401,29 @@ def send_inbox_message_view(request, session_id):
     session = get_object_or_404(ChatSession, chatbot=chatbot, session_id=session_id)
 
     if request.method == 'POST':
-        content = request.POST.get('content', '').strip()
-        if content:
+        raw_content = request.POST.get('content', '').strip()
+        if raw_content:
+            from .telegram_service import sanitize_for_telegram, send_telegram_bot_message
+            clean_content = sanitize_for_telegram(raw_content)
+
             # Create staff/admin reply
             ChatMessage.objects.create(
                 chatbot=chatbot,
                 session=session,
                 role='staff',
-                content=content
+                content=clean_content
             )
             session.save() # updates last_message_at
 
-            # If telegram session, forward reply to Telegram chat
+            # If telegram session, forward reply directly to Telegram chat
             if session.session_id.startswith('tg_') and chatbot.telegram_bot_token:
                 try:
                     tg_chat_id = session.session_id.replace('tg_', '')
-                    from .telegram_service import send_telegram_bot_message
                     send_telegram_bot_message(
                         chatbot.telegram_bot_token,
                         tg_chat_id,
-                        f"👨‍💼 {business.name}:\n{content}"
+                        clean_content,
+                        parse_mode='HTML'
                     )
                 except Exception:
                     pass
@@ -466,9 +468,14 @@ def telegram_bot_settings_view(request):
                     chatbot.telegram_bot_name = bot_info.get('first_name')
                     chatbot.telegram_bot_active = is_active
 
-                    # Set webhook on Telegram
+                    # Set webhook on Telegram (only for valid public HTTPS domains)
                     if is_active:
-                        set_telegram_webhook(token, webhook_url)
+                        if webhook_url.startswith('https://') and 'localhost' not in webhook_url and '127.0.0.1' not in webhook_url:
+                            wh_res = set_telegram_webhook(token, webhook_url)
+                            if not wh_res.get('ok'):
+                                delete_telegram_webhook(token)
+                        else:
+                            delete_telegram_webhook(token)
                     else:
                         delete_telegram_webhook(token)
 

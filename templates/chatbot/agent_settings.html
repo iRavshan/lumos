@@ -282,6 +282,40 @@
                     </a>
                 </div>
 
+                <!-- Video Tutorial Card -->
+                <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-[#262626] pb-2.5">
+                        <h4 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-xs uppercase tracking-wider flex items-center">
+                            <i class="fa-brands fa-youtube text-rose-500 mr-2 text-sm"></i> Video Qo'llanma
+                        </h4>
+                        <a href="https://www.youtube.com/watch?v=1uUeqVse4X4" target="_blank" class="text-slate-400 hover:text-rose-500 text-[11px] transition flex items-center gap-1" title="YouTube'da ochish">
+                            <span>YouTube</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                        </a>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        AI savdo agentini yaratish va uning parametrlarini sozlash bo'yicha video qo'llanma:
+                    </p>
+                    <div class="relative w-full aspect-video rounded-xl overflow-hidden shadow-xs border border-slate-200 dark:border-zinc-800 bg-black">
+                        <iframe 
+                            class="w-full h-full" 
+                            src="https://www.youtube.com/embed/1uUeqVse4X4" 
+                            title="AI savdo agentini sozlash video qo'llanmasi" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            referrerpolicy="strict-origin-when-cross-origin"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-1">
+                        <span class="flex items-center gap-1">
+                            <i class="fa-solid fa-circle-play text-rose-500"></i> Savdo agentini sozlash
+                        </span>
+                        <a href="{% url 'chatbot:demo_page' chatbot.api_key %}" target="_blank" class="text-indigo-600 dark:text-indigo-400 font-bold hover:underline inline-flex items-center gap-1">
+                            Jonli sinov <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                        </a>
+                    </div>
+                </div>
+
                 <!-- Tips Card -->
                 <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
                     <h4 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-xs uppercase tracking-wider pb-2 border-b border-slate-100 dark:border-[#262626] flex items-center">
