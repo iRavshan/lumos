@@ -8,7 +8,26 @@
 {% block content %}
 <div class="min-h-screen flex flex-col justify-center items-center bg-[#FAFAF9] dark:bg-[#0A0A0A] py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
 
-    <!-- Main Wizard Card Container (Distraction-Free, No Header) -->
+    <!-- Top Bar: Brand Logo + Login Link -->
+    <div class="max-w-6xl w-full mb-6 flex items-center justify-between">
+        <a href="{% url 'home' %}" class="flex items-center space-x-2.5 group">
+            <div class="w-8 h-8 rounded-xl bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] flex items-center justify-center font-black text-xs shadow-xs transition-transform duration-200 group-hover:scale-105">
+                <i class="fa-solid fa-cube text-xs"></i>
+            </div>
+            <span class="text-base font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight">Lumos<span class="text-[10px] ml-1 font-mono text-slate-400 font-normal">B2B</span></span>
+        </a>
+
+        <div class="flex items-center space-x-2 sm:space-x-3">
+            <span class="text-xs text-slate-500 dark:text-slate-400 hidden sm:inline">Allaqachon hisobingiz bormi?</span>
+            <a href="{% url 'accounts:login' %}" 
+               class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#E7E5E1] dark:border-[#262626] bg-white dark:bg-[#141414] hover:bg-slate-50 dark:hover:bg-[#1E1E1E] text-slate-800 dark:text-[#F5F1E8] text-xs font-bold transition shadow-xs">
+                <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
+                <span>Tizimga kirish</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Wizard Card Container -->
     <main class="max-w-6xl w-full">
         <form method="POST" enctype="multipart/form-data" id="onboardingForm" novalidate>
             {% csrf_token %}
@@ -429,6 +448,16 @@
                                             required>
                                     </div>
                                 </div>
+
+                                <div class="pt-2 text-center">
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                                        Allaqachon hisobingiz bormi?
+                                        <a href="{% url 'accounts:login' %}" class="font-bold text-slate-900 dark:text-[#F5F1E8] hover:underline inline-flex items-center gap-1 ml-1">
+                                            <span>Tizimga kiring</span>
+                                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                        </a>
+                                    </p>
+                                </div>
                             </div>
                         </div>
 
@@ -749,6 +778,14 @@
             </div>
         </form>
     </main>
+ 
+    <!-- Footer Link -->
+    <div class="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">
+        Allaqachon ro'yxatdan o'tganmisiz? 
+        <a href="{% url 'accounts:login' %}" class="font-bold text-slate-900 dark:text-[#F5F1E8] hover:underline ml-1">
+            Tizimga kirish
+        </a>
+    </div>
 
     <!-- File Upload Modal Popup -->
     <div id="fileUploadModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
