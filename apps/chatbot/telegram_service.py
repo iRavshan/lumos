@@ -294,22 +294,12 @@ def handle_telegram_update(api_key, update_data):
     if text.startswith('/start'):
         welcome_txt = config.welcome_message or f"Assalomu alaykum! «{config.business.name}» virtual yordamchisiman. Sizga qanday yordam bera olaman?"
         
-        # Build quick questions keyboard if available
-        questions = config.get_suggested_questions_list()
-        reply_markup = None
-        if questions:
-            keyboard = [[{'text': q}] for q in questions[:4]]
-            reply_markup = {
-                'keyboard': keyboard,
-                'resize_keyboard': True,
-                'one_time_keyboard': False
-            }
-
+        # Tavsiyaviy savollar chiqarilmaydi, mavjud klaviaturani tozalash
         send_telegram_bot_message(
             config.telegram_bot_token,
             chat_id,
             welcome_txt,
-            reply_markup=reply_markup
+            reply_markup={'remove_keyboard': True}
         )
         return {'ok': True}
 
