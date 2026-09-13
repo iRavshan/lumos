@@ -270,6 +270,25 @@ class ChatMessage(models.Model):
     def __str__(self):
         return f"[{self.role}] {self.content[:40]}..."
 
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        if is_new and self.session_id:
+            from django.utils import timezone
+            ChatSession.objects.filter(pk=self.session_id).update(last_message_at=self.created_at or timezone.now())
+            try:
+                from django.core.cache import cache
+                if self.chatbot and self.chatbot.business_id:
+                    biz_key = f"biz:v:{self.chatbot.business_id}"
+                    try:
+                        cache.incr(biz_key)
+                    except Exception:
+                        cache.set(biz_key, 1, timeout=86400)
+                if self.session and self.session.session_id:
+                    cache.set(f"sess:last_id:{self.session.session_id}", self.id, timeout=86400)
+            except Exception:
+                pass
+
     @property
     def formatted_content(self):
         """

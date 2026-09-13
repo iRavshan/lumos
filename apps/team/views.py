@@ -208,6 +208,12 @@ def tma_send_reply_api(request, token, session_id):
         content=text
     )
 
+    try:
+        from apps.chatbot.realtime import notify_chat_update
+        notify_chat_update(session.chatbot.business_id, session.session_id, msg.id)
+    except Exception:
+        pass
+
     now = timezone.now()
     if session.escalation_status == 'waiting_operator':
         session.escalation_status = 'operator_active'

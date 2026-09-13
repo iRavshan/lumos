@@ -141,3 +141,23 @@ MAILERS = {
         'PASSWORD': os.environ.get('EMAIL_HOST_PASSWORD', ''),
     },
 }
+
+# Redis Cache Configuration
+REDIS_HOST = os.environ.get('REDIS_HOST')
+if REDIS_HOST:
+    REDIS_USER = os.environ.get('REDIS_USER', 'default')
+    REDIS_PASSWORD = os.environ.get('REDIS_PASSWORD', '')
+    REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': f'redis://{REDIS_USER}:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/0',
+            'TIMEOUT': 86400,
+        }
+    }
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        }
+    }

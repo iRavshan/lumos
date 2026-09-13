@@ -1,4 +1,5 @@
 import json
+import time
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -113,12 +114,14 @@ def api_chat_message(request, api_key):
             session.save()
 
     # Save user message
-    ChatMessage.objects.create(
+    user_msg = ChatMessage.objects.create(
         chatbot=chatbot,
         session=session,
         role='user',
         content=user_message
     )
+    from .realtime import notify_chat_update
+    notify_chat_update(chatbot.business_id, session.session_id if session else None, user_msg.id)
 
     try:
         # Generate RAG reply
@@ -140,12 +143,13 @@ def api_chat_message(request, api_key):
         reply = "Kechirasiz, texnik nosozlik yuz berdi. Iltimos, qayta urinib ko'ring yoki biz bilan bevosita bog'laning."
 
     # Save assistant message
-    ChatMessage.objects.create(
+    asst_msg = ChatMessage.objects.create(
         chatbot=chatbot,
         session=session,
         role='assistant',
         content=reply
     )
+    notify_chat_update(chatbot.business_id, session.session_id if session else None, asst_msg.id)
 
     # Split messages if enabled
     message_parts = [reply]
@@ -406,20 +410,36 @@ def send_inbox_message_view(request, session_id):
     chatbot = getattr(business, 'chatbot_config', None)
     session = get_object_or_404(ChatSession, chatbot=chatbot, session_id=session_id)
 
+    is_ajax = (
+        request.headers.get('X-Requested-With') == 'XMLHttpRequest' or
+        request.headers.get('Accept') == 'application/json' or
+        ('application/json' in request.content_type if hasattr(request, 'content_type') and request.content_type else False)
+    )
+
     if request.method == 'POST':
         raw_content = request.POST.get('content', '').strip()
+        if not raw_content and request.body:
+            try:
+                data = json.loads(request.body.decode('utf-8'))
+                raw_content = data.get('content', '').strip()
+            except Exception:
+                pass
+
         if raw_content:
             from .telegram_service import sanitize_for_telegram, send_telegram_bot_message
+            from .realtime import notify_chat_update
             clean_content = sanitize_for_telegram(raw_content)
 
             # Create staff/admin reply
-            ChatMessage.objects.create(
+            msg = ChatMessage.objects.create(
                 chatbot=chatbot,
                 session=session,
                 role='staff',
                 content=clean_content
             )
             session.save() # updates last_message_at
+
+            notify_chat_update(business.id, session.session_id, msg.id)
 
             # If telegram session, forward reply directly to Telegram chat
             if session.session_id.startswith('tg_') and chatbot.telegram_bot_token:
@@ -434,7 +454,127 @@ def send_inbox_message_view(request, session_id):
                 except Exception:
                     pass
 
+            if is_ajax:
+                return JsonResponse({
+                    'status': 'success',
+                    'message': {
+                        'id': msg.id,
+                        'role': msg.role,
+                        'content': msg.formatted_content,
+                        'sender_name': f"{business.name} (Operator)",
+                        'created_at': msg.created_at.strftime("%H:%M"),
+                        'date_divider': msg.date_divider,
+                    },
+                    'session': {
+                        'id': session.session_id,
+                        'display_name': session.display_name,
+                        'last_message_at': session.last_message_at.strftime("%d %b"),
+                        'messages_count': session.messages.count(),
+                    }
+                })
+
+    if is_ajax:
+        return JsonResponse({'status': 'error', 'message': 'Xabar matni bo\'sh bo\'lishi mumkin emas'}, status=400)
+
     return redirect('chatbot:inbox_detail', session_id=session_id)
+
+
+@login_required
+def inbox_sync_api(request):
+    """
+    Real-time synchronization endpoint for inbox.html.
+    Guaranteed real-time delivery for Telegram, Web Widget, and TMA.
+    """
+    if not hasattr(request.user, 'business'):
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    business = request.user.business
+    chatbot = getattr(business, 'chatbot_config', None)
+    if not chatbot:
+        return JsonResponse({'status': 'ok', 'messages': [], 'sessions': []})
+
+    from django.core.cache import cache
+
+    active_session_id = request.GET.get('active_session_id', '').strip()
+    try:
+        after_id = int(request.GET.get('after_id', 0) or 0)
+    except (ValueError, TypeError):
+        after_id = 0
+
+    try:
+        client_v = int(request.GET.get('v', 0) or 0)
+    except (ValueError, TypeError):
+        client_v = 0
+
+    # 1. Fetch new messages for active session directly by integer ID
+    new_messages_data = []
+    if active_session_id:
+        active_session = chatbot.sessions.filter(session_id=active_session_id).first()
+        if active_session:
+            messages_qs = active_session.messages.filter(id__gt=after_id).select_related('sender_staff').order_by('created_at')
+            for m in messages_qs:
+                if m.role == 'user':
+                    sender = 'Mijoz'
+                elif m.role == 'staff':
+                    sender = f"{m.sender_staff.name if m.sender_staff else business.name} (Operator)"
+                else:
+                    sender = chatbot.bot_name
+
+                new_messages_data.append({
+                    'id': m.id,
+                    'role': m.role,
+                    'content': m.formatted_content,
+                    'sender_name': sender,
+                    'created_at': m.created_at.strftime("%H:%M"),
+                    'date_divider': m.date_divider,
+                })
+
+    # 2. Check business version from Redis for sidebar updates
+    biz_key = f"biz:v:{business.id}"
+    try:
+        current_v = cache.get(biz_key)
+    except Exception:
+        current_v = None
+
+    if current_v is None:
+        current_v = 1
+        try:
+            cache.set(biz_key, current_v, timeout=86400)
+        except Exception:
+            pass
+    else:
+        try:
+            current_v = int(current_v)
+        except (ValueError, TypeError):
+            current_v = 1
+
+    sessions_data = []
+    # Only serialize sidebar sessions if version changed or initial load (client_v == 0)
+    if client_v == 0 or client_v < current_v or len(new_messages_data) > 0:
+        recent_sessions = chatbot.sessions.prefetch_related('messages').order_by('-last_message_at')[:40]
+        for s in recent_sessions:
+            last_msg = s.last_message
+            last_snippet = ''
+            if last_msg and last_msg.content:
+                clean_snip = last_msg.content.replace('\n', ' ').strip()
+                last_snippet = (clean_snip[:45] + '...') if len(clean_snip) > 45 else clean_snip
+
+            sessions_data.append({
+                'session_id': s.session_id,
+                'display_name': s.display_name,
+                'visitor_phone': s.visitor_phone or '',
+                'last_message_at': s.last_message_at.strftime("%d %b") if s.last_message_at else '',
+                'messages_count': s.messages.count(),
+                'last_snippet': last_snippet,
+                'is_telegram': s.session_id.startswith('tg_'),
+            })
+
+    return JsonResponse({
+        'status': 'updated' if (new_messages_data or sessions_data) else 'no_change',
+        'v': current_v,
+        'messages': new_messages_data,
+        'sessions': sessions_data,
+    })
 
 
 @login_required

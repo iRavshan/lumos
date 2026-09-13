@@ -11,6 +11,7 @@ from .views import (
     inbox_view,
     update_lead_view,
     send_inbox_message_view,
+    inbox_sync_api,
     export_inbox_excel_view,
     telegram_bot_settings_view,
     api_telegram_webhook,
@@ -31,6 +32,7 @@ urlpatterns = [
 
     # Dashboard Management
     path('dashboard/inbox/', inbox_view, name='inbox'),
+    path('dashboard/inbox/api/sync/', inbox_sync_api, name='inbox_sync'),
     path('dashboard/inbox/export/excel/', export_inbox_excel_view, name='export_excel'),
     path('dashboard/inbox/<str:session_id>/', inbox_view, name='inbox_detail'),
     path('dashboard/inbox/<str:session_id>/update/', update_lead_view, name='update_lead'),

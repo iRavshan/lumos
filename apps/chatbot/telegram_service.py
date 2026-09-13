@@ -310,6 +310,8 @@ def handle_telegram_update(api_key, update_data):
         role='user',
         content=text
     )
+    from .realtime import notify_chat_update
+    notify_chat_update(config.business_id, session.session_id, user_msg.id)
 
     # Show typing status immediately
     send_telegram_chat_action(config.telegram_bot_token, chat_id, 'typing')
@@ -338,12 +340,13 @@ def handle_telegram_update(api_key, update_data):
             esc_reply = "Murojaatingiz qabul qilindi. Operatorlarimiz tez orada siz bilan bog'lanishadi."
 
         # Save assistant message
-        ChatMessage.objects.create(
+        esc_msg = ChatMessage.objects.create(
             chatbot=config,
             session=session,
             role='assistant',
             content=esc_reply
         )
+        notify_chat_update(config.business_id, session.session_id, esc_msg.id)
         send_telegram_bot_message(config.telegram_bot_token, chat_id, esc_reply)
         return {'ok': True}
 
@@ -368,12 +371,13 @@ def handle_telegram_update(api_key, update_data):
         ai_reply = "Kechirasiz, texnik nosozlik yuz berdi. Iltimos, qayta urinib ko'ring."
 
     # Save and send AI response
-    ChatMessage.objects.create(
+    ai_msg = ChatMessage.objects.create(
         chatbot=config,
         session=session,
         role='assistant',
         content=ai_reply
     )
+    notify_chat_update(config.business_id, session.session_id, ai_msg.id)
 
     # Human-like delay in Telegram with continuous typing indicator
     if config.response_delay_enabled:
