@@ -1,4 +1,5 @@
 {% extends 'shared/_base.html' %}
+{% load static %}
 
 {% block title %}Murojaatlar va chatlar - {{ business.name }}{% endblock %}
 
@@ -195,7 +196,7 @@
 
                     <!-- Telegram-style Centered Date Divider -->
                     {% ifchanged msg.created_at|date:"Y-m-d" %}
-                    <div class="flex justify-center my-3 sticky top-2 z-10 select-none date-divider-container" data-date="{{ msg.created_at|date:'Y-m-d' }}">
+                    <div class="flex justify-center my-3 sticky top-2 z-10 select-none date-divider-container" data-date="{{ msg.date_divider }}">
                         <span class="px-3.5 py-1 rounded-full text-[11px] font-semibold bg-slate-200/90 dark:bg-[#1E1E1E]/95 text-slate-600 dark:text-[#F5F1E8] border border-slate-300/60 dark:border-[#262626] shadow-xs backdrop-blur-xs">
                             {{ msg.date_divider }}
                         </span>
@@ -203,24 +204,8 @@
                     {% endifchanged %}
 
                     <div class="flex flex-col {% if msg.role == 'user' %}items-start{% else %}items-end{% endif %}" data-msg-id="{{ msg.id }}">
-                        {% if msg.role != 'user' %}
-                        <div class="text-[10px] text-slate-400 dark:text-slate-500 mb-1 px-1 flex items-center space-x-1.5">
-                            {% if msg.role == 'staff' %}
-                                <span class="inline-flex items-center gap-1 font-bold text-slate-800 dark:text-[#F5F1E8] bg-slate-200/70 dark:bg-[#262626] px-1.5 py-0.5 rounded text-[10px] border border-slate-300 dark:border-slate-700">
-                                    <i class="fa-solid fa-headset text-[10px]"></i>
-                                    <span>{{ msg.sender_staff.name|default:business.name }} (Operator)</span>
-                                </span>
-                            {% else %}
-                                <span class="inline-flex items-center gap-1 font-bold text-slate-800 dark:text-[#F5F1E8] bg-slate-200/70 dark:bg-[#262626] px-1.5 py-0.5 rounded text-[10px] border border-slate-300 dark:border-slate-700">
-                                    <i class="fa-solid fa-robot text-[10px]"></i>
-                                    <span>{{ chatbot.bot_name }}</span>
-                                </span>
-                            {% endif %}
-                        </div>
-                        {% endif %}
-
                         <!-- Message Bubble with Bottom-Right Timestamp -->
-                        <div class="max-w-[88%] pt-3 px-3.5 pb-2 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-2xs
+                        <div class="max-w-[88%] pt-2.5 px-3.5 pb-2 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-2xs
                             {% if msg.role == 'user' %}
                                 bg-white dark:bg-[#141414] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] rounded-tl-xs shadow-xs
                             {% elif msg.role == 'staff' %}
@@ -228,6 +213,19 @@
                             {% else %}
                                 bg-[#18181B] dark:bg-[#EAE5DC] text-white dark:text-[#0A0A0A] rounded-tr-xs shadow-xs border border-zinc-800 dark:border-neutral-300
                             {% endif %}">
+
+                            {% if msg.role == 'staff' %}
+                            <div class="text-[11px] font-bold text-sky-400 dark:text-sky-600 mb-1 select-none leading-tight flex items-center gap-1">
+                                <i class="fa-solid fa-headset text-[10px]"></i>
+                                <span>{{ msg.sender_staff.name|default:business.name }}</span>
+                            </div>
+                            {% elif msg.role == 'assistant' %}
+                            <div class="text-[11px] font-bold text-violet-300 dark:text-violet-600 mb-1 select-none leading-tight flex items-center gap-1">
+                                <i class="fa-solid fa-robot text-[10px]"></i>
+                                <span>{{ chatbot.bot_name }}</span>
+                            </div>
+                            {% endif %}
+
                             <div class="whitespace-pre-line break-words">{{ msg.formatted_content|safe }}</div>
                             <div class="flex justify-end items-center mt-1 -mb-0.5 space-x-1 select-none">
                                 <span class="text-[10px] leading-none {% if msg.role == 'user' %}text-slate-400 dark:text-slate-500{% elif msg.role == 'staff' %}text-zinc-400 dark:text-neutral-500{% else %}text-zinc-400 dark:text-neutral-500{% endif %} font-medium">
@@ -546,6 +544,27 @@
     let currentVersion = 0;
     let isSyncing = false;
 
+    // Audio notification effects
+    const audioReceived = new Audio("{% static 'audio/message_received.mp3' %}");
+    const audioSent = new Audio("{% static 'audio/message_sent.mp3' %}");
+    audioReceived.preload = 'auto';
+    audioSent.preload = 'auto';
+
+    function playAudioSafely(audio) {
+        if (!audio) return;
+        try {
+            audio.currentTime = 0;
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(() => {
+                    // Autoplay policy prevented playback until user interaction
+                });
+            }
+        } catch (e) {
+            // Ignore playback errors
+        }
+    }
+
     // Find highest message ID currently on screen
     let lastMessageId = 0;
     document.querySelectorAll('#messagesTimeline [data-msg-id]').forEach(el => {
@@ -684,6 +703,9 @@
                 // Instantly append sent message to timeline
                 appendMessageToTimeline(data.message);
 
+                // Play message sent audio effect
+                playAudioSafely(audioSent);
+
                 // Clear input box
                 inputBox.innerHTML = '';
                 inputBox.setAttribute('data-empty', 'true');
@@ -722,7 +744,8 @@
 
         // Check date divider
         if (msg.date_divider) {
-            const lastDivider = timeline.querySelector('.date-divider-container:last-of-type');
+            const allDividers = timeline.querySelectorAll('.date-divider-container');
+            const lastDivider = allDividers.length > 0 ? allDividers[allDividers.length - 1] : null;
             if (!lastDivider || lastDivider.getAttribute('data-date') !== msg.date_divider) {
                 const dividerDiv = document.createElement('div');
                 dividerDiv.className = 'flex justify-center my-3 sticky top-2 z-10 select-none date-divider-container';
@@ -743,14 +766,19 @@
         wrapper.className = `flex flex-col ${isUser ? 'items-start' : 'items-end'}`;
         wrapper.setAttribute('data-msg-id', msg.id);
 
-        let senderBadge = '';
-        if (!isUser) {
-            senderBadge = `
-                <div class="text-[10px] text-slate-400 dark:text-slate-500 mb-1 px-1 flex items-center space-x-1.5">
-                    <span class="inline-flex items-center gap-1 font-bold text-slate-800 dark:text-[#F5F1E8] bg-slate-200/70 dark:bg-[#262626] px-1.5 py-0.5 rounded text-[10px] border border-slate-300 dark:border-slate-700">
-                        <i class="${isStaff ? 'fa-solid fa-headset' : 'fa-solid fa-robot'} text-[10px]"></i>
-                        <span>${msg.sender_name}</span>
-                    </span>
+        let senderHeader = '';
+        if (isStaff) {
+            senderHeader = `
+                <div class="text-[11px] font-bold text-sky-400 dark:text-sky-600 mb-1 select-none leading-tight flex items-center gap-1">
+                    <i class="fa-solid fa-headset text-[10px]"></i>
+                    <span>${msg.sender_name}</span>
+                </div>
+            `;
+        } else if (!isUser) {
+            senderHeader = `
+                <div class="text-[11px] font-bold text-violet-300 dark:text-violet-600 mb-1 select-none leading-tight flex items-center gap-1">
+                    <i class="fa-solid fa-robot text-[10px]"></i>
+                    <span>${msg.sender_name}</span>
                 </div>
             `;
         }
@@ -767,8 +795,8 @@
         const timeClass = isUser ? 'text-slate-400 dark:text-slate-500' : 'text-zinc-400 dark:text-neutral-500';
 
         wrapper.innerHTML = `
-            ${senderBadge}
-            <div class="max-w-[88%] pt-3 px-3.5 pb-2 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-2xs ${bubbleClasses}">
+            <div class="max-w-[88%] pt-2.5 px-3.5 pb-2 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-2xs ${bubbleClasses}">
+                ${senderHeader}
                 <div class="whitespace-pre-line break-words">${msg.content}</div>
                 <div class="flex justify-end items-center mt-1 -mb-0.5 space-x-1 select-none">
                     <span class="text-[10px] leading-none ${timeClass} font-medium">
@@ -810,7 +838,9 @@
     // 8. Update Sidebar Sessions from Sync Data
     function updateSidebarSessionsList(sessions) {
         const container = document.getElementById('sessionsListContainer');
-        if (!container || !sessions) return;
+        if (!container || !sessions) return false;
+
+        let hasNewIncoming = false;
 
         sessions.forEach(s => {
             const item = container.querySelector(`[data-session-id="${s.session_id}"]`);
@@ -819,8 +849,17 @@
                 if (timeEl && s.last_message_at) timeEl.textContent = s.last_message_at;
 
                 const countEl = item.querySelector('.count-val');
-                if (countEl && s.messages_count !== undefined) countEl.textContent = s.messages_count;
+                if (countEl && s.messages_count !== undefined) {
+                    const prevCount = parseInt(countEl.textContent, 10) || 0;
+                    if (currentVersion > 0 && s.session_id !== activeSessionId && s.messages_count > prevCount) {
+                        hasNewIncoming = true;
+                    }
+                    countEl.textContent = s.messages_count;
+                }
             } else {
+                if (currentVersion > 0) {
+                    hasNewIncoming = true;
+                }
                 // If it's a completely new session not in list, create element and prepend
                 const newA = document.createElement('a');
                 newA.href = `/dashboard/inbox/${s.session_id}/`;
@@ -861,6 +900,8 @@
                 container.prepend(newA);
             }
         });
+
+        return hasNewIncoming;
     }
 
     // 9. Real-time Polling Sync Loop (Every 1500ms)
@@ -876,11 +917,25 @@
             if (resp.ok) {
                 const data = await resp.json();
                 if (data.status === 'updated') {
+                    let hasIncomingInChat = false;
                     if (data.messages && data.messages.length > 0) {
-                        data.messages.forEach(m => appendMessageToTimeline(m));
+                        data.messages.forEach(m => {
+                            if (!document.querySelector(`[data-msg-id="${m.id}"]`)) {
+                                if (m.role === 'user') {
+                                    hasIncomingInChat = true;
+                                }
+                            }
+                            appendMessageToTimeline(m);
+                        });
                     }
+
+                    let hasIncomingInSidebar = false;
                     if (data.sessions && data.sessions.length > 0) {
-                        updateSidebarSessionsList(data.sessions);
+                        hasIncomingInSidebar = updateSidebarSessionsList(data.sessions);
+                    }
+
+                    if (hasIncomingInChat || hasIncomingInSidebar) {
+                        playAudioSafely(audioReceived);
                     }
                 }
                 if (data.v !== undefined) {
