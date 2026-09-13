@@ -233,9 +233,7 @@
                                 <span class="text-[10px] leading-none {% if msg.role == 'user' %}text-slate-400 dark:text-slate-500{% elif msg.role == 'staff' %}text-zinc-400 dark:text-neutral-500{% else %}text-zinc-400 dark:text-neutral-500{% endif %} font-medium">
                                     {{ msg.created_at|date:"H:i" }}
                                 </span>
-                                {% if msg.role != 'user' %}
-                                <i class="fa-solid fa-check text-[9px] {% if msg.role == 'staff' %}text-zinc-400 dark:text-neutral-500{% else %}text-zinc-400 dark:text-neutral-500{% endif %} opacity-70"></i>
-                                {% endif %}
+
                             </div>
                         </div>
                     </div>

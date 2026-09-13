@@ -120,18 +120,24 @@ def api_chat_message(request, api_key):
         content=user_message
     )
 
-    # Generate RAG reply
-    reply = generate_rag_response(chatbot, user_message)
+    try:
+        # Generate RAG reply
+        reply = generate_rag_response(chatbot, user_message)
 
-    # Check if this chat requires human operator escalation
-    from apps.team.services import check_if_needs_escalation, assign_session_to_operator
-    needs_esc, reason = check_if_needs_escalation(user_message, reply)
+        # Check if this chat requires human operator escalation
+        from apps.team.services import check_if_needs_escalation, assign_session_to_operator
+        needs_esc, reason = check_if_needs_escalation(user_message, reply)
 
-    staff_assigned = None
-    if session and (needs_esc or session.is_escalated):
-        if not session.is_escalated:
-            staff_assigned = assign_session_to_operator(session, reason)
-            reply += f"\n\n👨‍💼 Savolingiz navbatchi mutaxassisimiz ({staff_assigned.name if staff_assigned else 'Operator'}) ga yo'naltirildi. Tez orada javob beriladi."
+        staff_assigned = None
+        if session and (needs_esc or session.is_escalated):
+            if not session.is_escalated:
+                staff_assigned = assign_session_to_operator(session, reason)
+                reply += f"\n\n👨‍💼 Savolingiz navbatchi mutaxassisimiz ({staff_assigned.name if staff_assigned else 'Operator'}) ga yo'naltirildi. Tez orada javob beriladi."
+
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error("Chat API xatolik: %s", e, exc_info=True)
+        reply = "Kechirasiz, texnik nosozlik yuz berdi. Iltimos, qayta urinib ko'ring yoki biz bilan bevosita bog'laning."
 
     # Save assistant message
     ChatMessage.objects.create(

@@ -353,14 +353,19 @@ def handle_telegram_update(api_key, update_data):
         return {'ok': True}
 
     # 5. Generate AI RAG Response
-    ai_reply = generate_rag_response(config, text, session)
+    try:
+        ai_reply = generate_rag_response(config, text, session)
 
-    # Check if AI couldn't answer -> escalate
-    needs_esc_ai, _ = check_if_needs_escalation(text, ai_reply)
-    if needs_esc_ai and not session.is_escalated:
-        assigned_staff = assign_session_to_operator(session, "AI to'liq javob bera olmadi")
-        if assigned_staff:
-            ai_reply += f"\n\n👨‍💼 Savolingiz bo'yicha mutaxassisimiz ({assigned_staff.name}) ulanmoqda..."
+        # Check if AI couldn't answer -> escalate
+        needs_esc_ai, _ = check_if_needs_escalation(text, ai_reply)
+        if needs_esc_ai and not session.is_escalated:
+            assigned_staff = assign_session_to_operator(session, "AI to'liq javob bera olmadi")
+            if assigned_staff:
+                ai_reply += f"\n\n👨‍💼 Savolingiz bo'yicha mutaxassisimiz ({assigned_staff.name}) ulanmoqda..."
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error("Telegram RAG xatolik: %s", e, exc_info=True)
+        ai_reply = "Kechirasiz, texnik nosozlik yuz berdi. Iltimos, qayta urinib ko'ring."
 
     # Save and send AI response
     ChatMessage.objects.create(

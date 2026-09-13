@@ -2,6 +2,9 @@ import os
 import re
 import urllib.request
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def extract_contact_info(text):
@@ -80,7 +83,7 @@ def build_business_context(chatbot_config):
 
 
 def ask_gemini_api(system_prompt, user_message, api_key):
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key={api_key}"
     payload = {
         "contents": [
             {
@@ -100,7 +103,7 @@ def ask_gemini_api(system_prompt, user_message, api_key):
         data=data,
         headers={'Content-Type': 'application/json'}
     )
-    with urllib.request.urlopen(req, timeout=10) as response:
+    with urllib.request.urlopen(req, timeout=15) as response:
         res = json.loads(response.read().decode('utf-8'))
         candidates = res.get('candidates', [])
         if candidates:
@@ -216,8 +219,10 @@ def generate_rag_response(chatbot_config, user_message, chat_history=None):
             ai_reply = ask_gemini_api(system_prompt, user_message, gemini_key)
             if ai_reply:
                 return ai_reply.strip()
-        except Exception:
-            pass
+            else:
+                logger.warning("Gemini API returned empty response for: %s", user_message[:100])
+        except Exception as e:
+            logger.error("Gemini API xatolik: %s", e, exc_info=True)
 
     # Fallback to intelligent local RAG matcher
     return contextual_fallback_agent(chatbot_config, user_message)
