@@ -292,7 +292,12 @@ def handle_telegram_update(api_key, update_data):
 
     # Handle /start or /help command
     if text.startswith('/start'):
-        welcome_txt = config.welcome_message or f"Assalomu alaykum! «{config.business.name}» virtual yordamchisiman. Sizga qanday yordam bera olaman?"
+        welcome_txt = (
+            f"Assalomu alaykum! {config.business.name} qo‘llab-quvvatlash xizmatiga xush kelibsiz.\n\n"
+            "Sizni qiziqtirgan barcha savollarni bemalol shu yerga yozib qoldirishingiz mumkin. "
+            "Mutaxassislarimiz savollaringizga shu yerning o‘zida javob berishadi.\n\n"
+            "Sizga qanday yordam bera olamiz?"
+        )
         
         # Tavsiyaviy savollar chiqarilmaydi, mavjud klaviaturani tozalash
         send_telegram_bot_message(

@@ -249,7 +249,12 @@ def chatbot_settings_view(request):
         business=business,
         defaults={
             'bot_name': f"{business.name} AI",
-            'welcome_message': f"Assalomu alaykum! «{business.name}» virtual yordamchisiman. Sizga qanday yordam bera olaman?"
+            'welcome_message': (
+                f"Assalomu alaykum! {business.name} qo‘llab-quvvatlash xizmatiga xush kelibsiz.\n\n"
+                "Sizni qiziqtirgan barcha savollarni bemalol shu yerga yozib qoldirishingiz mumkin. "
+                "Mutaxassislarimiz savollaringizga shu yerning o‘zida javob berishadi.\n\n"
+                "Sizga qanday yordam bera olamiz?"
+            )
         }
     )
 
@@ -280,7 +285,12 @@ def agent_settings_view(request):
         business=business,
         defaults={
             'bot_name': f"{business.name} AI",
-            'welcome_message': f"Assalomu alaykum! «{business.name}» virtual yordamchisiman. Sizga qanday yordam bera olaman?"
+            'welcome_message': (
+                f"Assalomu alaykum! {business.name} qo‘llab-quvvatlash xizmatiga xush kelibsiz.\n\n"
+                "Sizni qiziqtirgan barcha savollarni bemalol shu yerga yozib qoldirishingiz mumkin. "
+                "Mutaxassislarimiz savollaringizga shu yerning o‘zida javob berishadi.\n\n"
+                "Sizga qanday yordam bera olamiz?"
+            )
         }
     )
 

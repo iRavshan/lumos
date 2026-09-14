@@ -17,7 +17,6 @@ _offsets = {}
 
 def _polling_loop():
     logger.info("[Telegram Worker] Background Long Polling thread started.")
-    print("[+] Telegram bot avtomatik javob berish xizmati fonda ishga tushdi...")
 
     # Wait 2 seconds on startup for Django to finish initializing
     time.sleep(2)

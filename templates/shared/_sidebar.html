@@ -1,0 +1,349 @@
+<!-- Desktop Sticky Sidebar (Collapsible: w-64 expanded, w-[72px] collapsed) -->
+<aside id="appSidebar" class="hidden lg:flex flex-col w-64 shrink-0 h-screen sticky top-0 bg-white dark:bg-[#0E0E0E] border-r border-[#EAE8E4] dark:border-[#222222] z-30 transition-all duration-300 select-none">
+    
+    <style>
+        #appSidebar.collapsed {
+            width: 4.5rem !important; /* 72px */
+        }
+        #appSidebar.collapsed .sidebar-text {
+            display: none !important;
+        }
+        #appSidebar.collapsed .sidebar-header {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+            justify-content: center;
+        }
+        #appSidebar.collapsed .sidebar-link {
+            justify-content: center !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            width: 2.75rem;
+            height: 2.75rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #appSidebar.collapsed .sidebar-group-title {
+            display: none !important;
+        }
+        #appSidebar.collapsed .sidebar-group-divider {
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-top-width: 1px;
+        }
+        #appSidebar.collapsed .sidebar-business-pill {
+            justify-content: center !important;
+            padding: 0.5rem !important;
+        }
+        #appSidebar.collapsed .sidebar-theme-btn {
+            justify-content: center !important;
+            padding: 0.5rem !important;
+        }
+        #appSidebar.collapsed .sidebar-user-card {
+            justify-content: center !important;
+            padding: 0.35rem !important;
+        }
+    </style>
+
+    <!-- 1. Brand Logo Header with Collapse / Extend Toggle -->
+    <div class="sidebar-header h-16 px-4 flex items-center justify-between border-b border-[#EAE8E4] dark:border-[#222222] transition-all">
+        <a href="{% url 'businesses:dashboard' %}" class="flex items-center space-x-2.5 group" title="Lumos Dashboard">
+            <div class="w-8 h-8 rounded-xl bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] flex items-center justify-center font-black text-xs shadow-sm transition-transform duration-200 group-hover:scale-105 shrink-0">
+                <i class="fa-solid fa-cube text-xs"></i>
+            </div>
+            <span class="sidebar-text text-base font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight">Lumos</span>
+        </a>
+
+        <!-- Desktop Collapse / Extend Toggle Button -->
+        <button type="button" 
+                id="sidebarToggleBtn"
+                onclick="toggleSidebarCollapse()" 
+                class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1E1E1E] transition shrink-0"
+                title="Sidebarni yig'ish / kengaytirish">
+            <i id="sidebarToggleIcon" class="fa-solid fa-angles-left text-xs"></i>
+        </button>
+    </div>
+
+    <!-- 2. Active Business Pill (Contextual Header) -->
+    {% if user.business %}
+    <div class="px-3 pt-3.5 pb-1">
+        <a href="{% url 'businesses:edit' %}" class="sidebar-business-pill flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-[#161616] border border-[#EAE8E4] dark:border-[#262626] hover:border-slate-300 dark:hover:border-zinc-700 transition group" title="Biznes: {{ user.business.name }}">
+            <div class="flex items-center space-x-2.5 min-w-0">
+                <div class="w-6 h-6 rounded-lg bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] flex items-center justify-center font-bold text-[10px] shrink-0">
+                    {{ user.business.name|first|upper }}
+                </div>
+                <div class="sidebar-text min-w-0">
+                    <p class="text-xs font-bold text-slate-800 dark:text-[#F5F1E8] truncate leading-tight">
+                        {{ user.business.name }}
+                    </p>
+                    <p class="text-[10px] text-slate-400 dark:text-slate-500 font-medium leading-tight flex items-center gap-1 mt-0.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>Faol agent</span>
+                    </p>
+                </div>
+            </div>
+            <i class="sidebar-text fa-solid fa-chevron-right text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- 3. Scrollable Navigation Menu -->
+    <div class="flex-1 overflow-y-auto px-3 py-3 space-y-6">
+        
+        <!-- Main Navigation Group -->
+        <div class="space-y-1">
+            <span class="sidebar-group-title px-3 text-[10px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold block mb-2 select-none">Asosiy Menyu</span>
+            
+            <!-- Dashboard -->
+            <a href="{% url 'businesses:dashboard' %}" 
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all group {% if request.resolver_match.url_name == 'dashboard' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-sm font-bold{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}"
+               title="Dashboard">
+                <i class="fa-solid fa-chart-pie w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
+                <span class="sidebar-text flex-1">Dashboard</span>
+            </a>
+
+            <!-- Murojaatlar (Inbox) -->
+            <a href="{% url 'chatbot:inbox' %}" 
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all group {% if 'inbox' in request.path %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-sm font-bold{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}"
+               title="Murojaatlar">
+                <i class="fa-solid fa-inbox w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
+                <span class="sidebar-text flex-1">Murojaatlar</span>
+            </a>
+
+            <!-- Jamoa (Team) -->
+            <a href="{% url 'team:team_list' %}" 
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all group {% if 'team' in request.path and request.resolver_match.url_name != 'team_analytics' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-sm font-bold{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}"
+               title="Jamoa boshqaruvi">
+                <i class="fa-solid fa-users w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
+                <span class="sidebar-text flex-1">Jamoa</span>
+            </a>
+
+            <!-- Analitika (Analytics) -->
+            <a href="{% url 'businesses:analytics' %}" 
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all group {% if request.resolver_match.url_name == 'analytics' or request.resolver_match.url_name == 'team_analytics' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-sm font-bold{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}"
+               title="Analitika & KPI">
+                <i class="fa-solid fa-chart-line w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
+                <span class="sidebar-text flex-1">Analitika</span>
+            </a>
+        </div>
+
+        <!-- Settings & Configuration Group -->
+        <div class="sidebar-group-divider space-y-1 pt-3 border-t border-[#EAE8E4] dark:border-[#222222]">
+            <span class="sidebar-group-title px-3 text-[10px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold block mb-2 select-none">Boshqaruv & Sozlamalar</span>
+
+            <!-- AI Agent Config -->
+            <a href="{% url 'chatbot:agent_settings' %}" 
+               class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all group {% if request.resolver_match.url_name == 'agent_settings' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-sm font-bold{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}"
+               title="AI Agent sozlamalari">
+                <i class="fa-solid fa-robot w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
+                <span class="sidebar-text flex-1">AI Agent sozlamalari</span>
+            </a>
+
+            <!-- Telegram Bot -->
+            <a href="{% url 'chatbot:telegram_settings' %}" 
+               class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all group {% if request.resolver_match.url_name == 'telegram_settings' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-sm font-bold{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}"
+               title="Telegram Bot integratsiyasi">
+                <i class="fa-brands fa-telegram w-4 text-center text-xs opacity-80 group-hover:opacity-100 text-sky-500 shrink-0"></i>
+                <span class="sidebar-text flex-1">Telegram bot</span>
+            </a>
+
+            <!-- Biznes Profili -->
+            <a href="{% url 'businesses:edit' %}" 
+               class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all group {% if request.resolver_match.url_name == 'edit' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-sm font-bold{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}"
+               title="Biznes profili">
+                <i class="fa-solid fa-sliders w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
+                <span class="sidebar-text flex-1">Biznes profili</span>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- 4. Bottom Footer (Theme Switcher, User Card & Logout) -->
+    <div class="p-2.5 border-t border-[#EAE8E4] dark:border-[#222222] space-y-2 bg-slate-50/70 dark:bg-[#121212]">
+        
+        <!-- Theme Toggle Button -->
+        <button type="button" 
+                onclick="toggleDarkMode()" 
+                class="sidebar-theme-btn w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-[#1E1E1E] border border-transparent hover:border-[#EAE8E4] dark:hover:border-[#262626] shadow-2xs transition"
+                title="Mavzuni o'zgartirish (Tungi / Kunduzgi)">
+            <span class="flex items-center gap-2">
+                <i class="themeToggleIcon fa-solid fa-moon text-xs shrink-0"></i>
+                <span class="sidebar-text" id="themeToggleLabelText">Mavzu</span>
+            </span>
+            <span class="sidebar-text text-[10px] font-mono text-slate-400 dark:text-slate-500 uppercase tracking-wider font-bold" id="themeModeTag">Rejim</span>
+        </button>
+
+        <!-- User Profile Card & Logout -->
+        <div class="sidebar-user-card flex items-center justify-between p-1.5 rounded-xl bg-white dark:bg-[#181818] border border-[#EAE8E4] dark:border-[#262626] shadow-2xs">
+            <div class="flex items-center space-x-2.5 min-w-0 pr-1">
+                <div class="w-8 h-8 rounded-lg bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] flex items-center justify-center font-bold text-xs shrink-0 shadow-xs" title="{{ user.first_name|default:user.username }}">
+                    {{ user.first_name|first|default:user.username|first|upper }}
+                </div>
+                <div class="sidebar-text min-w-0">
+                    <p class="text-xs font-bold text-slate-900 dark:text-[#F5F1E8] truncate leading-tight">
+                        {{ user.first_name|default:user.username }}
+                    </p>
+                    <p class="text-[10px] text-slate-400 dark:text-slate-500 truncate leading-tight mt-0.5">
+                        {{ user.email|default:'Faol akkaunt' }}
+                    </p>
+                </div>
+            </div>
+
+            <a href="{% url 'accounts:logout' %}" 
+               class="sidebar-text w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition shrink-0" 
+               title="Tizimdan chiqish">
+                <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+            </a>
+        </div>
+    </div>
+
+</aside>
+
+<!-- Instant Script to restore collapsed state before paint -->
+<script>
+    (function() {
+        try {
+            if (localStorage.getItem('lumos_sidebar_collapsed') === 'true') {
+                var sb = document.getElementById('appSidebar');
+                var icon = document.getElementById('sidebarToggleIcon');
+                var btn = document.getElementById('sidebarToggleBtn');
+                if (sb) sb.classList.add('collapsed');
+                if (icon) icon.className = 'fa-solid fa-angles-right text-xs';
+                if (btn) btn.setAttribute('title', 'Sidebarni kengaytirish');
+            }
+        } catch(e) {}
+    })();
+
+    function toggleSidebarCollapse() {
+        var sidebar = document.getElementById('appSidebar');
+        var icon = document.getElementById('sidebarToggleIcon');
+        var btn = document.getElementById('sidebarToggleBtn');
+        if (!sidebar) return;
+
+        var isNowCollapsed = sidebar.classList.toggle('collapsed');
+        try {
+            localStorage.setItem('lumos_sidebar_collapsed', isNowCollapsed ? 'true' : 'false');
+        } catch(e) {}
+
+        if (icon) {
+            icon.className = isNowCollapsed ? 'fa-solid fa-angles-right text-xs' : 'fa-solid fa-angles-left text-xs';
+        }
+        if (btn) {
+            btn.setAttribute('title', isNowCollapsed ? 'Sidebarni kengaytirish' : "Sidebarni yig'ish");
+        }
+    }
+</script>
+
+<!-- Mobile Slide-over Drawer Backdrop -->
+<div id="mobileSidebarOverlay" 
+     onclick="toggleMobileSidebar()" 
+     class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-50 transition-opacity lg:hidden">
+</div>
+
+<!-- Mobile Slide-over Drawer Panel -->
+<div id="mobileSidebarDrawer" 
+     class="fixed inset-y-0 left-0 w-72 bg-white dark:bg-[#0E0E0E] z-50 flex flex-col justify-between transform -translate-x-full transition-transform duration-300 ease-in-out border-r border-[#EAE8E4] dark:border-[#222222] lg:hidden select-none shadow-2xl">
+    
+    <!-- Mobile Drawer Header (without B2B) -->
+    <div class="h-16 px-5 flex items-center justify-between border-b border-[#EAE8E4] dark:border-[#222222]">
+        <a href="{% url 'businesses:dashboard' %}" class="flex items-center space-x-2.5">
+            <div class="w-8 h-8 rounded-xl bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] flex items-center justify-center font-black text-xs shadow-xs">
+                <i class="fa-solid fa-cube text-xs"></i>
+            </div>
+            <span class="text-base font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight">Lumos</span>
+        </a>
+        <button type="button" 
+                onclick="toggleMobileSidebar()" 
+                class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#1E1E1E] transition">
+            <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+    </div>
+
+    <!-- Mobile Navigation Links -->
+    <div class="flex-1 overflow-y-auto px-4 py-4 space-y-6">
+        <div class="space-y-1">
+            <span class="px-3 text-[10px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold block mb-2">Asosiy Menyu</span>
+            
+            <a href="{% url 'businesses:dashboard' %}" 
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition {% if request.resolver_match.url_name == 'dashboard' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}">
+                <i class="fa-solid fa-chart-pie w-4 text-center"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="{% url 'chatbot:inbox' %}" 
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition {% if 'inbox' in request.path %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}">
+                <i class="fa-solid fa-inbox w-4 text-center"></i>
+                <span>Murojaatlar</span>
+            </a>
+
+            <a href="{% url 'team:team_list' %}" 
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition {% if 'team' in request.path and request.resolver_match.url_name != 'team_analytics' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}">
+                <i class="fa-solid fa-users w-4 text-center"></i>
+                <span>Jamoa</span>
+            </a>
+
+            <a href="{% url 'businesses:analytics' %}" 
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition {% if request.resolver_match.url_name == 'analytics' or request.resolver_match.url_name == 'team_analytics' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}">
+                <i class="fa-solid fa-chart-line w-4 text-center"></i>
+                <span>Analitika</span>
+            </a>
+        </div>
+
+        <div class="space-y-1 pt-3 border-t border-[#EAE8E4] dark:border-[#222222]">
+            <span class="px-3 text-[10px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold block mb-2">Boshqaruv & Integratsiya</span>
+
+            <a href="{% url 'chatbot:agent_settings' %}" 
+               class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition {% if request.resolver_match.url_name == 'agent_settings' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}">
+                <i class="fa-solid fa-robot w-4 text-center"></i>
+                <span>AI Agent sozlamalari</span>
+            </a>
+
+            <a href="{% url 'chatbot:telegram_settings' %}" 
+               class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition {% if request.resolver_match.url_name == 'telegram_settings' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}">
+                <i class="fa-brands fa-telegram w-4 text-center text-sky-500"></i>
+                <span>Telegram bot</span>
+            </a>
+
+            <a href="{% url 'businesses:edit' %}" 
+               class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition {% if request.resolver_match.url_name == 'edit' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}">
+                <i class="fa-solid fa-sliders w-4 text-center"></i>
+                <span>Biznes profili</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Mobile Drawer Footer -->
+    <div class="p-4 border-t border-[#EAE8E4] dark:border-[#222222] space-y-3 bg-slate-50/70 dark:bg-[#121212]">
+        <button type="button" 
+                onclick="toggleDarkMode()" 
+                class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-[#181818] border border-[#EAE8E4] dark:border-[#262626] shadow-xs">
+            <span class="flex items-center gap-2">
+                <i class="themeToggleIcon fa-solid fa-moon text-xs"></i>
+                <span>Mavzuni almashtirish</span>
+            </span>
+        </button>
+
+        <div class="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-[#181818] border border-[#EAE8E4] dark:border-[#262626]">
+            <div class="flex items-center space-x-2.5 min-w-0 pr-1">
+                <div class="w-8 h-8 rounded-lg bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                    {{ user.first_name|first|default:user.username|first|upper }}
+                </div>
+                <div class="min-w-0">
+                    <p class="text-xs font-bold text-slate-900 dark:text-[#F5F1E8] truncate">
+                        {{ user.first_name|default:user.username }}
+                    </p>
+                    {% if user.business %}
+                    <p class="text-[10px] text-slate-400 dark:text-slate-500 truncate">
+                        {{ user.business.name }}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <a href="{% url 'accounts:logout' %}" 
+               class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition">
+                Chiqish
+            </a>
+        </div>
+    </div>
+
+</div>

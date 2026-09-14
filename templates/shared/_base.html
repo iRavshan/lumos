@@ -95,11 +95,13 @@
     </style>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="flex flex-col min-h-full text-slate-900 dark:text-[#F5F1E8] bg-[#FAFAF9] dark:bg-[#0A0A0A] antialiased selection:bg-[#0A0A0A] selection:text-white dark:selection:bg-[#F5F1E8] dark:selection:text-[#0A0A0A] transition-colors duration-200">
+<body class="min-h-full text-slate-900 dark:text-[#F5F1E8] bg-[#FAFAF9] dark:bg-[#0A0A0A] antialiased selection:bg-[#0A0A0A] selection:text-white dark:selection:bg-[#F5F1E8] dark:selection:text-[#0A0A0A] transition-colors duration-200">
 
-    {% block header %}
-    {% include 'shared/_header.html' %}
-    {% endblock %}
+    {% if not user.is_authenticated or request.resolver_match.url_name == 'onboarding' %}
+        {% block header %}
+        {% include 'shared/_header.html' %}
+        {% endblock %}
+    {% endif %}
 
     <!-- Django Messages (Fixed Bottom-Right Toasts) -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-[9999] flex flex-col space-y-2.5 max-w-sm w-[calc(100vw-2.5rem)] sm:w-96 pointer-events-none" aria-live="polite">
@@ -210,15 +212,84 @@
         } else {
             initToasts();
         }
+
+        // Global Dark Mode Controller
+        function updateThemeIcons() {
+            var isDark = document.documentElement.classList.contains('dark');
+            var icons = document.querySelectorAll('.themeToggleIcon, #themeToggleIcon, #themeToggleBtnGuest i');
+            var modeTag = document.getElementById('themeModeTag');
+            var labelText = document.getElementById('themeToggleLabelText');
+
+            icons.forEach(function(icon) {
+                if (isDark) {
+                    icon.className = 'themeToggleIcon fa-solid fa-sun text-amber-400 text-sm';
+                } else {
+                    icon.className = 'themeToggleIcon fa-solid fa-moon text-slate-500 text-sm';
+                }
+            });
+
+            if (modeTag) {
+                modeTag.textContent = isDark ? 'TUNGI' : 'KUNDUZGI';
+            }
+            if (labelText) {
+                labelText.textContent = isDark ? 'Kunduzgi rejim' : 'Tungi rejim';
+            }
+        }
+
+        function toggleDarkMode() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('lumos_theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('lumos_theme', 'dark');
+            }
+            updateThemeIcons();
+        }
+
+        // Mobile Sidebar Drawer Controller
+        function toggleMobileSidebar() {
+            var drawer = document.getElementById('mobileSidebarDrawer');
+            var overlay = document.getElementById('mobileSidebarOverlay');
+            if (!drawer || !overlay) return;
+
+            var isClosed = drawer.classList.contains('-translate-x-full');
+            if (isClosed) {
+                overlay.classList.remove('hidden');
+                drawer.classList.remove('-translate-x-full');
+                drawer.classList.add('translate-x-0');
+                document.body.classList.add('overflow-hidden');
+            } else {
+                drawer.classList.add('-translate-x-full');
+                drawer.classList.remove('translate-x-0');
+                overlay.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', updateThemeIcons);
     </script>
 
-    <main class="flex-grow">
-        {% block content %}{% endblock %}
-    </main>
+    <!-- App Shell Wrapper (Sidebar for Authenticated users, Clean Column for Public) -->
+    <div class="{% if user.is_authenticated and request.resolver_match.url_name != 'onboarding' %}flex min-h-screen bg-[#FAFAF9] dark:bg-[#0A0A0A]{% else %}flex flex-col min-h-full{% endif %}">
+        {% if user.is_authenticated and request.resolver_match.url_name != 'onboarding' %}
+            {% include 'shared/_sidebar.html' %}
+        {% endif %}
 
-    {% block footer %}
-    {% include 'shared/_footer.html' %}
-    {% endblock %}
+        <div class="flex-1 min-w-0 flex flex-col min-h-screen">
+            {% if user.is_authenticated and request.resolver_match.url_name != 'onboarding' %}
+                {% include 'shared/_mobile_header.html' %}
+            {% endif %}
+
+            <main class="flex-grow">
+                {% block content %}{% endblock %}
+            </main>
+
+            {% block footer %}
+            {% include 'shared/_footer.html' %}
+            {% endblock %}
+        </div>
+    </div>
 
     {% block extra_scripts %}{% endblock %}
 </body>
