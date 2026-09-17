@@ -339,7 +339,11 @@
         function appendMessage(text, role) {
             var msgDiv = document.createElement('div');
             msgDiv.className = 'lumos-message ' + (role === 'user' ? 'lumos-msg-user' : 'lumos-msg-bot');
-            msgDiv.textContent = text;
+            if (role === 'user') {
+                msgDiv.textContent = text;
+            } else {
+                msgDiv.innerHTML = text.replace(/\n/g, '<br>');
+            }
             chatBody.insertBefore(msgDiv, typingIndicator);
             scrollToBottom();
         }

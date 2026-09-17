@@ -22,12 +22,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'django.contrib.postgres',
     
     # Custom apps
     'apps.accounts',
     'apps.businesses',
     'apps.chatbot',
     'apps.team',
+    'apps.knowledge',
 ]
 
 MIDDLEWARE = [

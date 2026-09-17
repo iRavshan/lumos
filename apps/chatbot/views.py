@@ -312,6 +312,15 @@ def agent_settings_view(request):
                 updated_business = True
             if updated_business:
                 business.save()
+                # Sayt yangilangan bo'lsa, qayta scrape qilish
+                if website and website != (business.website or ''):
+                    pass  # website already set above
+                if business.website:
+                    try:
+                        from apps.knowledge.tasks import scrape_and_embed
+                        scrape_and_embed(business)
+                    except Exception:
+                        pass
 
             messages.success(request, "Savdo agenti sozlamalari muvaffaqiyatli saqlandi!")
             return redirect('chatbot:agent_settings')

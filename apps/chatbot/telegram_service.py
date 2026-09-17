@@ -190,13 +190,107 @@ class TelegramHTMLSanitizer(HTMLParser):
         return text.strip()
 
 
+def format_text_for_telegram(text):
+    """
+    Converts Markdown formatting (such as `* **Title:** text`) into Telegram-friendly HTML:
+    - Replaces bullet asterisks/dashes (*, -, +) with clean bullet dots (•)
+    - Replaces Markdown headers (### Header) with bold headers (<b>Header</b>)
+    - Converts **bold** to <b>bold</b>
+    - Converts *italic* / _italic_ to <i>italic</i>
+    - Converts [text](url) to <a href="url">text</a>
+    - Converts `code` to <code>code</code> and ```blocks``` to <pre><code>...</code></pre>
+    - Ensures valid Telegram HTML with properly escaped entities.
+    """
+    if not text:
+        return ""
+
+    s = str(text).strip()
+
+    # 1. Protect code blocks ```...``` and `...`
+    code_blocks = []
+    def save_code_block(m):
+        code_content = m.group(1).strip()
+        code_blocks.append(f"<pre><code>{html.escape(code_content)}</code></pre>")
+        return f"@@@CODE_BLOCK_{len(code_blocks)-1}@@@"
+
+    s = re.sub(r'```(?:[a-zA-Z0-9_\-\+]+)?\n?(.*?)```', save_code_block, s, flags=re.DOTALL)
+
+    inline_codes = []
+    def save_inline_code(m):
+        inline_codes.append(f"<code>{html.escape(m.group(1))}</code>")
+        return f"@@@INLINE_CODE_{len(inline_codes)-1}@@@"
+
+    s = re.sub(r'`([^`\n]+)`', save_inline_code, s)
+
+    # 2. If the text doesn't contain HTML tags already, escape <, > and &
+    has_existing_tags = bool(re.search(r'</?(?:b|i|u|s|code|pre|a)\b', s, re.IGNORECASE))
+    if not has_existing_tags:
+        s = s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
+    # 3. Format lines: Headers and Bullet points
+    lines = s.split('\n')
+    formatted_lines = []
+    for line in lines:
+        stripped = line.strip()
+
+        # Markdown Headers: # H1, ## H2, ### H3, etc.
+        m_head = re.match(r'^(#{1,6})\s+(.+)$', stripped)
+        if m_head:
+            header_text = m_head.group(2).strip()
+            header_text = re.sub(r'^\*\*(.*?)\*\*$', r'\1', header_text)
+            formatted_lines.append(f"<b>{header_text}</b>")
+            continue
+
+        # Bullet lists: `* `, `- `, `+ ` or indented `  * `
+        m_bullet = re.match(r'^(\s*)[\*\-\+]\s+(.+)$', line)
+        if m_bullet:
+            indent = m_bullet.group(1)
+            content = m_bullet.group(2)
+            formatted_lines.append(f"{indent}• {content}")
+            continue
+
+        formatted_lines.append(line)
+
+    s = '\n'.join(formatted_lines)
+
+    # 4. Bold: **text** or __text__
+    s = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', s, flags=re.DOTALL)
+    s = re.sub(r'__(.+?)__', r'<b>\1</b>', s, flags=re.DOTALL)
+
+    # 5. Italic: _text_ (surrounded by non-word boundaries)
+    s = re.sub(r'(?<!\w)_([^_]+?)_(?!\w)', r'<i>\1</i>', s)
+
+    # 6. Links: [label](url)
+    def format_link(m):
+        label = m.group(1)
+        url = m.group(2)
+        return f'<a href="{url}">{label}</a>'
+    s = re.sub(r'\[([^\]]+)\]\((https?://[^\s\)]+)\)', format_link, s)
+
+    # 7. Restore code blocks
+    for idx, cb in enumerate(code_blocks):
+        s = s.replace(f"@@@CODE_BLOCK_{idx}@@@", cb)
+    for idx, ic in enumerate(inline_codes):
+        s = s.replace(f"@@@INLINE_CODE_{idx}@@@", ic)
+
+    # 8. Clean up extra consecutive line breaks (max 2)
+    s = re.sub(r'\n{3,}', '\n\n', s)
+    return s.strip()
+
+
 def sanitize_for_telegram(raw):
     """
     Sanitizes HTML for Telegram Bot API sendMessage, preserving allowed formatting:
     <b>, <i>, <u>, <s>, <code>, <pre>, <a href="...">, and line breaks.
+    If raw input contains Markdown, converts it first into Telegram HTML.
     """
     if not raw:
         return ""
+    
+    # Check if raw input contains markdown features
+    if any(k in raw for k in ['**', '* ', '- ', '+ ', '###', '##', '# ', '```', '`', '__']):
+        raw = format_text_for_telegram(raw)
+
     if '<' not in raw and '&' not in raw:
         return raw.strip()
     parser = TelegramHTMLSanitizer()
@@ -204,28 +298,34 @@ def sanitize_for_telegram(raw):
     return parser.get_result()
 
 
-def send_telegram_bot_message(token, chat_id, text, reply_markup=None, parse_mode=None):
+def send_telegram_bot_message(token, chat_id, text, reply_markup=None, parse_mode='HTML'):
     """
     Sends a message to a Telegram chat with optional HTML formatting.
     Falls back to plain text if Telegram reports parsing error.
     """
     if not token or not chat_id or not text:
         return {'ok': False}
-    
+
+    # If parse_mode is HTML, ensure clean Telegram HTML formatting
+    if parse_mode == 'HTML':
+        formatted_text = format_text_for_telegram(text)
+    else:
+        formatted_text = text
+
     payload = {
         'chat_id': chat_id,
-        'text': text,
+        'text': formatted_text,
     }
     if parse_mode:
         payload['parse_mode'] = parse_mode
     if reply_markup:
         payload['reply_markup'] = reply_markup
-        
+
     res = make_telegram_request(token, 'sendMessage', payload)
     # If HTML parsing failed on Telegram, fallback to plain text so message is never lost
     if not res.get('ok') and parse_mode:
         payload.pop('parse_mode', None)
-        plain_text = re.sub(r'<[^>]+>', '', text)
+        plain_text = re.sub(r'<[^>]+>', '', formatted_text)
         payload['text'] = plain_text or text
         res = make_telegram_request(token, 'sendMessage', payload)
     return res

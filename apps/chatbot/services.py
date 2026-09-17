@@ -61,7 +61,7 @@ def extract_contact_info(text):
     return contacts
 
 
-def build_business_context(chatbot_config):
+def build_business_context(chatbot_config, user_message=None):
     business = chatbot_config.business
     context_parts = [
         f"Kompaniya / Biznes nomi: {business.name}",
@@ -79,37 +79,40 @@ def build_business_context(chatbot_config):
     if chatbot_config.extra_knowledge:
         context_parts.append(f"Qo'shimcha ma'lumotlar va tez-tez so'raladigan savollar (FAQ):\n{chatbot_config.extra_knowledge}")
 
+    # pgvector: sayt bilimlar bazasidan tegishli chunklar qo'shish
+    if user_message:
+        try:
+            from apps.knowledge.embeddings import search_similar
+            relevant_chunks = search_similar(business.id, user_message, top_k=5)
+            if relevant_chunks:
+                chunks_text = "\n---\n".join(relevant_chunks)
+                context_parts.append(
+                    f"Biznes vebsaytidan olingan tegishli ma'lumotlar:\n{chunks_text}"
+                )
+        except Exception as e:
+            logger.warning("pgvector qidiruv xatolik: %s", e)
+
     return "\n\n".join(context_parts)
 
 
 def ask_gemini_api(system_prompt, user_message, api_key):
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key={api_key}"
-    payload = {
-        "contents": [
-            {
-                "parts": [
-                    {"text": f"{system_prompt}\n\nMijoz savoli: {user_message}"}
-                ]
-            }
-        ],
-        "generationConfig": {
-            "temperature": 0.3,
-            "maxOutputTokens": 800,
-        }
-    }
-    data = json.dumps(payload).encode('utf-8')
-    req = urllib.request.Request(
-        url,
-        data=data,
-        headers={'Content-Type': 'application/json'}
-    )
-    with urllib.request.urlopen(req, timeout=15) as response:
-        res = json.loads(response.read().decode('utf-8'))
-        candidates = res.get('candidates', [])
-        if candidates:
-            parts = candidates[0].get('content', {}).get('parts', [])
-            if parts:
-                return parts[0].get('text', '')
+    try:
+        from google import genai
+        from google.genai import types
+        client = genai.Client(api_key=api_key)
+        response = client.models.generate_content(
+            model='models/gemini-3.6-flash',
+            contents=f"{system_prompt}\n\nMijoz savoli: {user_message}",
+            config=types.GenerateContentConfig(
+                temperature=0.3,
+                max_output_tokens=1500,
+                thinking_config=types.ThinkingConfig(thinking_budget=0),
+            )
+        )
+        if response and response.text:
+            return response.text
+    except Exception as e:
+        logger.error("google-genai Client xatolik: %s", e)
     return None
 
 
@@ -122,27 +125,27 @@ def contextual_fallback_agent(chatbot_config, user_message):
 
     # 1. Greetings
     if any(w in msg for w in ['salom', 'assalom', 'qale', 'qalay', 'privet', 'hello', 'hi', 'xayrli']):
-        return f"Assalomu alaykum! «{business.name}» virtual yordamchisiman. Sizga xizmatlarimiz, bog'lanish yoki boshqa ma'lumotlar bo'yicha qanday yordam bera olaman?"
+        return f"Assalomu alaykum! Men «{business.name}» kompaniyasining sotuv menejeri {chatbot_config.bot_name}man. Sizga xizmatlarimiz va imkoniyatlarimiz bo'yicha yordam berishdan xursandman. Ayting-chi, sizni aynan qaysi yo'nalish yoki xizmat turi ko'proq qiziqtirmoqda?"
 
     # 2. Telegram queries
     if 'telegram' in msg or ' tg ' in f" {msg} ":
         if business.telegram:
             tg_link = business.telegram_link
-            return f"Bizning rasmiy Telegram manzilimiz: {tg_link or business.telegram}. Savollaringiz bo'lsa to'g'ridan-to'g'ri yozishingiz mumkin!"
-        return f"«{business.name}» uchun Telegram manzili hali ko'rsatilmagan. Biz bilan telefon orqali bog'lanishingiz mumkin."
+            return f"Bizning rasmiy Telegram manzilimiz: {tg_link or business.telegram}.\n\nSizga aynan qaysi masalada yordam kerak edi? Batafsil yozsangiz, to'liq ma'lumot beraman."
+        return f"«{business.name}» uchun Telegram manzili hali ko'rsatilmagan. Biz bilan telefon orqali bog'lanishingiz mumkin. Sizga qaysi vaqtda qo'ng'iroq qilishimiz qulay bo'ladi?"
 
     # 3. Instagram queries
     if 'instagram' in msg or 'insta' in msg or ' ig ' in f" {msg} ":
         if business.instagram:
             ig_link = business.instagram_link
-            return f"Bizning Instagram sahifamiz: {ig_link or business.instagram}. Bizni kuzatib boring!"
-        return f"«{business.name}» uchun Instagram sahifasi kiritilmagan."
+            return f"Bizning Instagram sahifamiz: {ig_link or business.instagram}. Loyihalarimiz va yangiliklarimizni kuzatib boring!\n\nBiznesimiz haqida yana nimalarni bilishni istardingiz?"
+        return f"«{business.name}» uchun Instagram sahifasi hali kiritilmagan. Sizni aynan qanday xizmat turi qiziqtirayotgan edi?"
 
     # 4. Website queries
     if any(w in msg for w in ['vebsayt', 'sayt', 'saytingiz', 'website', 'havola', 'link', 'url']):
         if business.website:
-            return f"Bizning rasmiy vebsaytimiz: {business.website}"
-        return f"«{business.name}» rasmiy vebsayti tez kunda ishga tushadi."
+            return f"Bizning rasmiy vebsaytimiz: {business.website}\n\nSaytimizda barcha imkoniyatlarimiz batafsil keltirilgan. Sizga aynan qaysi bo'lim bo'yicha ma'lumot qulayroq?"
+        return f"«{business.name}» rasmiy vebsayti tez kunda ishga tushadi. Hozirda sizga aynan qaysi xizmatimiz bo'yicha batafsil ma'lumot bera olaman?"
 
     # 5. Phone / Contact queries
     if any(w in msg for w in ['telefon', 'tel', 'nomer', 'raqam', 'aloqa', 'bog\'lanish', 'boglanish', 'kontakt', 'manzil', 'qayerda']):
@@ -157,13 +160,12 @@ def contextual_fallback_agent(chatbot_config, user_message):
             contacts.append(f"🌐 Vebsayt: {business.website}")
 
         if contacts:
-            return f"«{business.name}» bilan bog'lanish ma'lumotlari:\n" + "\n".join(contacts)
-        return f"«{business.name}» aloqa ma'lumotlari uchun ma'muriyatga murojaat qiling."
+            return f"«{business.name}» bilan bog'lanish ma'lumotlari:\n" + "\n".join(contacts) + "\n\nSizga qaysi aloqa kanali orqali batafsil maslahat berishimiz qulayroq bo'ladi?"
+        return f"«{business.name}» aloqa ma'lumotlari bo'yicha operatorimiz siz bilan bog'lanishi mumkin. Sizga qaysi raqam orqali aloqaga chiqishimiz ma'qul?"
 
     # 6. Extra knowledge / FAQ search
     if chatbot_config.extra_knowledge:
         extra_lines = chatbot_config.extra_knowledge.split('\n')
-        # Check if words in user query match extra knowledge
         words = [w for w in re.findall(r'\w+', msg) if len(w) > 3]
         matched_lines = []
         for line in extra_lines:
@@ -171,11 +173,11 @@ def contextual_fallback_agent(chatbot_config, user_message):
             if any(w in line_clean for w in words):
                 matched_lines.append(line.strip())
         if matched_lines:
-            return "\n".join(matched_lines)
+            return "\n".join(matched_lines) + "\n\nBu bo'yicha yana qanday savollaringiz bor, qaysi jihatiga ko'proq qiziqyapsiz?"
 
     # 7. Services / Description / Company overview queries
     if any(w in msg for w in ['xizmat', 'faoliyat', 'nima qiladi', 'haqida', 'nima ish', 'kompaniya', 'biznes', 'ish', 'tavsif', 'mahsulot']):
-        return f"«{business.name}» haqida ma'lumot:\n\n{business.description}"
+        return f"«{business.name}» haqida ma'lumot:\n\n{business.description}\n\nSizga aynan qaysi yo'nalishimiz ko'proq mos keladi deb o'ylaysiz?"
 
     # 8. Semantic match against description
     words = [w for w in re.findall(r'\w+', msg) if len(w) > 3]
@@ -183,7 +185,7 @@ def contextual_fallback_agent(chatbot_config, user_message):
     matching_sentences = [s.strip() for s in desc_sentences if any(w in s.lower() for w in words) and len(s.strip()) > 5]
 
     if matching_sentences:
-        return " ".join(matching_sentences[:3])
+        return " ".join(matching_sentences[:3]) + "\n\nBu bo'yicha rejalaringiz qanday, qachondan boshlamoqchisiz?"
 
     # Default friendly fallback
     contact_hints = []
@@ -191,34 +193,47 @@ def contextual_fallback_agent(chatbot_config, user_message):
         contact_hints.append(f"telefon: {business.phone}")
     if business.telegram:
         contact_hints.append(f"Telegram: {business.telegram}")
-    
+
     hint_text = f" ({', '.join(contact_hints)})" if contact_hints else ""
-    return f"Kechirasiz, bu savol bo'yicha aniq ma'lumot topilmadi. Qo'shimcha ma'lumot olish uchun «{business.name}» ma'muriyati bilan bog'lanishingiz mumkin{hint_text}."
+    return f"Sizga eng maqbul va to'g'ri taklifni bera olishim uchun rejangiz haqida biroz ko'proq bilishim kerak{hint_text}. Aynan qanday natijaga erishmoqchisiz?"
 
 
 def generate_rag_response(chatbot_config, user_message, chat_history=None):
     """
-    Primary RAG Response Generator.
+    Primary RAG Response Generator with Human Sales Manager persona.
     """
     gemini_key = os.environ.get('GEMINI_API_KEY')
-    business_context = build_business_context(chatbot_config)
+    business_context = build_business_context(chatbot_config, user_message=user_message)
 
     if gemini_key:
         system_prompt = (
-            f"Siz «{chatbot_config.business.name}» kompaniyasining aqlli va xushmuomala virtual AI yordamchisisiz (Nomingiz: {chatbot_config.bot_name}).\n"
+            f"Siz «{chatbot_config.business.name}» kompaniyasining tajribali, samimiy va professional sotuv menejerisiz (Ismingiz: {chatbot_config.bot_name}).\n"
+            f"Sizning asosiy maqsadingiz — mijoz bilan iliq, jonli muloqot o'rnatish, uning ehtiyojini chuqur tushunish, kompaniya imkoniyatlarini yuqori darajada taqdim etish va uni xaridga yoki keyingi amaliy qadamga yo'naltirish.\n\n"
             f"Quyida kompaniya haqidagi barcha rasmiy ma'lumotlar berilgan (KONTEKST):\n"
             f"--- KONTEKST BOSHLANDI ---\n"
             f"{business_context}\n"
             f"--- KONTEKST TUGADI ---\n\n"
-            f"Qoidalar:\n"
-            f"1. Faqat yuqoridagi kontekstda berilgan ma'lumotlarga tayangan holda aniq va lo'nda javob bering.\n"
-            f"2. Agar kontekstda javob bo'lmasa, o'zingizdan to'qimang. Xushmuomalalik bilan mijozga mavjud telefon yoki Telegram kontaktlari orqali bog'lanishni tavsiya qiling.\n"
-            f"3. Mijoz qaysi tilda savol bersa (o'zbek, rus, ingliz), shu tilda javob bering."
+            f"SOTUV MENEJERINING QAT'IY QOIDALARI:\n"
+            f"1. INSONIYLIK VA SOTUVCHI PSIXOLOGIYASI:\n"
+            f"   - O'zingizni har doim HAQIQIY INSON SOTUV MENEJERI kabi tuting. Hech qachon o'zingizni 'bot', 'AI', 'sun'iy intellekt' yoki 'model' deb atamang.\n"
+            f"   - Muloqot uslubingiz samimiy, do'stona, qiziqish uyg'otuvchi va yuqori darajada professional bo'lsin. Hech qachon quruq yoki robotona gapirmang.\n"
+            f"2. OCHIQ SAVOL BILAN YAKUNLASH (MUTLAQO SHART):\n"
+            f"   - Har bir javobingizni mijozning ehtiyojini, maqsadini yoki tajribasini aniqlaydigan OCHIQ SAVOL bilan yakunlang.\n"
+            f"   - Savol mijoz shunchaki 'ha' yoki 'yo'q' deb javob beradigan yopiq savol bo'lmasin. Muloqotni rivojlantiruvchi ochiq savol bering (Masalan: 'Siz aynan qaysi yo'nalishga ko'proq qiziqasiz, bu sohada tajribangiz bormi?', 'Loyiha bo'yicha qanday rejalaringiz bor, qachondan boshlamoqchisiz?', 'Siz uchun eng muhim jihat nima?').\n"
+            f"3. ISHONCH VA ANIQLIK:\n"
+            f"   - Faqat yuqoridagi kontekstdagi ma'lumotlarga tayaning, asossiz ma'lumot to'qimang. Agar biror maxsus detal kontekstda bo'lmasa, sotuvchi sifatida uni chiroyli tushuntirib, mijoz bilan telefon yoki Telegram orqali batafsil maslahatlashishni taklif qiling va ochiq savol bilan uning fikrini so'rang.\n"
+            f"4. TIL:\n"
+            f"   - Mijoz qaysi tilda murojaat qilsa (o'zbek, rus, ingliz), shu tilda tabiiy va ravon gaplashing.\n"
+            f"5. FORMATLASH:\n"
+            f"   - Ro'yxatlar uchun xom asterikslar (`* **...**`) ishlatmang. Har doim chiroyli nuqta `• ` yoki mos emojilar (`• `, `✅ `, `🔹 `) bilan yozing.\n"
+            f"   - Muhim sarlavhalar va kalit so'zlarni qalin qiling (`• **Sarlavha:** Izoh`).\n"
+            f"   - Matnni Telegram va chat messenjerlari uchun qulay, chiroyli abzaslarga ajrating."
         )
         try:
             ai_reply = ask_gemini_api(system_prompt, user_message, gemini_key)
             if ai_reply:
-                return ai_reply.strip()
+                from .telegram_service import format_text_for_telegram
+                return format_text_for_telegram(ai_reply.strip())
             else:
                 logger.warning("Gemini API returned empty response for: %s", user_message[:100])
         except Exception as e:

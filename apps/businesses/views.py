@@ -4,8 +4,11 @@ from django.contrib import messages
 from django.http import HttpResponse
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
+import logging
 from .models import Business
 from .forms import BusinessForm
+
+logger = logging.getLogger(__name__)
 
 
 def _fetch_url(url, timeout=4):
@@ -116,6 +119,14 @@ def onboarding_view(request):
             if not business.phone and request.user.username.startswith('+'):
                 business.phone = request.user.username
             business.save()
+
+            # Saytni scrape qilib bilimlar bazasiga saqlash
+            if business.website:
+                try:
+                    from apps.knowledge.tasks import scrape_and_embed
+                    scrape_and_embed(business)
+                except Exception as e:
+                    logger.warning("Onboarding scraping xatolik: %s", e)
 
             # Save chatbot agent configuration from onboarding slides
             from apps.chatbot.models import ChatbotConfig
