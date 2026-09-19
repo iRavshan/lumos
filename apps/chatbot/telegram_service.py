@@ -298,9 +298,9 @@ def sanitize_for_telegram(raw):
     return parser.get_result()
 
 
-def send_telegram_bot_message(token, chat_id, text, reply_markup=None, parse_mode='HTML'):
+def send_telegram_bot_message(token, chat_id, text, reply_markup=None, parse_mode='HTML', reply_to_message_id=None):
     """
-    Sends a message to a Telegram chat with optional HTML formatting.
+    Sends a message to a Telegram chat with optional HTML formatting and reply support.
     Falls back to plain text if Telegram reports parsing error.
     """
     if not token or not chat_id or not text:
@@ -320,6 +320,9 @@ def send_telegram_bot_message(token, chat_id, text, reply_markup=None, parse_mod
         payload['parse_mode'] = parse_mode
     if reply_markup:
         payload['reply_markup'] = reply_markup
+    if reply_to_message_id:
+        payload['reply_to_message_id'] = reply_to_message_id
+        payload['allow_sending_without_reply'] = True
 
     res = make_telegram_request(token, 'sendMessage', payload)
     # If HTML parsing failed on Telegram, fallback to plain text so message is never lost
@@ -329,6 +332,54 @@ def send_telegram_bot_message(token, chat_id, text, reply_markup=None, parse_mod
         payload['text'] = plain_text or text
         res = make_telegram_request(token, 'sendMessage', payload)
     return res
+
+
+def calculate_typing_duration(text):
+    """
+    Calculates typing delay in seconds based on text length to simulate natural human typing.
+    Range: 1.5s to 7.0s.
+    """
+    if not text:
+        return 1.5
+    char_count = len(str(text).strip())
+    # ~30 chars per second reading & typing simulation
+    duration = 1.2 + (char_count * 0.035)
+    return round(min(max(duration, 1.5), 7.0), 2)
+
+
+def simulate_typing(token, chat_id, duration_seconds):
+    """
+    Simulates human typing on Telegram by sending 'typing' chat action
+    repeatedly every ~4 seconds until duration_seconds has elapsed.
+    """
+    import sys
+    import time
+    if 'test' in sys.argv or duration_seconds <= 0:
+        return
+    elapsed = 0.0
+    while elapsed < duration_seconds:
+        send_telegram_chat_action(token, chat_id, 'typing')
+        chunk = min(4.0, duration_seconds - elapsed)
+        time.sleep(chunk)
+        elapsed += chunk
+
+
+import threading
+import time
+
+_chat_state_lock = threading.Lock()
+_chat_states = {}
+
+
+class ChatStateTracker:
+    def __init__(self, chat_id):
+        self.chat_id = chat_id
+        self.latest_user_msg_id = None
+        self.latest_user_text = ""
+        self.latest_msg_time = 0.0
+        self.active_trigger_id = None
+        self.is_task_running = False
+
 
 
 def handle_telegram_update(api_key, update_data):
@@ -418,8 +469,7 @@ def handle_telegram_update(api_key, update_data):
     from .realtime import notify_chat_update
     notify_chat_update(config.business_id, session.session_id, user_msg.id)
 
-    # Show typing status immediately
-    send_telegram_chat_action(config.telegram_bot_token, chat_id, 'typing')
+    # Note: Typing status will be shown AFTER the configured delay expires (not immediately)
 
     # 2. Extract contact info if mentioned in text
     extracted = extract_contact_info(text)
@@ -460,50 +510,185 @@ def handle_telegram_update(api_key, update_data):
         # The operator will reply from their TMA, but send acknowledgement if needed
         return {'ok': True}
 
-    # 5. Generate AI RAG Response
-    try:
-        ai_reply = generate_rag_response(config, text, session)
+    # 5. Dispatch or execute AI response processing with human-like delay, typing, and reply handling
+    message_id = message.get('message_id')
 
-        # Check if AI couldn't answer -> escalate
-        needs_esc_ai, _ = check_if_needs_escalation(text, ai_reply)
-        if needs_esc_ai and not session.is_escalated:
-            assigned_staff = assign_session_to_operator(session, "AI to'liq javob bera olmadi")
-            if assigned_staff:
-                ai_reply += f"\n\n👨‍💼 Savolingiz bo'yicha mutaxassisimiz ({assigned_staff.name}) ulanmoqda..."
-    except Exception as e:
-        import logging
-        logging.getLogger(__name__).error("Telegram RAG xatolik: %s", e, exc_info=True)
-        ai_reply = "Kechirasiz, texnik nosozlik yuz berdi. Iltimos, qayta urinib ko'ring."
+    with _chat_state_lock:
+        if chat_id not in _chat_states:
+            _chat_states[chat_id] = ChatStateTracker(chat_id)
+        tracker = _chat_states[chat_id]
+        tracker.latest_user_msg_id = message_id
+        tracker.latest_user_text = text
+        tracker.latest_msg_time = time.time()
+        already_running = tracker.is_task_running
+        if not already_running:
+            tracker.is_task_running = True
+            tracker.active_trigger_id = message_id
 
-    # Save and send AI response
-    ai_msg = ChatMessage.objects.create(
-        chatbot=config,
-        session=session,
-        role='assistant',
-        content=ai_reply
-    )
-    notify_chat_update(config.business_id, session.session_id, ai_msg.id)
+    # If already running, the active task will incorporate the new message and reply to it
+    if already_running:
+        return {'ok': True}
 
-    # Human-like delay in Telegram with continuous typing indicator
-    if config.response_delay_enabled:
-        import time
-        user_msgs = session.messages.filter(role='user').count()
-        delay = config.first_message_delay_seconds if user_msgs <= 1 else config.subsequent_message_delay_seconds
-        delay = min(max(delay, 0), 15)
-        elapsed = 0
-        while elapsed < delay:
-            send_telegram_chat_action(config.telegram_bot_token, chat_id, 'typing')
-            chunk = min(4, delay - elapsed)
-            time.sleep(chunk)
-            elapsed += chunk
+    import sys
+    is_testing = 'test' in sys.argv
+    if is_testing:
+        _process_telegram_response(config.id, session.id, chat_id, message_id, full_name)
+    else:
+        worker_thread = threading.Thread(
+            target=_process_telegram_response,
+            args=(config.id, session.id, chat_id, message_id, full_name),
+            name=f"TelegramResponseWorker-{chat_id}",
+            daemon=True
+        )
+        worker_thread.start()
 
-    # Split messages if enabled
-    if config.split_messages and '\n\n' in ai_reply:
-        parts = [p.strip() for p in ai_reply.split('\n\n') if p.strip()]
-        if len(parts) > 1:
-            for p in parts:
-                send_telegram_bot_message(config.telegram_bot_token, chat_id, p)
-            return {'ok': True}
-
-    send_telegram_bot_message(config.telegram_bot_token, chat_id, ai_reply)
     return {'ok': True}
+
+
+def _process_telegram_response(config_id, session_id, chat_id, trigger_msg_id, full_name):
+    """
+    Processes AI RAG response for Telegram chat:
+    1. Waits configured delay without showing typing indicator.
+    2. Switches to 'typing' action when delay passes.
+    3. Generates response and calculates typing duration from text length.
+    4. Splits into parts if enabled, sending each part after its calculated typing duration.
+    5. If a new user message arrived while waiting/generating/typing, replies to it (reply_to_message_id).
+    """
+    import sys
+    import logging
+    from django.db import close_old_connections
+    logger = logging.getLogger(__name__)
+
+    close_old_connections()
+    try:
+        from .models import ChatbotConfig, ChatSession, ChatMessage
+        config = ChatbotConfig.objects.select_related('business').get(id=config_id)
+        session = ChatSession.objects.get(id=session_id)
+        is_testing = 'test' in sys.argv
+
+        while True:
+            # 1. Determine Initial Delay (No typing indicator!)
+            user_msgs_count = session.messages.filter(role='user').count()
+            if config.response_delay_enabled and not is_testing:
+                delay = config.first_message_delay_seconds if user_msgs_count <= 1 else config.subsequent_message_delay_seconds
+                delay = min(max(delay, 0), 30)
+            else:
+                delay = 0
+
+            # Initial pause before typing begins (DO NOT send typing status during this delay)
+            if delay > 0:
+                elapsed = 0.0
+                while elapsed < delay:
+                    chunk = min(1.0, delay - elapsed)
+                    time.sleep(chunk)
+                    elapsed += chunk
+
+            # 2. Switch to Typing Status!
+            # Exactly after the delay has passed, show typing indicator
+            send_telegram_chat_action(config.telegram_bot_token, chat_id, 'typing')
+            rag_start = time.time()
+
+            # 3. Generate AI response
+            close_old_connections()
+            session.refresh_from_db()
+
+            with _chat_state_lock:
+                tracker = _chat_states.get(chat_id)
+                latest_text = tracker.latest_user_text if tracker else ""
+            if not latest_text:
+                last_user_msg = session.messages.filter(role='user').order_by('-created_at').first()
+                latest_text = last_user_msg.content if last_user_msg else ""
+
+            try:
+                ai_reply = generate_rag_response(config, latest_text, session)
+                from apps.team.services import check_if_needs_escalation, assign_session_to_operator
+                needs_esc_ai, _ = check_if_needs_escalation(latest_text, ai_reply)
+                if needs_esc_ai and not session.is_escalated:
+                    assigned_staff = assign_session_to_operator(session, "AI to'liq javob bera olmadi")
+                    if assigned_staff:
+                        ai_reply += f"\n\n👨‍💼 Savolingiz bo'yicha mutaxassisimiz ({assigned_staff.name}) ulanmoqda..."
+            except Exception as e:
+                logger.error("Telegram RAG xatolik: %s", e, exc_info=True)
+                ai_reply = "Kechirasiz, texnik nosozlik yuz berdi. Iltimos, qayta urinib ko'ring."
+
+            rag_time = time.time() - rag_start
+
+            # 4. Split message into parts if enabled
+            if config.split_messages and '\n\n' in ai_reply:
+                parts = [p.strip() for p in ai_reply.split('\n\n') if p.strip()]
+            else:
+                parts = [ai_reply.strip()]
+
+            if not parts:
+                parts = [ai_reply]
+
+            last_replied_msg_id = None
+
+            # 5. Send parts sequentially with typing durations and reply handling
+            for idx, part in enumerate(parts):
+                part_typing_dur = calculate_typing_duration(part) if not is_testing else 0.0
+
+                # For the very first part, we already spent `rag_time` typing while generating RAG
+                if idx == 0:
+                    remaining_typing = max(0.0, part_typing_dur - rag_time)
+                else:
+                    # Realistic human pause between multiple distinct messages
+                    if not is_testing:
+                        time.sleep(1.2)
+                    remaining_typing = part_typing_dur
+
+                if remaining_typing > 0:
+                    simulate_typing(config.telegram_bot_token, chat_id, remaining_typing)
+
+                # Check if a new message from user arrived while waiting or typing
+                with _chat_state_lock:
+                    tracker = _chat_states.get(chat_id)
+                    current_latest_id = tracker.latest_user_msg_id if tracker else None
+
+                reply_to_id = None
+                # If a new user message arrived since trigger, reply to it
+                if current_latest_id and trigger_msg_id and current_latest_id > trigger_msg_id:
+                    reply_to_id = current_latest_id
+                    last_replied_msg_id = current_latest_id
+
+                send_telegram_bot_message(
+                    config.telegram_bot_token,
+                    chat_id,
+                    part,
+                    reply_to_message_id=reply_to_id
+                )
+
+                # Save assistant message to DB
+                close_old_connections()
+                assistant_msg = ChatMessage.objects.create(
+                    chatbot=config,
+                    session=session,
+                    role='assistant',
+                    content=part
+                )
+                from .realtime import notify_chat_update
+                notify_chat_update(config.business_id, session.session_id, assistant_msg.id)
+
+            # Check if any brand new message arrived while we were sending the parts
+            with _chat_state_lock:
+                tracker = _chat_states.get(chat_id)
+                if tracker and tracker.latest_user_msg_id:
+                    effective_answered_id = max(trigger_msg_id or 0, last_replied_msg_id or 0)
+                    if tracker.latest_user_msg_id > effective_answered_id:
+                        trigger_msg_id = tracker.latest_user_msg_id
+                        tracker.active_trigger_id = trigger_msg_id
+                        continue
+                if tracker:
+                    tracker.is_task_running = False
+                break
+
+    except Exception as ex:
+        import logging
+        logging.getLogger(__name__).error(f"[Telegram Worker] Task error: {ex}", exc_info=True)
+        with _chat_state_lock:
+            tracker = _chat_states.get(chat_id)
+            if tracker:
+                tracker.is_task_running = False
+    finally:
+        close_old_connections()
+
