@@ -125,7 +125,7 @@ def api_chat_message(request, api_key):
 
     try:
         # Generate RAG reply
-        reply = generate_rag_response(chatbot, user_message)
+        reply = generate_rag_response(chatbot, user_message, session=session)
 
         # Check if this chat requires human operator escalation
         from apps.team.services import check_if_needs_escalation, assign_session_to_operator

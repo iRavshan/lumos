@@ -41,12 +41,12 @@
             <div class="lg:col-span-2 space-y-6">
 
                 <!-- Card 1: Agent Shaxsi va Nomi -->
-                <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-4">
+                <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-5">
                     <div class="flex items-center justify-between border-b border-slate-100 dark:border-[#262626] pb-3">
                         <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm flex items-center">
-                            <i class="fa-solid fa-user-tie text-indigo-600 dark:text-indigo-400 mr-2"></i> Agent Shaxsi va Nomi
+                            <i class="fa-solid fa-user-tie text-indigo-600 dark:text-indigo-400 mr-2"></i> Agent Shaxsi va Salomlashish
                         </h3>
-                        <span class="text-xs text-slate-400 dark:text-slate-500">Mijozlar ko'radigan ism</span>
+                        <span class="text-xs text-slate-400 dark:text-slate-500">Mijozlar ko'radigan ma'lumotlar</span>
                     </div>
 
                     <div>
@@ -59,6 +59,23 @@
                         {% endif %}
                         <p class="text-slate-400 dark:text-slate-500 text-xs mt-1.5">
                             Mijozlar bilan muloqot boshlanganda ushbu ism virtual menejer sifatida ko'rsatiladi (masalan: Anvar, Aziza, Jasur).
+                        </p>
+                    </div>
+
+                    <!-- Ilk chiqib turadigan xabar (Salomlashish matni) -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label for="{{ form.welcome_message.id_for_label }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                <i class="fa-regular fa-comment-dots text-indigo-500 mr-1"></i> Ilk chiqib turadigan xabar (Salomlashish matni) <span class="text-rose-500">*</span>
+                            </label>
+                            <span class="text-[11px] text-slate-400 dark:text-slate-500 font-normal">Vidjet va Telegram Bot</span>
+                        </div>
+                        {{ form.welcome_message }}
+                        {% if form.welcome_message.errors %}
+                            <p class="text-rose-500 text-xs mt-1">{{ form.welcome_message.errors.0 }}</p>
+                        {% endif %}
+                        <p class="text-slate-400 dark:text-slate-500 text-xs mt-1.5">
+                            Mijoz saytdagi chat vidjetini ochganda yoki Telegram botga <code>/start</code> bosganida birinchi bo'lib aynan shu xabar chiqadi.
                         </p>
                     </div>
                 </div>
@@ -274,6 +291,14 @@
                                 {% if chatbot.split_messages %}Yoqilgan{% else %}O'chirilgan{% endif %}
                             </span>
                         </div>
+                        <div class="pt-2 border-t border-slate-100 dark:border-[#262626] text-left">
+                            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1.5 flex items-center gap-1">
+                                <i class="fa-regular fa-comment-dots text-indigo-500"></i> Ilk xabar ko'rinishi:
+                            </span>
+                            <p class="text-[11px] text-slate-600 dark:text-slate-300 italic line-clamp-3 leading-relaxed bg-slate-50 dark:bg-[#1E1E1E] p-2.5 rounded-xl border border-slate-100 dark:border-zinc-800" id="welcomePreviewText">
+                                "{{ chatbot.welcome_message|default:'Assalomu alaykum! Sizga qanday yordam bera olaman?' }}"
+                            </p>
+                        </div>
                     </div>
 
                     <a href="{% url 'chatbot:demo_page' chatbot.api_key %}" target="_blank"
@@ -302,7 +327,7 @@
                             title="AI savdo agentini sozlash video qo'llanmasi" 
                             frameborder="0" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                            referrerpolicy="strict-origin-when-cross-origin"
+                            referrerpolicy="strict-origin-when-cross-origin" 
                             allowfullscreen>
                         </iframe>
                     </div>
@@ -328,6 +353,10 @@
                         </div>
                         <div class="flex items-start space-x-2">
                             <i class="fa-solid fa-check text-emerald-600 dark:text-emerald-400 mt-0.5 text-xs"></i>
+                            <span>Ilk salomlashish xabarini samimiy yozing va mijozni o'z savolini berishga undaydigan qilib tuzing.</span>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-check text-emerald-600 dark:text-emerald-400 mt-0.5 text-xs"></i>
                             <span>5-10 soniya kechikish muloqotni tabiiy va professional savdo menejeri suhbati kabi qiladi.</span>
                         </div>
                         <div class="flex items-start space-x-2">
@@ -347,12 +376,20 @@
 <script>
     const botNameInput = document.getElementById('id_bot_name');
     const previewName = document.getElementById('agentPreviewName');
+    const welcomeInput = document.getElementById('id_welcome_message');
+    const welcomePreview = document.getElementById('welcomePreviewText');
     const firstDelayInput = document.getElementById('firstDelayInput');
     const subsequentDelayInput = document.getElementById('subsequentDelayInput');
 
     if (botNameInput && previewName) {
         botNameInput.addEventListener('input', function(e) {
             previewName.textContent = e.target.value.trim() || 'AI Savdo Agenti';
+        });
+    }
+
+    if (welcomeInput && welcomePreview) {
+        welcomeInput.addEventListener('input', function(e) {
+            welcomePreview.textContent = '"' + (e.target.value.trim() || 'Assalomu alaykum! Sizga qanday yordam bera olaman?') + '"';
         });
     }
 

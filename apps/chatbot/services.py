@@ -95,15 +95,46 @@ def build_business_context(chatbot_config, user_message=None):
     return "\n\n".join(context_parts)
 
 
-def ask_gemini_api(system_prompt, user_message, api_key):
+def ask_gemini_api(system_prompt, user_message, api_key, history_messages=None):
     try:
         from google import genai
         from google.genai import types
         client = genai.Client(api_key=api_key)
+
+        contents = []
+        if history_messages:
+            for m in history_messages:
+                content_text = getattr(m, 'content', '') or str(m)
+                if not content_text.strip():
+                    continue
+                role = 'user' if getattr(m, 'role', '') == 'user' else 'model'
+                # Merge consecutive turns with the same role
+                if contents and contents[-1].role == role:
+                    contents[-1].parts[0].text += f"\n{content_text.strip()}"
+                else:
+                    contents.append(
+                        types.Content(
+                            role=role,
+                            parts=[types.Part.from_text(text=content_text.strip())]
+                        )
+                    )
+
+        # Append current incoming user message
+        if contents and contents[-1].role == 'user':
+            contents[-1].parts[0].text += f"\n{user_message.strip()}"
+        else:
+            contents.append(
+                types.Content(
+                    role='user',
+                    parts=[types.Part.from_text(text=user_message.strip())]
+                )
+            )
+
         response = client.models.generate_content(
             model='models/gemini-3.6-flash',
-            contents=f"{system_prompt}\n\nMijoz savoli: {user_message}",
+            contents=contents,
             config=types.GenerateContentConfig(
+                system_instruction=system_prompt,
                 temperature=0.3,
                 max_output_tokens=1500,
                 thinking_config=types.ThinkingConfig(thinking_budget=0),
@@ -116,7 +147,7 @@ def ask_gemini_api(system_prompt, user_message, api_key):
     return None
 
 
-def contextual_fallback_agent(chatbot_config, user_message):
+def contextual_fallback_agent(chatbot_config, user_message, is_first_turn=True):
     """
     Intelligent contextual RAG engine for local/offline execution without third-party API keys.
     """
@@ -125,7 +156,10 @@ def contextual_fallback_agent(chatbot_config, user_message):
 
     # 1. Greetings
     if any(w in msg for w in ['salom', 'assalom', 'qale', 'qalay', 'privet', 'hello', 'hi', 'xayrli']):
-        return f"Assalomu alaykum! Men «{business.name}» kompaniyasining sotuv menejeri {chatbot_config.bot_name}man. Sizga xizmatlarimiz va imkoniyatlarimiz bo'yicha yordam berishdan xursandman. Ayting-chi, sizni aynan qaysi yo'nalish yoki xizmat turi ko'proq qiziqtirmoqda?"
+        if is_first_turn:
+            return f"Assalomu alaykum! Men «{business.name}» kompaniyasining sotuv menejeri {chatbot_config.bot_name}man. Sizga xizmatlarimiz va imkoniyatlarimiz bo'yicha yordam berishdan xursandman. Ayting-chi, sizni aynan qaysi yo'nalish yoki xizmat turi ko'proq qiziqtirmoqda?"
+        else:
+            return f"Assalomu alaykum! Suhbatimizni davom ettiramiz. Sizni aynan qaysi jihat yoki ma'lumot ko'proq qiziqtirmoqda?"
 
     # 2. Telegram queries
     if 'telegram' in msg or ' tg ' in f" {msg} ":
@@ -198,30 +232,77 @@ def contextual_fallback_agent(chatbot_config, user_message):
     return f"Sizga eng maqbul va to'g'ri taklifni bera olishim uchun rejangiz haqida biroz ko'proq bilishim kerak{hint_text}. Aynan qanday natijaga erishmoqchisiz?"
 
 
-def generate_rag_response(chatbot_config, user_message, chat_history=None):
+def generate_rag_response(chatbot_config, user_message, session=None, chat_history=None):
     """
-    Primary RAG Response Generator with Human Sales Manager persona.
+    Primary RAG Response Generator with Human Sales Manager persona and contextual conversation memory.
     """
+    # 1. Resolve session and past conversation history
+    from apps.chatbot.models import ChatSession
+    chat_session = None
+    if isinstance(session, ChatSession):
+        chat_session = session
+    elif isinstance(chat_history, ChatSession):
+        chat_session = chat_history
+    elif hasattr(session, 'messages'):
+        chat_session = session
+    elif hasattr(chat_history, 'messages'):
+        chat_session = chat_history
+
+    history_messages = []
+    if chat_session:
+        # Fetch up to 10 latest messages for context memory
+        raw_msgs = list(chat_session.messages.order_by('-created_at')[:10])
+        # If the latest message in DB matches the incoming user_message, exclude it from history
+        if raw_msgs and raw_msgs[0].role == 'user' and raw_msgs[0].content.strip() == user_message.strip():
+            raw_msgs = raw_msgs[1:]
+        history_messages = list(reversed(raw_msgs))
+
+    is_first_turn = (len(history_messages) == 0)
+
+    # 2. Context retrieval query
+    search_query = user_message
+    if len(user_message.strip()) < 20 and history_messages:
+        # If short response like "ha, noldan", include previous turn context for embedding search
+        prev_user = [m.content for m in history_messages if m.role == 'user']
+        if prev_user:
+            search_query = f"{prev_user[-1]} {user_message}"
+
     gemini_key = os.environ.get('GEMINI_API_KEY')
-    business_context = build_business_context(chatbot_config, user_message=user_message)
+    business_context = build_business_context(chatbot_config, user_message=search_query)
 
     if gemini_key:
+        if is_first_turn:
+            turn_instruction = (
+                "HOLAT: Bu mijoz bilan boshlangan ILK (BIRINCHI) xabar.\n"
+                "- Mijoz bilan samimiy salomlashing va o'zingizni bir marta kompaniyaning sotuv menejeri sifatida tanishtiring (Masalan: «Assalomu alaykum! Men «{business}» sotuv menejeri {name}man...»).\n"
+                "- Mijozning savoliga aniq javob bering va ochiq savol bilan yakunlang."
+            )
+        else:
+            turn_instruction = (
+                "⚠️ DIQQAT: USHBU SUHBAT ALLAQACHON BOSHLANGAN VA DAVOM ETMOQDA!\n"
+                "- O'ZINGIZNI QAYTA TANISHTIRISH VA QAYTA SALOMLASHISH MUTLAQO TAQIQLANADI! (Hech qachon 'Assalomu alaykum, men {name}man' yoki 'Men sotuv menejeriman' deb qayta aytmang).\n"
+                "- Oldingi suhbat tarixini to'liq eslab qoling va inobatga oling (mijozning darajasi, tanlagan yo'nalishi, rejalari va hokazo).\n"
+                "- Mijozning hozirgi gapi/javobiga tabiiy, jonli va bevosita munosabat bildirib suhbatni davom ettiring.\n"
+                "- Javob oxirida yangi ochiq savol bering."
+            )
+
         system_prompt = (
             f"Siz «{chatbot_config.business.name}» kompaniyasining tajribali, samimiy va professional sotuv menejerisiz (Ismingiz: {chatbot_config.bot_name}).\n"
             f"Sizning asosiy maqsadingiz — mijoz bilan iliq, jonli muloqot o'rnatish, uning ehtiyojini chuqur tushunish, kompaniya imkoniyatlarini yuqori darajada taqdim etish va uni xaridga yoki keyingi amaliy qadamga yo'naltirish.\n\n"
-            f"Quyida kompaniya haqidagi barcha rasmiy ma'lumotlar berilgan (KONTEKST):\n"
-            f"--- KONTEKST BOSHLANDI ---\n"
+            f"--- KOMPANIYA HAQIDA MA'LUMOTLAR (KONTEKST) ---\n"
             f"{business_context}\n"
             f"--- KONTEKST TUGADI ---\n\n"
+            f"SUHBATNING HOZIRGI BOSQICHI:\n"
+            f"{turn_instruction}\n\n"
             f"SOTUV MENEJERINING QAT'IY QOIDALARI:\n"
             f"1. INSONIYLIK VA SOTUVCHI PSIXOLOGIYASI:\n"
             f"   - O'zingizni har doim HAQIQIY INSON SOTUV MENEJERI kabi tuting. Hech qachon o'zingizni 'bot', 'AI', 'sun'iy intellekt' yoki 'model' deb atamang.\n"
             f"   - Muloqot uslubingiz samimiy, do'stona, qiziqish uyg'otuvchi va yuqori darajada professional bo'lsin. Hech qachon quruq yoki robotona gapirmang.\n"
             f"2. OCHIQ SAVOL BILAN YAKUNLASH (MUTLAQO SHART):\n"
-            f"   - Har bir javobingizni mijozning ehtiyojini, maqsadini yoki tajribasini aniqlaydigan OCHIQ SAVOL bilan yakunlang.\n"
-            f"   - Savol mijoz shunchaki 'ha' yoki 'yo'q' deb javob beradigan yopiq savol bo'lmasin. Muloqotni rivojlantiruvchi ochiq savol bering (Masalan: 'Siz aynan qaysi yo'nalishga ko'proq qiziqasiz, bu sohada tajribangiz bormi?', 'Loyiha bo'yicha qanday rejalaringiz bor, qachondan boshlamoqchisiz?', 'Siz uchun eng muhim jihat nima?').\n"
+            f"   - Har bir javobingizni mijozning ehtiyojini, maqsadini yoki fikrini aniqlaydigan OCHIQ SAVOL bilan yakunlang.\n"
+            f"   - Savol muloqotni rivojlantiruvchi bo'lsin (Masalan: 'Siz aynan qaysi yo'nalishga ko'proq qiziqasiz?', 'Loyiha bo'yicha qanday rejalaringiz bor, qachondan boshlamoqchisiz?').\n"
             f"3. ISHONCH VA ANIQLIK:\n"
-            f"   - Faqat yuqoridagi kontekstdagi ma'lumotlarga tayaning, asossiz ma'lumot to'qimang. Agar biror maxsus detal kontekstda bo'lmasa, sotuvchi sifatida uni chiroyli tushuntirib, mijoz bilan telefon yoki Telegram orqali batafsil maslahatlashishni taklif qiling va ochiq savol bilan uning fikrini so'rang.\n"
+            f"   - Faqat yuqoridagi kontekstdagi ma'lumotlarga tayaning, asossiz ma'lumot to'qimang. Agar biror maxsus detal kontekstda bo'lmasa, sotuvchi sifatida uni chiroyli tushuntirib, telefon yoki Telegram orqali bog'lanishni taklif qiling va ochiq savol bering.\n"
             f"4. TIL:\n"
             f"   - Mijoz qaysi tilda murojaat qilsa (o'zbek, rus, ingliz), shu tilda tabiiy va ravon gaplashing.\n"
             f"5. FORMATLASH:\n"
@@ -230,7 +311,7 @@ def generate_rag_response(chatbot_config, user_message, chat_history=None):
             f"   - Matnni Telegram va chat messenjerlari uchun qulay, chiroyli abzaslarga ajrating."
         )
         try:
-            ai_reply = ask_gemini_api(system_prompt, user_message, gemini_key)
+            ai_reply = ask_gemini_api(system_prompt, user_message, gemini_key, history_messages=history_messages)
             if ai_reply:
                 from .telegram_service import format_text_for_telegram
                 return format_text_for_telegram(ai_reply.strip())
@@ -240,7 +321,7 @@ def generate_rag_response(chatbot_config, user_message, chat_history=None):
             logger.error("Gemini API xatolik: %s", e, exc_info=True)
 
     # Fallback to intelligent local RAG matcher
-    return contextual_fallback_agent(chatbot_config, user_message)
+    return contextual_fallback_agent(chatbot_config, user_message, is_first_turn=is_first_turn)
 
 
 def analyze_session_insights(session):

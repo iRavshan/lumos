@@ -277,8 +277,8 @@
                     <div class="lumos-header-info">
                         <div class="lumos-avatar">${logoUrl ? '<img src="' + logoUrl + '" style="width:100%;height:100%;object-fit:contain;padding:3px;" onerror="this.style.display=\'none\'; this.parentElement.textContent=\'' + businessName.charAt(0).toUpperCase() + '\'">' : businessName.charAt(0).toUpperCase()}</div>
                         <div class="lumos-title-wrap">
-                            <h4>${botName}</h4>
-                            <p><span class="lumos-status-dot"></span> ${businessName}</p>
+                            <h4>${businessName}</h4>
+                            <p><span class="lumos-status-dot"></span> Savollar uchun biz bilan bog'laning</p>
                         </div>
                     </div>
                     <button class="lumos-close-btn" id="lumosCloseBtn" aria-label="Yopish">&times;</button>

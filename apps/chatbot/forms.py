@@ -47,6 +47,7 @@ class AgentConfigForm(forms.ModelForm):
         model = ChatbotConfig
         fields = [
             'bot_name', 
+            'welcome_message',
             'response_delay_enabled', 
             'first_message_delay_seconds', 
             'subsequent_message_delay_seconds', 
@@ -57,6 +58,11 @@ class AgentConfigForm(forms.ModelForm):
             'bot_name': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 text-sm font-semibold',
                 'placeholder': 'Masalan: Anvar'
+            }),
+            'welcome_message': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 text-sm leading-relaxed',
+                'rows': 4,
+                'placeholder': "Assalomu alaykum! Sizga qanday yordam bera olaman?"
             }),
             'response_delay_enabled': forms.CheckboxInput(attrs={
                 'class': 'sr-only peer',
