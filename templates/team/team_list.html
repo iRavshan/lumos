@@ -22,9 +22,9 @@
             <a href="{% url 'team:team_analytics' %}" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1E1E1E] dark:hover:bg-[#262626] text-slate-800 dark:text-[#F5F1E8] font-bold text-xs border border-transparent dark:border-[#262626] transition">
                 <i class="fa-solid fa-chart-line mr-1.5 text-slate-600 dark:text-slate-400"></i> KPI & Nazorat
             </a>
-            <a href="{% url 'team:team_create' %}" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] text-white font-bold text-xs shadow-xs transition">
+            <button type="button" onclick="openAddStaffModal()" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] text-white font-bold text-xs shadow-xs transition">
                 <i class="fa-solid fa-user-plus mr-1.5"></i> Yangi xodim qo'shish
-            </a>
+            </button>
         </div>
     </div>
 
@@ -63,7 +63,7 @@
                 </span>
             </div>
             <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-[#F5F1E8] mt-2.5">{{ supervisors|length }}</div>
-            <div class="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-1">SLA va sifat nazoratchilari</div>
+            <div class="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-1">Sifat va nazorat mas'ullari</div>
         </div>
     </div>
 
@@ -92,28 +92,10 @@
                             <p class="text-xs text-slate-400 dark:text-slate-500 font-mono">{{ op.clean_telegram|default:"Telegram username kiritilmagan" }}</p>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-[#1E1E1E] px-2.5 py-1 rounded-lg border border-slate-200 dark:border-[#262626]">
-                        <span class="w-2 h-2 rounded-full {% if op.is_online %}bg-emerald-500 animate-pulse{% else %}bg-slate-300 dark:bg-slate-600{% endif %}"></span>
-                        <span class="text-[10px] font-bold font-mono {% if op.is_online %}text-emerald-600 dark:text-emerald-400{% else %}text-slate-400 dark:text-slate-500{% endif %}">
-                            {% if op.is_online %}ONLAYN{% else %}OFLAYN{% endif %}
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Stats Grid -->
-                <div class="grid grid-cols-3 gap-2">
-                    <div class="bg-slate-50 dark:bg-[#1E1E1E] rounded-xl p-2.5 text-center border border-[#E7E5E1] dark:border-[#262626]">
-                        <div class="text-xs font-bold text-slate-800 dark:text-[#F5F1E8]">{{ op.total_handled }}</div>
-                        <div class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Xizmatlar</div>
-                    </div>
-                    <div class="bg-slate-50 dark:bg-[#1E1E1E] rounded-xl p-2.5 text-center border border-[#E7E5E1] dark:border-[#262626]">
-                        <div class="text-xs font-bold {% if op.on_time_rate >= 80 %}text-emerald-600 dark:text-emerald-400{% elif op.on_time_rate >= 50 %}text-amber-600 dark:text-amber-400{% else %}text-rose-600 dark:text-rose-400{% endif %}">{{ op.on_time_rate }}%</div>
-                        <div class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">O'z vaqtida</div>
-                    </div>
-                    <div class="bg-slate-50 dark:bg-[#1E1E1E] rounded-xl p-2.5 text-center border border-[#E7E5E1] dark:border-[#262626]">
-                        <div class="text-xs font-bold text-slate-800 dark:text-[#F5F1E8]">{{ op.sla_minutes }} daq</div>
-                        <div class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">SLA limit</div>
-                    </div>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold uppercase tracking-wider {% if op.is_active %}bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800{% else %}bg-slate-100 text-slate-500 border border-slate-200 dark:bg-[#1E1E1E] dark:text-slate-400 dark:border-[#262626]{% endif %}">
+                        <span class="w-1.5 h-1.5 rounded-full mr-1.5 {% if op.is_active %}bg-emerald-500{% else %}bg-slate-400{% endif %}"></span>
+                        {% if op.is_active %}Faol{% else %}Nofaol{% endif %}
+                    </span>
                 </div>
 
                 <!-- TMA Link Box (Pleep-style) -->
@@ -132,13 +114,12 @@
                 </div>
 
                 <!-- Action buttons -->
-                <div class="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-[#262626]">
-                    <a href="{% url 'team:team_edit' op.id %}" class="text-xs font-bold text-slate-700 hover:text-black dark:text-slate-300 dark:hover:text-white transition inline-flex items-center gap-1.5">
+                <div class="pt-1 border-t border-slate-100 dark:border-[#262626] flex items-center justify-end">
+                    <button type="button" 
+                            onclick="openEditStaffModal('{{ op.id }}', '{{ op.name|escapejs }}', '{{ op.role }}', '{{ op.telegram_username|default:''|escapejs }}', {{ op.is_active|yesno:'true,false' }}, '{{ request.scheme }}://{{ request.get_host }}/tma/{{ op.role }}/{{ op.auth_token }}/')"
+                            class="text-xs font-bold text-slate-700 hover:text-black dark:text-slate-300 dark:hover:text-white transition inline-flex items-center gap-1.5 cursor-pointer px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-[#1E1E1E]">
                         <i class="fa-solid fa-pen-to-square text-xs"></i> Tahrirlash
-                    </a>
-                    <a href="{% url 'team:team_delete' op.id %}" class="text-xs font-bold text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 transition inline-flex items-center gap-1.5" onclick="return confirm('Rostdan ham ushbu xodimni o\'chirmoqchimisiz?')">
-                        <i class="fa-solid fa-trash text-xs"></i> O'chirish
-                    </a>
+                    </button>
                 </div>
             </div>
             {% endfor %}
@@ -150,9 +131,9 @@
             </div>
             <h3 class="text-sm font-bold text-slate-800 dark:text-[#F5F1E8]">Hozircha operatorlar qo'shilmagan</h3>
             <p class="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-sm mx-auto">Operatorlar mijozlardan kelgan eskalatsiyalarni qabul qiladi va TMA orqali javob beradi.</p>
-            <a href="{% url 'team:team_create' %}" class="inline-flex items-center mt-4 px-4 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] text-white text-xs font-bold shadow-xs transition">
+            <button type="button" onclick="openAddStaffModal('operator')" class="inline-flex items-center mt-4 px-4 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] text-white text-xs font-bold shadow-xs transition">
                 <i class="fa-solid fa-plus mr-1.5"></i> Operator qo'shish
-            </a>
+            </button>
         </div>
         {% endif %}
     </div>
@@ -182,7 +163,13 @@
                             <p class="text-xs text-slate-400 dark:text-slate-500 font-mono">{{ sup.clean_telegram|default:"Telegram username kiritilmagan" }}</p>
                         </div>
                     </div>
-                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-100 dark:bg-[#1E1E1E] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-[#262626]">Supervisor</span>
+                    <div class="flex items-center space-x-2">
+                        <span class="px-2 py-1 rounded-lg text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-100 dark:bg-[#1E1E1E] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-[#262626]">Supervisor</span>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold uppercase tracking-wider {% if sup.is_active %}bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800{% else %}bg-slate-100 text-slate-500 border border-slate-200 dark:bg-[#1E1E1E] dark:text-slate-400 dark:border-[#262626]{% endif %}">
+                            <span class="w-1.5 h-1.5 rounded-full mr-1.5 {% if sup.is_active %}bg-emerald-500{% else %}bg-slate-400{% endif %}"></span>
+                            {% if sup.is_active %}Faol{% else %}Nofaol{% endif %}
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Supervisor TMA Link Box (Pleep-style) -->
@@ -201,13 +188,12 @@
                 </div>
 
                 <!-- Action buttons -->
-                <div class="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-[#262626]">
-                    <a href="{% url 'team:team_edit' sup.id %}" class="text-xs font-bold text-slate-700 hover:text-black dark:text-slate-300 dark:hover:text-white transition inline-flex items-center gap-1.5">
+                <div class="pt-1 border-t border-slate-100 dark:border-[#262626] flex items-center justify-end">
+                    <button type="button" 
+                            onclick="openEditStaffModal('{{ sup.id }}', '{{ sup.name|escapejs }}', '{{ sup.role }}', '{{ sup.telegram_username|default:''|escapejs }}', {{ sup.is_active|yesno:'true,false' }}, '{{ request.scheme }}://{{ request.get_host }}/tma/{{ sup.role }}/{{ sup.auth_token }}/')"
+                            class="text-xs font-bold text-slate-700 hover:text-black dark:text-slate-300 dark:hover:text-white transition inline-flex items-center gap-1.5 cursor-pointer px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-[#1E1E1E]">
                         <i class="fa-solid fa-pen-to-square text-xs"></i> Tahrirlash
-                    </a>
-                    <a href="{% url 'team:team_delete' sup.id %}" class="text-xs font-bold text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 transition inline-flex items-center gap-1.5" onclick="return confirm('Rostdan ham ushbu supervisor xodimni o\'chirmoqchimisiz?')">
-                        <i class="fa-solid fa-trash text-xs"></i> O'chirish
-                    </a>
+                    </button>
                 </div>
             </div>
             {% endfor %}
@@ -219,12 +205,284 @@
             </div>
             <h3 class="text-sm font-bold text-slate-800 dark:text-[#F5F1E8]">Hozircha supervisor qo'shilmagan</h3>
             <p class="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-sm mx-auto">Supervisor operatorlar vaqtida javob bermagan suhbatlarni nazorat qiladi va hal qiladi.</p>
-            <a href="{% url 'team:team_create' %}" class="inline-flex items-center mt-4 px-4 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] text-white text-xs font-bold shadow-xs transition">
+            <button type="button" onclick="openAddStaffModal('supervisor')" class="inline-flex items-center mt-4 px-4 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] text-white text-xs font-bold shadow-xs transition">
                 <i class="fa-solid fa-plus mr-1.5"></i> Supervisor qo'shish
-            </a>
+            </button>
         </div>
         {% endif %}
     </div>
 
 </div>
+
+<!-- 5. Add Staff Modal Popup -->
+<div id="addStaffModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 dark:bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-[#141414] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#E7E5E1] dark:border-[#262626] relative transition-all">
+        
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between border-b border-[#E7E5E1] dark:border-[#262626] pb-3.5 mb-5">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#1E1E1E] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-sm shadow-2xs shrink-0">
+                    <i class="fa-solid fa-user-plus"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-base leading-tight">Yangi xodim qo'shish</h3>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Operator yoki supervisor ma'lumotlarini kiriting</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeAddStaffModal()" class="w-8 h-8 rounded-lg border border-transparent hover:border-[#E7E5E1] dark:hover:border-[#262626] flex items-center justify-center text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] transition text-sm">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Form -->
+        <form method="POST" action="{% url 'team:team_create' %}" id="addStaffForm" class="space-y-4">
+            {% csrf_token %}
+
+            <!-- Xodim ismi -->
+            <div>
+                <label for="staffNameInput" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400 font-semibold mb-1.5">
+                    Xodim ismi va familiyasi <span class="text-rose-500">*</span>
+                </label>
+                <input type="text" 
+                       id="staffNameInput" 
+                       name="name" 
+                       required 
+                       placeholder="Masalan: Sardor Rahimov" 
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Xodim roli -->
+                <div>
+                    <label for="staffRoleSelect" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400 font-semibold mb-1.5">
+                        Xodim roli <span class="text-rose-500">*</span>
+                    </label>
+                    <select id="staffRoleSelect" 
+                            name="role" 
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 outline-none font-medium transition cursor-pointer">
+                        <option value="operator">Operator (Mijozlar bilan chat)</option>
+                        <option value="supervisor">Supervisor (Nazorat & Eskalatsiya)</option>
+                    </select>
+                </div>
+
+                <!-- Telegram username -->
+                <div>
+                    <label for="staffTgInput" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400 font-semibold mb-1.5">
+                        Telegram @username
+                    </label>
+                    <input type="text" 
+                           id="staffTgInput" 
+                           name="telegram_username" 
+                           placeholder="@username" 
+                           class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">
+                </div>
+            </div>
+
+            <!-- Xodim faolligi (Toggle switch) -->
+            <div class="pt-1">
+                <label class="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] cursor-pointer hover:border-slate-300 dark:hover:border-zinc-600 transition select-none">
+                    <div>
+                        <span class="text-xs font-bold text-slate-800 dark:text-[#F5F1E8] block">Xodim faol</span>
+                        <span class="text-[11px] text-slate-400 dark:text-slate-500">Mijozlar murojaati ushbu xodimga biriktiriladi</span>
+                    </div>
+                    <div class="relative inline-flex items-center">
+                        <input type="checkbox" name="is_active" id="staffIsActive" checked class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-500 dark:peer-checked:bg-emerald-500"></div>
+                    </div>
+                </label>
+            </div>
+
+            <!-- Modal Footer Buttons -->
+            <div class="pt-4 border-t border-[#E7E5E1] dark:border-[#262626] flex items-center justify-end space-x-2.5">
+                <button type="button" onclick="closeAddStaffModal()" class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] border border-transparent dark:border-[#262626] transition">
+                    Bekor qilish
+                </button>
+                <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] shadow-xs transition inline-flex items-center gap-1.5">
+                    <i class="fa-solid fa-check"></i> Qo'shish
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<!-- 6. Edit Staff Modal Popup -->
+<div id="editStaffModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 dark:bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-[#141414] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#E7E5E1] dark:border-[#262626] relative transition-all">
+        
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between border-b border-[#E7E5E1] dark:border-[#262626] pb-3.5 mb-5">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#1E1E1E] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-sm shadow-2xs shrink-0">
+                    <i class="fa-solid fa-user-pen"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-base leading-tight" id="editModalTitle">Xodim ma'lumotlarini tahrirlash</h3>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Xodim sozlamalarini yangilang</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeEditStaffModal()" class="w-8 h-8 rounded-lg border border-transparent hover:border-[#E7E5E1] dark:hover:border-[#262626] flex items-center justify-center text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] transition text-sm">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Form -->
+        <form method="POST" action="" id="editStaffForm" class="space-y-4">
+            {% csrf_token %}
+
+            <!-- Xodim ismi -->
+            <div>
+                <label for="editStaffNameInput" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400 font-semibold mb-1.5">
+                    Xodim ismi va familiyasi <span class="text-rose-500">*</span>
+                </label>
+                <input type="text" 
+                       id="editStaffNameInput" 
+                       name="name" 
+                       required 
+                       placeholder="Masalan: Sardor Rahimov" 
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Xodim roli -->
+                <div>
+                    <label for="editStaffRoleSelect" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400 font-semibold mb-1.5">
+                        Xodim roli <span class="text-rose-500">*</span>
+                    </label>
+                    <select id="editStaffRoleSelect" 
+                            name="role" 
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 outline-none font-medium transition cursor-pointer">
+                        <option value="operator">Operator (Mijozlar bilan chat)</option>
+                        <option value="supervisor">Supervisor (Nazorat & Eskalatsiya)</option>
+                    </select>
+                </div>
+
+                <!-- Telegram username -->
+                <div>
+                    <label for="editStaffTgInput" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400 font-semibold mb-1.5">
+                        Telegram @username
+                    </label>
+                    <input type="text" 
+                           id="editStaffTgInput" 
+                           name="telegram_username" 
+                           placeholder="@username" 
+                           class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">
+                </div>
+            </div>
+
+            <!-- Xodim faolligi (Toggle switch) -->
+            <div class="pt-1">
+                <label class="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] cursor-pointer hover:border-slate-300 dark:hover:border-zinc-600 transition select-none">
+                    <div>
+                        <span class="text-xs font-bold text-slate-800 dark:text-[#F5F1E8] block">Xodim faol</span>
+                        <span class="text-[11px] text-slate-400 dark:text-slate-500">Mijozlar murojaati ushbu xodimga biriktiriladi</span>
+                    </div>
+                    <div class="relative inline-flex items-center">
+                        <input type="checkbox" name="is_active" id="editStaffIsActive" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-500 dark:peer-checked:bg-emerald-500"></div>
+                    </div>
+                </label>
+            </div>
+
+            <!-- TMA Link Display inside modal -->
+            <div class="p-3 bg-slate-50 dark:bg-[#1E1E1E] rounded-xl border border-[#E7E5E1] dark:border-[#262626] space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1.5">
+                    <i class="fa-brands fa-telegram text-sky-500"></i> TMA Havolasi:
+                </span>
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="editStaffTmaUrl" readonly class="w-full text-xs bg-white dark:bg-[#141414] border border-[#E7E5E1] dark:border-[#262626] rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-[#F5F1E8] font-mono outline-none select-all">
+                    <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('editStaffTmaUrl').value); alert('TMA havolasi nusxalandi!');" class="px-2.5 py-1.5 rounded-lg bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] text-white text-xs font-bold transition shrink-0">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Footer Buttons -->
+            <div class="pt-4 border-t border-[#E7E5E1] dark:border-[#262626] flex items-center justify-between">
+                <a href="#" id="editStaffDeleteBtn" class="px-3.5 py-2.5 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 transition inline-flex items-center gap-1.5 cursor-pointer" onclick="return confirm('Rostdan ham ushbu xodimni o\'chirmoqchimisiz?')">
+                    <i class="fa-solid fa-trash-can"></i> Xodimni o'chirish
+                </a>
+                <div class="flex items-center space-x-2.5">
+                    <button type="button" onclick="closeEditStaffModal()" class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] border border-transparent dark:border-[#262626] transition">
+                        Bekor qilish
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] shadow-xs transition inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Saqlash
+                    </button>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    function openAddStaffModal(role = 'operator') {
+        const modal = document.getElementById('addStaffModal');
+        if (!modal) return;
+        const roleSelect = document.getElementById('staffRoleSelect');
+        if (roleSelect && role) {
+            roleSelect.value = role;
+        }
+        modal.classList.remove('hidden');
+        setTimeout(function() {
+            const nameInput = document.getElementById('staffNameInput');
+            if (nameInput) nameInput.focus();
+        }, 50);
+    }
+
+    function closeAddStaffModal() {
+        const modal = document.getElementById('addStaffModal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    function openEditStaffModal(id, name, role, telegramUsername, isActive, tmaUrl) {
+        const modal = document.getElementById('editStaffModal');
+        if (!modal) return;
+
+        const form = document.getElementById('editStaffForm');
+        if (form) {
+            form.action = `/dashboard/team/${id}/edit/`;
+        }
+
+        const deleteBtn = document.getElementById('editStaffDeleteBtn');
+        if (deleteBtn) {
+            deleteBtn.href = `/dashboard/team/${id}/delete/`;
+        }
+
+        document.getElementById('editModalTitle').textContent = `«${name}» ma'lumotlarini tahrirlash`;
+        document.getElementById('editStaffNameInput').value = name;
+        document.getElementById('editStaffRoleSelect').value = role;
+        document.getElementById('editStaffTgInput').value = telegramUsername;
+        document.getElementById('editStaffIsActive').checked = isActive;
+        document.getElementById('editStaffTmaUrl').value = tmaUrl;
+
+        modal.classList.remove('hidden');
+        setTimeout(function() {
+            const nameInput = document.getElementById('editStaffNameInput');
+            if (nameInput) nameInput.focus();
+        }, 50);
+    }
+
+    function closeEditStaffModal() {
+        const modal = document.getElementById('editStaffModal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    // Close on Escape or click on overlay backdrop
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeAddStaffModal();
+            closeEditStaffModal();
+        }
+    });
+
+    document.getElementById('addStaffModal')?.addEventListener('click', function(e) {
+        if (e.target === this) closeAddStaffModal();
+    });
+
+    document.getElementById('editStaffModal')?.addEventListener('click', function(e) {
+        if (e.target === this) closeEditStaffModal();
+    });
+</script>
 {% endblock %}

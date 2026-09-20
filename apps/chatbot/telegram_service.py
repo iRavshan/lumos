@@ -1,4 +1,5 @@
 import json
+import random
 import urllib.request
 import urllib.parse
 from django.utils import timezone
@@ -337,14 +338,18 @@ def send_telegram_bot_message(token, chat_id, text, reply_markup=None, parse_mod
 def calculate_typing_duration(text):
     """
     Calculates typing delay in seconds based on text length to simulate natural human typing.
-    Range: 1.5s to 7.0s.
+    Average human mobile typing speed: ~10-14 chars/sec with natural pauses.
+    Range: 3.0s to 16.0s with subtle human variance.
     """
     if not text:
-        return 1.5
+        return 3.0
     char_count = len(str(text).strip())
-    # ~30 chars per second reading & typing simulation
-    duration = 1.2 + (char_count * 0.035)
-    return round(min(max(duration, 1.5), 7.0), 2)
+    # Base preparation time + ~0.075s per character
+    duration = 2.5 + (char_count * 0.075)
+    # Add slight natural jitter (0.9 to 1.15)
+    jitter = random.uniform(0.9, 1.15)
+    duration = duration * jitter
+    return round(min(max(duration, 3.0), 16.0), 2)
 
 
 def simulate_typing(token, chat_id, duration_seconds):
@@ -552,26 +557,41 @@ def _process_telegram_response(config_id, session_id, chat_id, trigger_msg_id, f
     2. Switches to 'typing' action when delay passes.
     3. Generates response and calculates typing duration from text length.
     4. Splits into parts if enabled, sending each part after its calculated typing duration.
-    5. If a new user message arrived while waiting/generating/typing, replies to it (reply_to_message_id).
+    5. If a new user message arrived while sending parts, it will be processed in a subsequent turn.
     """
     import sys
     import logging
     from django.db import close_old_connections
     logger = logging.getLogger(__name__)
+    is_testing = 'test' in sys.argv
 
-    close_old_connections()
+    if not is_testing:
+        close_old_connections()
     try:
         from .models import ChatbotConfig, ChatSession, ChatMessage
         config = ChatbotConfig.objects.select_related('business').get(id=config_id)
         session = ChatSession.objects.get(id=session_id)
-        is_testing = 'test' in sys.argv
 
         while True:
-            # 1. Determine Initial Delay (No typing indicator!)
+            # 1. Determine Initial Reading Delay (No typing indicator!)
             user_msgs_count = session.messages.filter(role='user').count()
+
+            with _chat_state_lock:
+                tracker = _chat_states.get(chat_id)
+                latest_text = tracker.latest_user_text if tracker else ""
+            if not latest_text:
+                last_user_msg = session.messages.filter(role='user').order_by('-created_at').first()
+                latest_text = last_user_msg.content if last_user_msg else ""
+
             if config.response_delay_enabled and not is_testing:
-                delay = config.first_message_delay_seconds if user_msgs_count <= 1 else config.subsequent_message_delay_seconds
-                delay = min(max(delay, 0), 30)
+                configured_delay = config.first_message_delay_seconds if user_msgs_count <= 1 else config.subsequent_message_delay_seconds
+                configured_delay = min(max(configured_delay, 0), 30)
+                # Realistic reading time: human reads ~20-30 chars/sec + thinking time
+                read_time = min(len(latest_text) * 0.03, 3.5)
+                delay = max(configured_delay, read_time + 1.5) + random.uniform(0.5, 1.5)
+            elif not is_testing:
+                # Even if delay option is unchecked, human still takes 1.5 - 2.5s to read
+                delay = min(len(latest_text) * 0.02, 2.0) + random.uniform(0.5, 1.0)
             else:
                 delay = 0
 
@@ -584,20 +604,14 @@ def _process_telegram_response(config_id, session_id, chat_id, trigger_msg_id, f
                     elapsed += chunk
 
             # 2. Switch to Typing Status!
-            # Exactly after the delay has passed, show typing indicator
+            # Exactly after the reading delay has passed, show typing indicator
             send_telegram_chat_action(config.telegram_bot_token, chat_id, 'typing')
             rag_start = time.time()
 
             # 3. Generate AI response
-            close_old_connections()
+            if not is_testing:
+                close_old_connections()
             session.refresh_from_db()
-
-            with _chat_state_lock:
-                tracker = _chat_states.get(chat_id)
-                latest_text = tracker.latest_user_text if tracker else ""
-            if not latest_text:
-                last_user_msg = session.messages.filter(role='user').order_by('-created_at').first()
-                latest_text = last_user_msg.content if last_user_msg else ""
 
             try:
                 ai_reply = generate_rag_response(config, latest_text, session)
@@ -622,44 +636,38 @@ def _process_telegram_response(config_id, session_id, chat_id, trigger_msg_id, f
             if not parts:
                 parts = [ai_reply]
 
-            last_replied_msg_id = None
-
-            # 5. Send parts sequentially with typing durations and reply handling
+            # 5. Send parts sequentially with natural typing durations and pauses
             for idx, part in enumerate(parts):
                 part_typing_dur = calculate_typing_duration(part) if not is_testing else 0.0
 
-                # For the very first part, we already spent `rag_time` typing while generating RAG
                 if idx == 0:
-                    remaining_typing = max(0.0, part_typing_dur - rag_time)
-                else:
-                    # Realistic human pause between multiple distinct messages
+                    # For the very first part, don't extinguish typing duration.
+                    # Ensure active, visible typing continues naturally even if RAG took 2-3s.
                     if not is_testing:
-                        time.sleep(1.2)
+                        remaining_typing = max(3.0, part_typing_dur - (rag_time * 0.4))
+                        remaining_typing = min(remaining_typing, part_typing_dur)
+                    else:
+                        remaining_typing = 0.0
+                else:
+                    # Natural human pause between distinct message bubbles (2.5s - 4.0s)
+                    # During this pause, hands are off the keyboard (no typing indicator)
+                    if not is_testing:
+                        pause_duration = round(random.uniform(2.5, 4.0), 2)
+                        time.sleep(pause_duration)
                     remaining_typing = part_typing_dur
 
                 if remaining_typing > 0:
                     simulate_typing(config.telegram_bot_token, chat_id, remaining_typing)
 
-                # Check if a new message from user arrived while waiting or typing
-                with _chat_state_lock:
-                    tracker = _chat_states.get(chat_id)
-                    current_latest_id = tracker.latest_user_msg_id if tracker else None
-
-                reply_to_id = None
-                # If a new user message arrived since trigger, reply to it
-                if current_latest_id and trigger_msg_id and current_latest_id > trigger_msg_id:
-                    reply_to_id = current_latest_id
-                    last_replied_msg_id = current_latest_id
-
                 send_telegram_bot_message(
                     config.telegram_bot_token,
                     chat_id,
-                    part,
-                    reply_to_message_id=reply_to_id
+                    part
                 )
 
                 # Save assistant message to DB
-                close_old_connections()
+                if not is_testing:
+                    close_old_connections()
                 assistant_msg = ChatMessage.objects.create(
                     chatbot=config,
                     session=session,
@@ -673,8 +681,7 @@ def _process_telegram_response(config_id, session_id, chat_id, trigger_msg_id, f
             with _chat_state_lock:
                 tracker = _chat_states.get(chat_id)
                 if tracker and tracker.latest_user_msg_id:
-                    effective_answered_id = max(trigger_msg_id or 0, last_replied_msg_id or 0)
-                    if tracker.latest_user_msg_id > effective_answered_id:
+                    if tracker.latest_user_msg_id > (trigger_msg_id or 0):
                         trigger_msg_id = tracker.latest_user_msg_id
                         tracker.active_trigger_id = trigger_msg_id
                         continue
@@ -690,5 +697,6 @@ def _process_telegram_response(config_id, session_id, chat_id, trigger_msg_id, f
             if tracker:
                 tracker.is_task_running = False
     finally:
-        close_old_connections()
+        if not is_testing:
+            close_old_connections()
 

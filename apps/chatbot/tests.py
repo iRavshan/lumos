@@ -229,6 +229,7 @@ class ChatbotTests(TestCase):
         self.chatbot.telegram_bot_token = '123456789:MockTokenXYZ'
         self.chatbot.telegram_bot_username = 'FastDeliveryBot'
         self.chatbot.telegram_bot_active = True
+        self.chatbot.split_messages = False
         self.chatbot.save()
 
         from unittest.mock import patch
@@ -316,6 +317,45 @@ class ChatbotTests(TestCase):
         # Check content in tg sheet
         tg_names = [row[1] for row in ws_tg.iter_rows(values_only=True) if row[1]]
         self.assertIn("Vali Aliyev", tg_names)
+
+    def test_telegram_split_messages_no_reply_to_intervening(self):
+        from apps.chatbot.telegram_service import _process_telegram_response, _chat_states, ChatStateTracker
+        from unittest.mock import patch
+
+        self.chatbot.telegram_bot_token = '123456789:MockTokenXYZ'
+        self.chatbot.telegram_bot_username = 'FastDeliveryBot'
+        self.chatbot.telegram_bot_active = True
+        self.chatbot.split_messages = True
+        self.chatbot.save()
+
+        session = ChatSession.objects.create(
+            chatbot=self.chatbot,
+            session_id='tg_112233',
+            visitor_name='Temur'
+        )
+        ChatMessage.objects.create(chatbot=self.chatbot, session=session, role='user', content='Savol')
+
+        tracker = ChatStateTracker(112233)
+        tracker.latest_user_msg_id = 99
+        tracker.latest_user_text = 'Yangi savol'
+        _chat_states[112233] = tracker
+
+        with patch('apps.chatbot.telegram_service.generate_rag_response') as mock_rag, \
+             patch('apps.chatbot.telegram_service.send_telegram_bot_message') as mock_send, \
+             patch('apps.chatbot.telegram_service.send_telegram_chat_action'):
+            mock_rag.return_value = "Birinchi bo'lak.\n\nIkkinchi bo'lak."
+
+            def stop_loop(*args, **kwargs):
+                # Update tracker so loop terminates after the current iteration
+                tracker.latest_user_msg_id = 50
+            mock_send.side_effect = stop_loop
+
+            _process_telegram_response(self.chatbot.id, session.id, 112233, 50, 'Temur')
+
+            self.assertGreater(mock_send.call_count, 0)
+            for call_item in mock_send.call_args_list:
+                kwargs = call_item.kwargs
+                self.assertIsNone(kwargs.get('reply_to_message_id'))
 
 
 

@@ -5,7 +5,7 @@ from .models import StaffMember
 class StaffMemberForm(forms.ModelForm):
     class Meta:
         model = StaffMember
-        fields = ['name', 'role', 'telegram_username', 'sla_minutes', 'is_active', 'is_online']
+        fields = ['name', 'role', 'telegram_username', 'is_active']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200',
@@ -18,15 +18,7 @@ class StaffMemberForm(forms.ModelForm):
                 'class': 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200',
                 'placeholder': '@username'
             }),
-            'sla_minutes': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200',
-                'min': '1',
-                'max': '120',
-            }),
             'is_active': forms.CheckboxInput(attrs={
-                'class': 'w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500',
-            }),
-            'is_online': forms.CheckboxInput(attrs={
                 'class': 'w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500',
             }),
         }

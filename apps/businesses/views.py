@@ -203,6 +203,11 @@ def dashboard_view(request):
     leads_count = chatbot.sessions.count()
     new_leads_count = chatbot.sessions.filter(status='new').count()
     recent_sessions = chatbot.sessions.prefetch_related('messages')[:5]
+
+    staff_members = business.staff_members.all()
+    total_staff = staff_members.filter(is_active=True).count()
+    operators_count = staff_members.filter(role='operator', is_active=True).count()
+    supervisors_count = staff_members.filter(role='supervisor', is_active=True).count()
     
     context = {
         'business': business,
@@ -212,6 +217,9 @@ def dashboard_view(request):
         'leads_count': leads_count,
         'new_leads_count': new_leads_count,
         'recent_sessions': recent_sessions,
+        'total_staff': total_staff,
+        'operators_count': operators_count,
+        'supervisors_count': supervisors_count,
     }
     return render(request, 'businesses/dashboard.html', context)
 

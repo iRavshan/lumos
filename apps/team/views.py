@@ -34,6 +34,7 @@ def team_list_view(request):
         'operators': operators,
         'supervisors': supervisors,
         'total_staff': staff_members.count(),
+        'form': StaffMemberForm(),
     })
 
 
@@ -51,15 +52,15 @@ def team_create_view(request):
             staff.business = business
             staff.save()
             messages.success(request, f"«{staff.name}» muvaffaqiyatli qo'shildi. TMA havolasi shakllantirildi.")
-            return redirect('team:team_list')
-    else:
-        form = StaffMemberForm()
+        else:
+            err_msgs = []
+            for field, errs in form.errors.items():
+                err_msgs.append(f"{', '.join(errs)}")
+            messages.error(request, "Xodim qo'shishda xatolik: " + "; ".join(err_msgs))
+        return redirect('team:team_list')
 
-    return render(request, 'team/team_form.html', {
-        'form': form,
-        'business': business,
-        'title': "Yangi xodim qo'shish"
-    })
+    # GET requests redirect to team_list since modal is used instead of a separate page
+    return redirect('team:team_list')
 
 
 @login_required
@@ -75,16 +76,15 @@ def team_edit_view(request, staff_id):
         if form.is_valid():
             form.save()
             messages.success(request, f"«{staff.name}» ma'lumotlari muvaffaqiyatli yangilandi.")
-            return redirect('team:team_list')
-    else:
-        form = StaffMemberForm(instance=staff)
+        else:
+            err_msgs = []
+            for field, errs in form.errors.items():
+                err_msgs.append(f"{', '.join(errs)}")
+            messages.error(request, "Tahrirlashda xatolik: " + "; ".join(err_msgs))
+        return redirect('team:team_list')
 
-    return render(request, 'team/team_form.html', {
-        'form': form,
-        'staff': staff,
-        'business': business,
-        'title': f"«{staff.name}» ma'lumotlarini tahrirlash"
-    })
+    # GET requests redirect to team_list since edit is handled via modal
+    return redirect('team:team_list')
 
 
 @login_required
@@ -98,6 +98,7 @@ def team_delete_view(request, staff_id):
     staff.delete()
     messages.info(request, f"«{staff_name}» tizimdan o'chirildi.")
     return redirect('team:team_list')
+
 
 
 @login_required

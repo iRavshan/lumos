@@ -3,269 +3,240 @@
 {% block title %}{{ business.name }} - Boshqaruv Paneli{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-7">
-    
-    <!-- 1. Header Card (Business Profile & Fast Actions) -->
-    <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 sm:p-7 border border-[#E7E5E1] dark:border-[#262626] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-5">
-        <div class="flex items-center space-x-4">
-            <div class="w-14 h-14 rounded-2xl overflow-hidden flex items-center justify-center shrink-0 border border-[#E7E5E1] dark:border-[#262626] relative bg-slate-50 dark:bg-[#1E1E1E]">
-                {% if business.website or business.telegram %}
-                    <img id="dashBannerLogo" 
-                         src="{% url 'businesses:favicon_proxy' business.id %}" 
-                         alt="{{ business.name }}" 
-                         class="w-full h-full object-contain p-2 bg-white dark:bg-[#141414]"
-                         onerror="this.style.display='none'; document.getElementById('dashFallbackInitial').classList.remove('hidden');">
-                    <div id="dashFallbackInitial" class="hidden absolute inset-0 bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] flex items-center justify-center text-xl font-bold select-none">
-                        {{ business.name|first|upper }}
-                    </div>
-                {% else %}
-                    <div class="w-full h-full bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] flex items-center justify-center text-xl font-bold select-none">
-                        {{ business.name|first|upper }}
-                    </div>
-                {% endif %}
-            </div>
-            <div>
-                <div class="flex flex-wrap items-center gap-2.5">
-                    <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight">{{ business.name }}</h1>
-                </div>
-                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
-                    {% if business.website %}
-                    <span><i class="fa-solid fa-globe text-slate-400 mr-1"></i> <a href="{{ business.website }}" target="_blank" class="text-slate-900 dark:text-slate-200 hover:underline font-semibold">{{ business.website }}</a></span>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+<style>
+    @keyframes slow-spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    .slow-spin {
+        animation: slow-spin 35s linear infinite;
+    }
+</style>
 
-        <div class="flex items-center gap-2.5 shrink-0">
-            <a href="{% url 'businesses:edit' %}" class="inline-flex items-center px-4 py-2 rounded-lg border border-[#E7E5E1] dark:border-[#262626] bg-white dark:bg-[#141414] hover:bg-slate-50 dark:hover:bg-[#1E1E1E] text-slate-700 dark:text-slate-300 font-semibold text-xs transition">
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    
+    <!-- Top Minimal Bar: Navigation & Fast Actions -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight">
+                Boshqaruv Paneli
+            </h1>
+            <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Integratsiyalar va AI tizimi holati</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="{% url 'businesses:edit' %}" class="inline-flex items-center px-3.5 py-2 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-white dark:bg-[#141414] hover:bg-slate-50 dark:hover:bg-[#1E1E1E] text-slate-700 dark:text-slate-300 font-semibold text-xs transition">
                 <i class="fa-solid fa-pen-to-square mr-1.5 opacity-70"></i> Tahrirlash
             </a>
-            <a href="{% url 'businesses:analytics' %}" class="inline-flex items-center px-4 py-2 rounded-lg bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] text-white font-bold text-xs shadow-xs transition">
+            <a href="{% url 'businesses:analytics' %}" class="inline-flex items-center px-3.5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] text-white font-bold text-xs shadow-xs transition">
                 <i class="fa-solid fa-chart-line mr-1.5 text-xs"></i> Analitika
             </a>
         </div>
     </div>
 
-    <!-- 2. Distinct 4 KPI Stat Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+    <!-- Central System Hub Card -->
+    <div class="bg-white dark:bg-[#141414] rounded-3xl p-6 sm:p-10 border border-[#E7E5E1] dark:border-[#262626] shadow-xs relative overflow-hidden">
         
-        <!-- Card 1: Jami Murojaatlar -->
-        <a href="{% url 'chatbot:inbox' %}" class="bg-white dark:bg-[#141414] p-5 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:border-slate-400 transition duration-200 group block relative overflow-hidden">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold">Jami murojaatlar</span>
-                <span class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-white flex items-center justify-center text-xs group-hover:scale-105 transition">
-                    <i class="fa-solid fa-comments"></i>
-                </span>
-            </div>
-            <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-[#F5F1E8] mt-2.5">{{ chat_count }}</p>
-            <div class="flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-400 font-bold mt-2 pt-2 border-t border-[#E7E5E1] dark:border-[#262626]">
-                <span>Inbox CRM</span>
-                <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
-            </div>
-        </a>
+        <!-- Subtle Dot Grid Background -->
+        <div class="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#262626_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none"></div>
 
-        <!-- Card 2: Yangi Lidlar -->
-        <a href="{% url 'chatbot:inbox' %}?status=new" class="bg-white dark:bg-[#141414] p-5 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:border-slate-400 transition duration-200 group block relative overflow-hidden">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold">Yangi Lidlar</span>
-                <span class="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs group-hover:scale-105 transition">
-                    <i class="fa-solid fa-bolt"></i>
-                </span>
-            </div>
-            <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-[#F5F1E8] mt-2.5">{{ new_leads_count }}</p>
-            <div class="flex items-center justify-between text-[11px] text-indigo-600 dark:text-indigo-400 font-bold mt-2 pt-2 border-t border-[#E7E5E1] dark:border-[#262626]">
-                <span>Ko'rib chiqilmagan</span>
-                <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
-            </div>
-        </a>
-
-        <!-- Card 3: Jami Mijozlar -->
-        <a href="{% url 'chatbot:inbox' %}" class="bg-white dark:bg-[#141414] p-5 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:border-slate-400 transition duration-200 group block relative overflow-hidden">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold">Jami Mijozlar</span>
-                <span class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs group-hover:scale-105 transition">
-                    <i class="fa-solid fa-users"></i>
-                </span>
-            </div>
-            <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-[#F5F1E8] mt-2.5">{{ leads_count }}</p>
-            <div class="flex items-center justify-between text-[11px] text-emerald-600 dark:text-emerald-400 font-bold mt-2 pt-2 border-t border-[#E7E5E1] dark:border-[#262626]">
-                <span>Kontaktlar ro'yxati</span>
-                <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
-            </div>
-        </a>
-
-        <!-- Card 4: Savdo Agenti Holati -->
-        <a href="{% url 'chatbot:agent_settings' %}" class="bg-white dark:bg-[#141414] p-5 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:border-slate-400 transition duration-200 group block relative overflow-hidden">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold">Savdo Agenti</span>
-                <span class="w-7 h-7 rounded-lg bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 flex items-center justify-center text-xs group-hover:scale-105 transition">
-                    <i class="fa-solid fa-robot"></i>
-                </span>
-            </div>
-            <div class="flex items-center gap-2 mt-3.5">
-                {% if chatbot.is_active %}
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span class="text-base sm:text-lg font-bold text-slate-900 dark:text-[#F5F1E8]">24/7 Faol</span>
-                {% else %}
-                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                <span class="text-base sm:text-lg font-bold text-slate-900 dark:text-[#F5F1E8]">Nofaol</span>
-                {% endif %}
-            </div>
-            <div class="flex items-center justify-between text-[11px] text-violet-600 dark:text-violet-400 font-bold mt-2 pt-2 border-t border-[#E7E5E1] dark:border-[#262626]">
-                <span>Agent sozlamalari</span>
-                <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
-            </div>
-        </a>
-    </div>
-
-    <!-- 3. Savdo Agenti va Integratsiya Kanallari Kartalari -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        <!-- Card 1: AI Savdo Agenti Card (Soft Violet / Lavender Tint) -->
-        <div class="bg-gradient-to-br from-indigo-50/80 via-purple-50/50 to-slate-50/60 dark:from-[#181528] dark:via-[#141222] dark:to-[#100F1A] text-slate-900 dark:text-[#F5F1E8] rounded-2xl border border-indigo-100 dark:border-indigo-950/80 shadow-xs hover:border-indigo-200 dark:hover:border-indigo-800/60 transition-all duration-200 p-6 flex flex-col justify-between relative overflow-hidden group">
-            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
-            <div>
-                <!-- Top Header -->
-                <div class="flex items-start justify-between gap-3">
-                    <div class="flex items-center space-x-3.5">
-                        <div class="w-11 h-11 rounded-xl bg-indigo-100/90 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-lg shadow-2xs border border-indigo-200/80 dark:border-indigo-800/50 shrink-0 relative overflow-hidden">
-                            {% if business.website or business.telegram %}
-                                <img src="{% url 'businesses:favicon_proxy' business.id %}" 
-                                     alt="{{ business.name }}" 
-                                     class="w-full h-full object-contain p-1.5"
-                                     onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
-                                <div class="hidden absolute inset-0 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-                                    <i class="fa-solid fa-robot"></i>
-                                </div>
-                            {% else %}
-                                <i class="fa-solid fa-robot"></i>
-                            {% endif %}
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm">Savdo Agenti</h3>
-                                {% if chatbot.is_active %}
-                                <span class="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100/80 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Faol
-                                </span>
-                                {% else %}
-                                <span class="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 border border-slate-200 dark:border-zinc-700">
-                                    Nofaol
-                                </span>
-                                {% endif %}
+        <!-- 3-Column Topology Grid -->
+        <div class="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-center min-h-[420px]">
+            
+            <!-- LEFT COLUMN: Vebsayt & Mijozlar -->
+            <div class="space-y-5 flex flex-col justify-between h-full py-1 order-2 lg:order-1">
+                
+                <!-- Node 1: Vebsayt Vidjeti -->
+                <div class="bg-white dark:bg-[#181818] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:border-slate-400 dark:hover:border-zinc-600 transition group">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#222] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-globe"></i>
                             </div>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5 truncate max-w-[170px]" title="{{ chatbot.bot_name }}">{{ chatbot.bot_name }}</p>
+                            <div>
+                                <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm">Vebsayt Vidjeti</h3>
+                                <p class="text-[11px] text-slate-400 font-mono">
+                                    {% if business.domain %}{{ business.domain }}{% else %}Vidjet{% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        <span class="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full {% if chatbot.is_active %}bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800{% else %}bg-slate-100 dark:bg-zinc-800 text-slate-400 border border-slate-200 dark:border-zinc-700{% endif %}">
+                            {% if chatbot.is_active %}<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Faol{% else %}Nofaol{% endif %}
+                        </span>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-[#E7E5E1] dark:border-[#262626] flex items-center justify-between text-xs">
+                        <a href="{% url 'chatbot:demo_page' chatbot.api_key %}" target="_blank" class="font-bold text-slate-900 dark:text-[#F5F1E8] hover:underline inline-flex items-center gap-1.5">
+                            <i class="fa-solid fa-play text-[10px]"></i> Jonli sinov
+                        </a>
+                        <a href="{% url 'chatbot:settings' %}" class="text-slate-400 hover:text-slate-900 dark:hover:text-white transition" title="Vidjet sozlamalari">
+                            <i class="fa-solid fa-gear"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Node 2: Mijozlar & CRM -->
+                <div class="bg-white dark:bg-[#181818] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:border-slate-400 dark:hover:border-zinc-600 transition group">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#222] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-comments"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm">Mijozlar & Lidlar</h3>
+                                <p class="text-[11px] text-slate-400 font-mono">{{ chat_count }} ta xabar</p>
+                            </div>
+                        </div>
+                        <span class="inline-flex items-center text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-[#222] text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626]">
+                            {{ new_leads_count }} yangi
+                        </span>
+                    </div>
+
+                    <div class="mt-3.5 grid grid-cols-2 gap-2 text-center">
+                        <div class="bg-slate-50 dark:bg-[#141414] rounded-xl p-2 border border-[#E7E5E1] dark:border-[#262626]">
+                            <div class="text-sm font-extrabold text-slate-900 dark:text-[#F5F1E8]">{{ leads_count }}</div>
+                            <div class="text-[10px] text-slate-400">Jami mijoz</div>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-[#141414] rounded-xl p-2 border border-[#E7E5E1] dark:border-[#262626]">
+                            <div class="text-sm font-extrabold text-slate-900 dark:text-[#F5F1E8]">{{ new_leads_count }}</div>
+                            <div class="text-[10px] text-slate-400">Yangi lidlar</div>
                         </div>
                     </div>
+
+                    <div class="mt-4 pt-3 border-t border-[#E7E5E1] dark:border-[#262626] flex items-center justify-between text-xs">
+                        <a href="{% url 'chatbot:inbox' %}" class="font-bold text-slate-900 dark:text-[#F5F1E8] hover:underline inline-flex items-center gap-1.5">
+                            Inbox CRM <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- CENTER COLUMN: The Core Circular Hub -->
+            <div class="flex flex-col items-center justify-center py-6 order-1 lg:order-2 relative">
+                
+                <!-- Rotating Minimal Dashed Orbit -->
+                <div class="absolute w-56 h-56 sm:w-64 sm:h-64 rounded-full border border-dashed border-slate-200 dark:border-zinc-800 slow-spin pointer-events-none"></div>
+
+                <!-- Main Central Circular Card -->
+                <div class="relative w-48 h-48 sm:w-52 sm:h-52 rounded-full bg-white dark:bg-[#181818] border border-[#E7E5E1] dark:border-[#262626] shadow-lg flex flex-col items-center justify-center p-5 text-center z-10 hover:border-black dark:hover:border-white transition-colors duration-300">
                     
-                    <a href="{% url 'chatbot:agent_settings' %}" class="w-8 h-8 rounded-lg bg-white dark:bg-[#1E1E1E] hover:bg-slate-50 dark:hover:bg-[#262626] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-xs font-bold transition shadow-2xs" title="Agent sozlamalari">
-                        <i class="fa-solid fa-sliders"></i>
+                    <!-- Business Logo / Favicon Badge -->
+                    <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-[#222] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center overflow-hidden mb-2 shadow-2xs">
+                        {% if business.website or business.telegram %}
+                            <img src="{% url 'businesses:favicon_proxy' business.id %}" 
+                                 alt="{{ business.name }}" 
+                                 class="w-full h-full object-contain p-2"
+                                 onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                            <span class="hidden text-base font-bold text-slate-900 dark:text-[#F5F1E8]">{{ business.name|first|upper }}</span>
+                        {% else %}
+                            <span class="text-base font-bold text-slate-900 dark:text-[#F5F1E8]">{{ business.name|first|upper }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Business Name -->
+                    <h2 class="font-extrabold text-slate-900 dark:text-[#F5F1E8] text-sm sm:text-base leading-tight max-w-[140px] truncate" title="{{ business.name }}">
+                        {{ business.name }}
+                    </h2>
+
+                    <!-- Status Pill -->
+                    <div class="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>AI Faol</span>
+                    </div>
+
+                    <!-- Bot Name & Settings -->
+                    <a href="{% url 'chatbot:agent_settings' %}" class="mt-2 text-[11px] font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition inline-flex items-center gap-1">
+                        <span>{{ chatbot.bot_name|default:"AI Menejer" }}</span>
+                        <i class="fa-solid fa-gear text-[9px]"></i>
                     </a>
                 </div>
             </div>
 
-            <!-- Actions Footer -->
-            <div class="mt-5 pt-3.5 border-t border-indigo-100/80 dark:border-indigo-950/60 flex items-center justify-between gap-3">
-                <a href="{% url 'chatbot:agent_settings' %}" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white dark:bg-[#1E1E1E] hover:bg-indigo-50/80 dark:hover:bg-[#262626] text-indigo-700 dark:text-indigo-300 font-bold text-xs shadow-2xs border border-indigo-200/80 dark:border-indigo-800/40 transition">
-                    <i class="fa-solid fa-sliders text-[10px]"></i> Agentni sozlash
-                </a>
-            </div>
-        </div>
-
-        <!-- Channel 2: Website Widget Card (Soft Emerald / Sage Tint) -->
-        <div class="bg-gradient-to-br from-emerald-50/80 via-teal-50/40 to-slate-50/60 dark:from-[#0F1E17] dark:via-[#0C1A14] dark:to-[#0A1410] text-slate-900 dark:text-[#F5F1E8] rounded-2xl border border-emerald-100 dark:border-emerald-950/80 shadow-xs hover:border-emerald-200 dark:hover:border-emerald-800/60 transition-all duration-200 p-6 flex flex-col justify-between relative overflow-hidden group">
-            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
-            <div>
-                <!-- Top Header -->
-                <div class="flex items-start justify-between gap-3">
-                    <div class="flex items-center space-x-3.5">
-                        <div class="w-11 h-11 rounded-xl bg-emerald-100/90 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg shadow-2xs border border-emerald-200/80 dark:border-emerald-800/50 shrink-0">
-                            <i class="fa-solid fa-globe"></i>
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm">Vebsayt vidjeti</h3>
-                                {% if chatbot.is_active %}
-                                <span class="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100/80 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Faol
-                                </span>
-                                {% else %}
-                                <span class="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 border border-slate-200 dark:border-zinc-700">
-                                    O'chirilgan
-                                </span>
-                                {% endif %}
+            <!-- RIGHT COLUMN: Telegram & Jamoa -->
+            <div class="space-y-5 flex flex-col justify-between h-full py-1 order-3">
+                
+                <!-- Node 3: Telegram Bot -->
+                <div class="bg-white dark:bg-[#181818] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:border-slate-400 dark:hover:border-zinc-600 transition group">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#222] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-sm">
+                                <i class="fa-brands fa-telegram"></i>
                             </div>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5 truncate max-w-[170px]">Vebsayt integratsiyasi</p>
-                        </div>
-                    </div>
-                    
-                    <a href="{% url 'chatbot:settings' %}" class="w-8 h-8 rounded-lg bg-white dark:bg-[#1E1E1E] hover:bg-slate-50 dark:hover:bg-[#262626] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-xs font-bold transition shadow-2xs" title="Vidjet sozlamalari">
-                        <i class="fa-solid fa-sliders"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Actions Footer -->
-            <div class="mt-5 pt-3.5 border-t border-emerald-100/80 dark:border-emerald-950/60 flex items-center justify-between gap-3">
-                <a href="{% url 'chatbot:demo_page' chatbot.api_key %}" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white dark:bg-[#1E1E1E] hover:bg-emerald-50/80 dark:hover:bg-[#262626] text-emerald-700 dark:text-emerald-300 font-bold text-xs shadow-2xs border border-emerald-200/80 dark:border-emerald-800/40 transition">
-                    <i class="fa-solid fa-play text-[10px]"></i> Jonli sinov
-                </a>
-            </div>
-        </div>
-
-        <!-- Channel 3: Telegram Bot Card (Soft Sky / Blue Tint) -->
-        <div class="bg-gradient-to-br from-sky-50/80 via-blue-50/40 to-slate-50/60 dark:from-[#0E1C2C] dark:via-[#0B1724] dark:to-[#0A121C] text-slate-900 dark:text-[#F5F1E8] rounded-2xl border border-sky-100 dark:border-sky-950/80 shadow-xs hover:border-sky-200 dark:hover:border-sky-800/60 transition-all duration-200 p-6 flex flex-col justify-between relative overflow-hidden group">
-            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-sky-500/10 dark:bg-sky-500/5 rounded-full blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
-            <div>
-                <!-- Top Header -->
-                <div class="flex items-start justify-between gap-3">
-                    <div class="flex items-center space-x-3.5">
-                        <div class="w-11 h-11 rounded-xl bg-sky-100/90 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center text-xl shadow-2xs border border-sky-200/80 dark:border-sky-800/50 shrink-0">
-                            <i class="fa-brands fa-telegram"></i>
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm">Telegram AI Bot</h3>
-                                {% if chatbot.telegram_bot_active and chatbot.telegram_bot_token %}
-                                <span class="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100/80 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Faol
-                                </span>
-                                {% else %}
-                                <span class="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 border border-slate-200 dark:border-zinc-700">
+                            <div>
+                                <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm">Telegram Bot</h3>
+                                <p class="text-[11px] text-slate-400 font-mono">
+                                    {% if chatbot.telegram_bot_token and chatbot.telegram_bot_username %}
+                                    @{{ chatbot.telegram_bot_username }}
+                                    {% else %}
                                     Ulanmagan
-                                </span>
-                                {% endif %}
+                                    {% endif %}
+                                </p>
                             </div>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5 truncate max-w-[170px]">
-                                {% if chatbot.telegram_bot_token and chatbot.telegram_bot_username %}
-                                @{{ chatbot.telegram_bot_username }}
-                                {% else %}
-                                Bot ulanmagan
-                                {% endif %}
-                            </p>
+                        </div>
+                        <span class="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full {% if chatbot.telegram_bot_active and chatbot.telegram_bot_token %}bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800{% else %}bg-slate-100 dark:bg-zinc-800 text-slate-400 border border-slate-200 dark:border-zinc-700{% endif %}">
+                            {% if chatbot.telegram_bot_active and chatbot.telegram_bot_token %}
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Ulangan
+                            {% else %}
+                            Oflayn
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-[#E7E5E1] dark:border-[#262626] flex items-center justify-between text-xs">
+                        {% if chatbot.telegram_bot_token and chatbot.telegram_bot_username %}
+                        <a href="https://t.me/{{ chatbot.telegram_bot_username }}" target="_blank" class="font-bold text-slate-900 dark:text-[#F5F1E8] hover:underline inline-flex items-center gap-1.5">
+                            <i class="fa-brands fa-telegram text-[11px]"></i> Botni ochish
+                        </a>
+                        {% else %}
+                        <a href="{% url 'chatbot:telegram_settings' %}" class="font-bold text-slate-900 dark:text-[#F5F1E8] hover:underline inline-flex items-center gap-1.5">
+                            <i class="fa-solid fa-link text-[10px]"></i> Botni ulash
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'chatbot:telegram_settings' %}" class="text-slate-400 hover:text-slate-900 dark:hover:text-white transition" title="Telegram sozlamalari">
+                            <i class="fa-solid fa-gear"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Node 4: Jamoa & Operatorlar -->
+                <div class="bg-white dark:bg-[#181818] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:border-slate-400 dark:hover:border-zinc-600 transition group">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#222] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-users-gear"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm">Jamoa</h3>
+                                <p class="text-[11px] text-slate-400 font-mono">{{ total_staff }} xodim faol</p>
+                            </div>
+                        </div>
+                        <span class="inline-flex items-center text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-[#222] text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626]">
+                            TMA
+                        </span>
+                    </div>
+
+                    <div class="mt-3.5 grid grid-cols-2 gap-2 text-center">
+                        <div class="bg-slate-50 dark:bg-[#141414] rounded-xl p-2 border border-[#E7E5E1] dark:border-[#262626]">
+                            <div class="text-sm font-extrabold text-slate-900 dark:text-[#F5F1E8]">{{ operators_count }}</div>
+                            <div class="text-[10px] text-slate-400">Operator</div>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-[#141414] rounded-xl p-2 border border-[#E7E5E1] dark:border-[#262626]">
+                            <div class="text-sm font-extrabold text-slate-900 dark:text-[#F5F1E8]">{{ supervisors_count }}</div>
+                            <div class="text-[10px] text-slate-400">Supervisor</div>
                         </div>
                     </div>
-                    
-                    <a href="{% url 'chatbot:telegram_settings' %}" class="w-8 h-8 rounded-lg bg-white dark:bg-[#1E1E1E] hover:bg-slate-50 dark:hover:bg-[#262626] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-xs font-bold transition shadow-2xs" title="Telegram sozlamalari">
-                        <i class="fa-solid fa-sliders"></i>
-                    </a>
+
+                    <div class="mt-4 pt-3 border-t border-[#E7E5E1] dark:border-[#262626] flex items-center justify-between text-xs">
+                        <a href="{% url 'team:team_list' %}" class="font-bold text-slate-900 dark:text-[#F5F1E8] hover:underline inline-flex items-center gap-1.5">
+                            Boshqarish <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
+                        </a>
+                    </div>
                 </div>
+
             </div>
 
-            <!-- Actions Footer -->
-            <div class="mt-5 pt-3.5 border-t border-sky-100/80 dark:border-sky-950/60 flex items-center justify-between gap-3">
-                {% if chatbot.telegram_bot_token and chatbot.telegram_bot_username %}
-                <a href="https://t.me/{{ chatbot.telegram_bot_username }}" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white dark:bg-[#1E1E1E] hover:bg-sky-50/80 dark:hover:bg-[#262626] text-sky-700 dark:text-sky-300 font-bold text-xs shadow-2xs border border-sky-200/80 dark:border-sky-800/40 transition">
-                    <i class="fa-brands fa-telegram text-[12px]"></i> Botni ochish
-                </a>
-                {% else %}
-                <a href="{% url 'chatbot:telegram_settings' %}" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white dark:bg-[#1E1E1E] hover:bg-sky-50/80 dark:hover:bg-[#262626] text-sky-700 dark:text-sky-300 font-bold text-xs shadow-2xs border border-sky-200/80 dark:border-sky-800/40 transition">
-                    <i class="fa-solid fa-link text-[10px]"></i> Botni ulash
-                </a>
-                {% endif %}
-            </div>
         </div>
-
     </div>
+
 </div>
 {% endblock %}

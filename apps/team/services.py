@@ -32,25 +32,16 @@ def assign_session_to_operator(session, reason="AI yechim topa olmadi"):
     """
     business = session.chatbot.business
 
-    # 1. Find active & online operators for this business (least busy first)
+    # 1. Find active operators for this business (least busy first)
     operators = StaffMember.objects.filter(
         business=business,
         role='operator',
-        is_active=True,
-        is_online=True
+        is_active=True
     ).annotate(
         active_chats=Count('assigned_sessions', filter=Q(assigned_sessions__escalation_status__in=['waiting_operator', 'operator_active']))
     ).order_by('active_chats', 'created_at')
 
     assigned_operator = operators.first()
-
-    # 2. If no online operator, find any active operator
-    if not assigned_operator:
-        assigned_operator = StaffMember.objects.filter(
-            business=business,
-            role='operator',
-            is_active=True
-        ).first()
 
     # 3. If still no operator, assign directly to supervisor
     assigned_supervisor = None

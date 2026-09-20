@@ -372,17 +372,39 @@
             .then(function (data) {
                 var delayMs = (data.delay_seconds || 0) * 1000;
                 setTimeout(function () {
-                    typingIndicator.classList.remove('active');
                     if (data.parts && data.parts.length > 1) {
-                        data.parts.forEach(function (part, index) {
+                        var parts = data.parts;
+                        var sendPart = function (i) {
+                            if (i >= parts.length) {
+                                typingIndicator.classList.remove('active');
+                                return;
+                            }
+                            if (i > 0) {
+                                typingIndicator.classList.add('active');
+                                chatBody.scrollTop = chatBody.scrollHeight;
+                            }
+                            var partText = parts[i];
+                            var typingDelay = i === 0 ? 0 : Math.min(Math.max(partText.length * 35, 1800), 4000);
                             setTimeout(function () {
-                                appendMessage(part, 'assistant');
-                            }, index * 800);
-                        });
+                                typingIndicator.classList.remove('active');
+                                appendMessage(partText, 'assistant');
+                                if (i + 1 < parts.length) {
+                                    setTimeout(function () {
+                                        sendPart(i + 1);
+                                    }, 1500);
+                                }
+                            }, typingDelay);
+                        };
+                        typingIndicator.classList.remove('active');
+                        sendPart(0);
                     } else if (data.reply) {
+                        typingIndicator.classList.remove('active');
                         appendMessage(data.reply, 'assistant');
                     } else if (data.error) {
+                        typingIndicator.classList.remove('active');
                         appendMessage('Xatolik: ' + data.error, 'assistant');
+                    } else {
+                        typingIndicator.classList.remove('active');
                     }
                 }, delayMs);
             })
