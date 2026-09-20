@@ -51,141 +51,40 @@
         </div>
     </div>
 
-    <!-- 2. CRM KPI Metrics Summary -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Card 1: Total Leads -->
-        <a href="?channel=all&status=all" class="bg-white dark:bg-[#141414] p-4 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:border-slate-400 dark:hover:border-neutral-500 transition group">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Jami Mijozlar</span>
-                <span class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-[#1E1E1E] text-slate-700 dark:text-slate-300 flex items-center justify-center text-xs">
-                    <i class="fa-solid fa-users"></i>
-                </span>
-            </div>
-            <div class="mt-2 flex items-baseline gap-2">
-                <span class="text-2xl font-black text-slate-900 dark:text-[#F5F1E8]">{{ counts.all }}</span>
-                <span class="text-[11px] text-slate-400 dark:text-slate-500">ta murojaat</span>
-            </div>
-            <div class="mt-2 pt-2 border-t border-slate-100 dark:border-[#222] flex items-center justify-between text-[11px] text-slate-400">
-                <span>TG: <b>{{ counts.telegram }}</b></span>
-                <span>Veb: <b>{{ counts.website }}</b></span>
-            </div>
-        </a>
-
-        <!-- Card 2: New Leads -->
-        <a href="?channel={{ channel_filter }}&status=new{% if search_query %}&q={{ search_query }}{% endif %}" class="bg-white dark:bg-[#141414] p-4 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:border-sky-400 transition group {% if status_filter == 'new' %}ring-2 ring-sky-500/20 border-sky-500/50{% endif %}">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-sky-600 dark:text-sky-400">Yangi Murojaatlar</span>
-                <span class="w-7 h-7 rounded-lg bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 flex items-center justify-center text-xs">
-                    <i class="fa-solid fa-sparkles"></i>
-                </span>
-            </div>
-            <div class="mt-2 flex items-baseline gap-2">
-                <span class="text-2xl font-black text-slate-900 dark:text-[#F5F1E8]">{{ counts.new }}</span>
-                <span class="text-[11px] text-sky-600 dark:text-sky-400 font-medium">ko'rib chiqish kerak</span>
-            </div>
-            <div class="mt-2 pt-2 border-t border-slate-100 dark:border-[#222] text-[11px] text-slate-400">
-                Yangi kirib kelgan lidlar
-            </div>
-        </a>
-
-        <!-- Card 3: In Progress -->
-        <a href="?channel={{ channel_filter }}&status=in_progress{% if search_query %}&q={{ search_query }}{% endif %}" class="bg-white dark:bg-[#141414] p-4 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:border-amber-400 transition group {% if status_filter == 'in_progress' %}ring-2 ring-amber-500/20 border-amber-500/50{% endif %}">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-amber-600 dark:text-amber-400">Jarayonda</span>
-                <span class="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs">
-                    <i class="fa-solid fa-clock-rotate-left"></i>
-                </span>
-            </div>
-            <div class="mt-2 flex items-baseline gap-2">
-                <span class="text-2xl font-black text-slate-900 dark:text-[#F5F1E8]">{{ counts.in_progress }}</span>
-                <span class="text-[11px] text-amber-600 dark:text-amber-400 font-medium">muloqot faol</span>
-            </div>
-            <div class="mt-2 pt-2 border-t border-slate-100 dark:border-[#222] text-[11px] text-slate-400">
-                Operator yoki AI ishlayapti
-            </div>
-        </a>
-
-        <!-- Card 4: Completed -->
-        <a href="?channel={{ channel_filter }}&status=completed{% if search_query %}&q={{ search_query }}{% endif %}" class="bg-white dark:bg-[#141414] p-4 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:border-emerald-400 transition group {% if status_filter == 'completed' %}ring-2 ring-emerald-500/20 border-emerald-500/50{% endif %}">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Yakunlangan</span>
-                <span class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs">
-                    <i class="fa-solid fa-circle-check"></i>
-                </span>
-            </div>
-            <div class="mt-2 flex items-baseline gap-2">
-                <span class="text-2xl font-black text-slate-900 dark:text-[#F5F1E8]">{{ counts.completed }}</span>
-                <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">hal etilgan</span>
-            </div>
-            <div class="mt-2 pt-2 border-t border-slate-100 dark:border-[#222] text-[11px] text-slate-400">
-                Muvaffaqiyatli xizmat ko'rsatildi
-            </div>
-        </a>
-    </div>
-
-    <!-- 3. CRM Filters & Search Bar -->
-    <div class="bg-white dark:bg-[#141414] rounded-2xl p-4 border border-[#E7E5E1] dark:border-[#262626] shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5">
-        <!-- Channel and Status Tabs -->
-        <div class="flex flex-wrap items-center gap-2">
-            <!-- Channel Filters -->
-            <div class="flex items-center bg-slate-100 dark:bg-[#1E1E1E] p-1 rounded-xl text-xs font-bold">
-                <a href="?channel=all{% if status_filter and status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
-                   class="py-1.5 px-3 rounded-lg transition flex items-center gap-1.5 {% if channel_filter == 'all' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8]{% endif %}">
-                    <span>Barcha kanallar</span>
-                    <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'all' %}bg-white/20 text-white dark:bg-black/15 dark:text-[#0A0A0A]{% else %}bg-slate-200 dark:bg-[#262626] text-slate-600 dark:text-slate-400{% endif %}">{{ counts.all }}</span>
-                </a>
-                <a href="?channel=website{% if status_filter and status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
-                   class="py-1.5 px-3 rounded-lg transition flex items-center gap-1.5 {% if channel_filter == 'website' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8]{% endif %}">
-                    <i class="fa-solid fa-globe text-xs"></i>
-                    <span>Vebsayt</span>
-                    <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'website' %}bg-white/20 text-white dark:bg-black/15 dark:text-[#0A0A0A]{% else %}bg-slate-200 dark:bg-[#262626] text-slate-600 dark:text-slate-400{% endif %}">{{ counts.website }}</span>
-                </a>
-                <a href="?channel=telegram{% if status_filter and status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
-                   class="py-1.5 px-3 rounded-lg transition flex items-center gap-1.5 {% if channel_filter == 'telegram' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8]{% endif %}">
-                    <i class="fa-brands fa-telegram text-xs"></i>
-                    <span>Telegram</span>
-                    <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'telegram' %}bg-white/20 text-white dark:bg-black/15 dark:text-[#0A0A0A]{% else %}bg-slate-200 dark:bg-[#262626] text-slate-600 dark:text-slate-400{% endif %}">{{ counts.telegram }}</span>
-                </a>
-            </div>
-
-            <!-- CRM Status Dropdown / Pills -->
-            <div class="flex items-center gap-1 overflow-x-auto text-xs font-semibold">
-                <a href="?channel={{ channel_filter }}&status=all{% if search_query %}&q={{ search_query }}{% endif %}" 
-                   class="px-2.5 py-1.5 rounded-lg border transition {% if status_filter == 'all' %}bg-slate-900 text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] border-transparent{% else %}border-[#E7E5E1] dark:border-[#262626] text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#1E1E1E]{% endif %}">
-                    Barcha holatlar
-                </a>
-                <a href="?channel={{ channel_filter }}&status=new{% if search_query %}&q={{ search_query }}{% endif %}" 
-                   class="px-2.5 py-1.5 rounded-lg border transition flex items-center gap-1 {% if status_filter == 'new' %}bg-sky-600 text-white border-sky-600{% else %}border-[#E7E5E1] dark:border-[#262626] text-sky-700 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/40{% endif %}">
-                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
-                    <span>Yangi</span>
-                </a>
-                <a href="?channel={{ channel_filter }}&status=in_progress{% if search_query %}&q={{ search_query }}{% endif %}" 
-                   class="px-2.5 py-1.5 rounded-lg border transition flex items-center gap-1 {% if status_filter == 'in_progress' %}bg-amber-600 text-white border-amber-600{% else %}border-[#E7E5E1] dark:border-[#262626] text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40{% endif %}">
-                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
-                    <span>Jarayonda</span>
-                </a>
-                <a href="?channel={{ channel_filter }}&status=completed{% if search_query %}&q={{ search_query }}{% endif %}" 
-                   class="px-2.5 py-1.5 rounded-lg border transition flex items-center gap-1 {% if status_filter == 'completed' %}bg-emerald-600 text-white border-emerald-600{% else %}border-[#E7E5E1] dark:border-[#262626] text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40{% endif %}">
-                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
-                    <span>Yakunlangan</span>
-                </a>
-            </div>
+    <!-- 2. Filters & Search Bar -->
+    <div class="bg-white dark:bg-[#141414] rounded-2xl p-4 border border-[#E7E5E1] dark:border-[#262626] shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3.5">
+        <!-- Channel Tabs -->
+        <div class="flex items-center bg-slate-100 dark:bg-[#1E1E1E] p-1 rounded-xl text-xs font-bold self-start">
+            <a href="?channel=all{% if search_query %}&q={{ search_query }}{% endif %}" 
+               class="py-1.5 px-3 rounded-lg transition flex items-center gap-1.5 {% if channel_filter == 'all' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8]{% endif %}">
+                <span>Barcha kanallar</span>
+                <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'all' %}bg-white/20 text-white dark:bg-black/15 dark:text-[#0A0A0A]{% else %}bg-slate-200 dark:bg-[#262626] text-slate-600 dark:text-slate-400{% endif %}">{{ counts.all }}</span>
+            </a>
+            <a href="?channel=website{% if search_query %}&q={{ search_query }}{% endif %}" 
+               class="py-1.5 px-3 rounded-lg transition flex items-center gap-1.5 {% if channel_filter == 'website' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8]{% endif %}">
+                <i class="fa-solid fa-globe text-xs"></i>
+                <span>Vebsayt</span>
+                <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'website' %}bg-white/20 text-white dark:bg-black/15 dark:text-[#0A0A0A]{% else %}bg-slate-200 dark:bg-[#262626] text-slate-600 dark:text-slate-400{% endif %}">{{ counts.website }}</span>
+            </a>
+            <a href="?channel=telegram{% if search_query %}&q={{ search_query }}{% endif %}" 
+               class="py-1.5 px-3 rounded-lg transition flex items-center gap-1.5 {% if channel_filter == 'telegram' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8]{% endif %}">
+                <i class="fa-brands fa-telegram text-xs"></i>
+                <span>Telegram</span>
+                <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'telegram' %}bg-white/20 text-white dark:bg-black/15 dark:text-[#0A0A0A]{% else %}bg-slate-200 dark:bg-[#262626] text-slate-600 dark:text-slate-400{% endif %}">{{ counts.telegram }}</span>
+            </a>
         </div>
 
         <!-- Search input -->
-        <div class="w-full lg:w-72">
+        <div class="w-full sm:w-72">
             <form method="GET" class="relative">
                 {% if channel_filter and channel_filter != 'all' %}
                     <input type="hidden" name="channel" value="{{ channel_filter }}">
                 {% endif %}
-                {% if status_filter and status_filter != 'all' %}
-                    <input type="hidden" name="status" value="{{ status_filter }}">
-                {% endif %}
                 <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 dark:text-slate-500 text-xs"></i>
-                <input type="text" name="q" value="{{ search_query }}" placeholder="Ism, telefon, xabar, izoh..." 
+                <input type="text" name="q" value="{{ search_query }}" placeholder="Ism, telefon, xabar..." 
                        class="w-full pl-9 pr-8 py-2 bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] rounded-xl text-xs text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] transition">
                 {% if search_query %}
-                <a href="?channel={{ channel_filter }}&status={{ status_filter }}" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs" title="Tozalash">
+                <a href="?channel={{ channel_filter }}" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs" title="Tozalash">
                     <i class="fa-solid fa-xmark"></i>
                 </a>
                 {% endif %}
@@ -193,7 +92,7 @@
         </div>
     </div>
 
-    <!-- 4. CRM Customer / Leads Full-Width Table View -->
+    <!-- 3. Customers Table View -->
     <div class="bg-white dark:bg-[#141414] rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse" id="crmCustomersTable">
@@ -201,10 +100,6 @@
                     <tr class="border-b border-[#E7E5E1] dark:border-[#262626] bg-slate-50/70 dark:bg-[#1A1A1A] text-[11px] uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 select-none">
                         <th class="py-3.5 px-4 sm:px-6">Mijoz & Manba</th>
                         <th class="py-3.5 px-4">Aloqa</th>
-                        <th class="py-3.5 px-4">Holat (Status)</th>
-                        <th class="py-3.5 px-4">Mas'ul / Eskalatsiya</th>
-                        <th class="py-3.5 px-4">So'nggi faollik</th>
-                        <th class="py-3.5 px-4">Eslatma</th>
                         <th class="py-3.5 px-4 sm:px-6 text-right">Amallar</th>
                     </tr>
                 </thead>
@@ -265,85 +160,11 @@
                                 {% endif %}
                             </td>
 
-                            <!-- 3. CRM Status -->
-                            <td class="py-3.5 px-4 whitespace-nowrap">
-                                {% if s.status == 'new' %}
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span>
-                                        <span>Yangi</span>
-                                    </span>
-                                {% elif s.status == 'in_progress' %}
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                                        <span>Jarayonda</span>
-                                    </span>
-                                {% elif s.status == 'completed' %}
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                        <span>Yakunlangan</span>
-                                    </span>
-                                {% else %}
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-[#1E1E1E] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-[#262626]">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-                                        <span>Arxiv</span>
-                                    </span>
-                                {% endif %}
-                            </td>
-
-                            <!-- 4. Assigned Staff / Escalation -->
-                            <td class="py-3.5 px-4 whitespace-nowrap">
-                                {% if s.assigned_staff %}
-                                    <div class="flex items-center gap-1.5">
-                                        <span class="w-6 h-6 rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 flex items-center justify-center text-[10px]">
-                                            <i class="fa-solid fa-headset"></i>
-                                        </span>
-                                        <span class="font-semibold text-slate-800 dark:text-[#F5F1E8]">{{ s.assigned_staff.name }}</span>
-                                    </div>
-                                {% else %}
-                                    <div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
-                                        <span class="w-6 h-6 rounded-md bg-slate-100 dark:bg-[#1E1E1E] text-slate-600 dark:text-slate-400 flex items-center justify-center text-[10px]">
-                                            <i class="fa-solid fa-robot"></i>
-                                        </span>
-                                        <span>AI Bot</span>
-                                    </div>
-                                {% endif %}
-                            </td>
-
-                            <!-- 5. Last Message & Time -->
-                            <td class="py-3.5 px-4">
-                                <div class="max-w-xs">
-                                    <p class="text-slate-700 dark:text-slate-300 truncate text-[11px]">
-                                        {% if s.last_message %}
-                                            {{ s.last_message.content|striptags|truncatechars:50 }}
-                                        {% else %}
-                                            <span class="text-slate-400 dark:text-slate-500 italic">Xabarlar mavjud emas</span>
-                                        {% endif %}
-                                    </p>
-                                    <div class="flex items-center gap-2 mt-0.5 text-[10px] text-slate-400 dark:text-slate-500">
-                                        <span class="session-time font-medium">{{ s.last_message_at|date:"d M, H:i" }}</span>
-                                        <span>•</span>
-                                        <span class="session-count"><i class="fa-solid fa-message text-[9px]"></i> <span class="count-val">{{ s.messages.count }}</span> ta</span>
-                                    </div>
-                                </div>
-                            </td>
-
-                            <!-- 6. CRM Notes -->
-                            <td class="py-3.5 px-4">
-                                {% if s.notes %}
-                                    <div class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-300 text-[11px] max-w-[140px] truncate" title="{{ s.notes }}">
-                                        <i class="fa-solid fa-note-sticky text-amber-500 shrink-0"></i>
-                                        <span class="truncate">{{ s.notes }}</span>
-                                    </div>
-                                {% else %}
-                                    <span class="text-slate-300 dark:text-slate-600 text-[11px]">—</span>
-                                {% endif %}
-                            </td>
-
-                            <!-- 7. Actions (Chat Icon & Edit) -->
+                            <!-- 3. Actions (Chat Icon & Edit) -->
                             <td class="py-3.5 px-4 sm:px-6 text-right whitespace-nowrap">
                                 <div class="flex items-center justify-end gap-1.5">
                                     <!-- Chat Button (Opens Pop-up Modal) -->
-                                    <a href="{% url 'chatbot:inbox_detail' s.session_id %}?channel={{ channel_filter }}&status={{ status_filter }}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                                    <a href="{% url 'chatbot:inbox_detail' s.session_id %}?channel={{ channel_filter }}{% if search_query %}&q={{ search_query }}{% endif %}" 
                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] dark:hover:bg-white shadow-2xs transition"
                                        title="Mijoz bilan chatni ochish">
                                         <i class="fa-solid fa-comments text-xs"></i>
@@ -373,12 +194,12 @@
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="7" class="py-12 px-6 text-center text-slate-400 dark:text-slate-500">
+                            <td colspan="3" class="py-12 px-6 text-center text-slate-400 dark:text-slate-500">
                                 <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-[#1E1E1E] text-slate-400 flex items-center justify-center text-xl mx-auto mb-3">
                                     <i class="fa-solid fa-folder-open"></i>
                                 </div>
                                 <h4 class="font-bold text-slate-700 dark:text-slate-300 text-sm">Mijozlar topilmadi</h4>
-                                <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Tanlangan filtrlar yoki qidiruv bo'yicha hech qanday murojaat chiqmadi.</p>
+                                <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Tanlangan kanal yoki qidiruv bo'yicha hech qanday murojaat chiqmadi.</p>
                             </td>
                         </tr>
                     {% endif %}
