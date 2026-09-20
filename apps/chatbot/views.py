@@ -348,8 +348,8 @@ def inbox_view(request, session_id=None):
             defaults={'bot_name': f"{business.name} AI"}
         )
 
-    # Base sessions queryset with prefetched messages and their staff senders
-    sessions_qs = chatbot.sessions.prefetch_related('messages__sender_staff').all()
+    # Base sessions queryset with prefetched messages, senders, and assigned staff
+    sessions_qs = chatbot.sessions.prefetch_related('messages__sender_staff', 'assigned_staff').all()
 
     # Search filter
     q = request.GET.get('q', '').strip()
@@ -359,6 +359,7 @@ def inbox_view(request, session_id=None):
             Q(visitor_phone__icontains=q) |
             Q(visitor_email__icontains=q) |
             Q(session_id__icontains=q) |
+            Q(notes__icontains=q) |
             Q(messages__content__icontains=q)
         ).distinct()
 
@@ -369,17 +370,26 @@ def inbox_view(request, session_id=None):
     elif channel_filter == 'website':
         sessions_qs = sessions_qs.exclude(session_id__startswith='tg_')
 
-    # Counts
+    # Status filter (all, new, in_progress, completed, archived)
+    status_filter = request.GET.get('status', 'all')
+    if status_filter in ['new', 'in_progress', 'completed', 'archived']:
+        sessions_qs = sessions_qs.filter(status=status_filter)
+
+    # CRM Counts
     all_sessions = chatbot.sessions.all()
     counts = {
         'all': all_sessions.count(),
         'website': all_sessions.exclude(session_id__startswith='tg_').count(),
         'telegram': all_sessions.filter(session_id__startswith='tg_').count(),
+        'new': all_sessions.filter(status='new').count(),
+        'in_progress': all_sessions.filter(status='in_progress').count(),
+        'completed': all_sessions.filter(status='completed').count(),
+        'archived': all_sessions.filter(status='archived').count(),
     }
 
     sessions_list = list(sessions_qs)
 
-    # Active session selection & Insights (do not auto-open first chat on load)
+    # Active session selection & Insights
     active_session = None
     insights = None
     if session_id:
@@ -395,6 +405,7 @@ def inbox_view(request, session_id=None):
         'insights': insights,
         'counts': counts,
         'channel_filter': channel_filter,
+        'status_filter': status_filter,
         'search_query': q,
     })
 

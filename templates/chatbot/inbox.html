@@ -1,7 +1,7 @@
 {% extends 'shared/_base.html' %}
 {% load static %}
 
-{% block title %}Murojaatlar va chatlar - {{ business.name }}{% endblock %}
+{% block title %}Mijozlar & CRM Chatlar - {{ business.name }}{% endblock %}
 
 {% block content %}
 <style>
@@ -21,6 +21,10 @@
         background-color: #F5F1E8;
         color: #0A0A0A;
     }
+    /* Smooth modal transition */
+    #chatPopUpCard {
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
 </style>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -30,168 +34,483 @@
         <div>
             <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight flex items-center gap-2.5">
                 <span class="w-8 h-8 rounded-xl bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] flex items-center justify-center text-xs shrink-0">
-                    <i class="fa-solid fa-inbox"></i>
+                    <i class="fa-solid fa-address-book"></i>
                 </span>
-                <span>Murojaatlar va chatlar</span>
+                <span>Mijozlar va CRM Chatlar</span>
             </h1>
-            <p class="text-slate-500 dark:text-slate-400 text-xs mt-2">Vebsayt vidjeti va Telegram botdan kelgan barcha mijozlar bilan muloqot qilish paneli</p>
+            <p class="text-slate-500 dark:text-slate-400 text-xs mt-1.5">Vebsayt vidjeti va Telegram botdan kelgan barcha mijozlar, lidlar ma'lumotlari va jonli suhbatlar boshqaruvi</p>
         </div>
 
         <div class="flex items-center gap-2.5">
             <a href="{% url 'chatbot:export_excel' %}" 
                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-800 dark:text-[#F5F1E8] bg-white dark:bg-[#1E1E1E] hover:bg-slate-50 dark:hover:bg-[#262626] border border-[#E7E5E1] dark:border-[#262626] shadow-xs transition"
-               title="Mijozlar ro'yxatini Excel (.xlsx) formatida yuklab olish (Vebsayt & Telegram)">
-                <i class="fa-solid fa-file-excel text-slate-700 dark:text-slate-300 text-sm"></i>
+               title="Mijozlar ro'yxatini Excel (.xlsx) formatida yuklab olish">
+                <i class="fa-solid fa-file-excel text-emerald-600 dark:text-emerald-400 text-sm"></i>
                 <span>Excelda yuklab olish</span>
             </a>
         </div>
     </div>
 
-    <!-- 2. Main 3-Pane Responsive Inbox Layout -->
-    <div class="bg-white dark:bg-[#141414] rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xs overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[600px] max-h-[780px]">
-        
-        <!-- Left Pane: Sessions List (3 cols on desktop) -->
-        <div class="lg:col-span-3 border-r border-[#E7E5E1] dark:border-[#262626] flex flex-col h-full max-h-[780px] bg-slate-50/40 dark:bg-[#0A0A0A]">
-            
-            <!-- Channel Filter Tabs -->
-            <div class="p-3 border-b border-[#E7E5E1] dark:border-[#262626] bg-white dark:bg-[#141414]">
-                <div class="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-[#1E1E1E] p-1 rounded-xl text-xs font-bold text-center">
-                    <a href="?channel=all{% if search_query %}&q={{ search_query }}{% endif %}" 
-                       class="py-1.5 px-1 rounded-lg transition flex items-center justify-center gap-1 {% if channel_filter == 'all' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs font-bold{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8]{% endif %}">
-                        <span>Barchasi</span>
-                        <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'all' %}bg-white/20 text-white dark:bg-black/15 dark:text-[#0A0A0A]{% else %}bg-slate-200 dark:bg-[#262626] text-slate-600 dark:text-slate-400{% endif %}">{{ counts.all }}</span>
-                    </a>
-                    <a href="?channel=website{% if search_query %}&q={{ search_query }}{% endif %}" 
-                       class="py-1.5 px-1 rounded-lg transition flex items-center justify-center gap-1 {% if channel_filter == 'website' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs font-bold{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8]{% endif %}">
-                        <i class="fa-solid fa-globe text-[11px]"></i>
-                        <span>Veb</span>
-                        <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'website' %}bg-white/20 text-white dark:bg-black/15 dark:text-[#0A0A0A]{% else %}bg-slate-200 dark:bg-[#262626] text-slate-600 dark:text-slate-400{% endif %}">{{ counts.website }}</span>
-                    </a>
-                    <a href="?channel=telegram{% if search_query %}&q={{ search_query }}{% endif %}" 
-                       class="py-1.5 px-1 rounded-lg transition flex items-center justify-center gap-1 {% if channel_filter == 'telegram' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs font-bold{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8]{% endif %}">
-                        <i class="fa-brands fa-telegram text-[12px]"></i>
-                        <span>TG</span>
-                        <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'telegram' %}bg-white/20 text-white dark:bg-black/15 dark:text-[#0A0A0A]{% else %}bg-slate-200 dark:bg-[#262626] text-slate-600 dark:text-slate-400{% endif %}">{{ counts.telegram }}</span>
-                    </a>
-                </div>
+    <!-- 2. CRM KPI Metrics Summary -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Card 1: Total Leads -->
+        <a href="?channel=all&status=all" class="bg-white dark:bg-[#141414] p-4 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:border-slate-400 dark:hover:border-neutral-500 transition group">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Jami Mijozlar</span>
+                <span class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-[#1E1E1E] text-slate-700 dark:text-slate-300 flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-users"></i>
+                </span>
+            </div>
+            <div class="mt-2 flex items-baseline gap-2">
+                <span class="text-2xl font-black text-slate-900 dark:text-[#F5F1E8]">{{ counts.all }}</span>
+                <span class="text-[11px] text-slate-400 dark:text-slate-500">ta murojaat</span>
+            </div>
+            <div class="mt-2 pt-2 border-t border-slate-100 dark:border-[#222] flex items-center justify-between text-[11px] text-slate-400">
+                <span>TG: <b>{{ counts.telegram }}</b></span>
+                <span>Veb: <b>{{ counts.website }}</b></span>
+            </div>
+        </a>
+
+        <!-- Card 2: New Leads -->
+        <a href="?channel={{ channel_filter }}&status=new{% if search_query %}&q={{ search_query }}{% endif %}" class="bg-white dark:bg-[#141414] p-4 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:border-sky-400 transition group {% if status_filter == 'new' %}ring-2 ring-sky-500/20 border-sky-500/50{% endif %}">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-sky-600 dark:text-sky-400">Yangi Murojaatlar</span>
+                <span class="w-7 h-7 rounded-lg bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-sparkles"></i>
+                </span>
+            </div>
+            <div class="mt-2 flex items-baseline gap-2">
+                <span class="text-2xl font-black text-slate-900 dark:text-[#F5F1E8]">{{ counts.new }}</span>
+                <span class="text-[11px] text-sky-600 dark:text-sky-400 font-medium">ko'rib chiqish kerak</span>
+            </div>
+            <div class="mt-2 pt-2 border-t border-slate-100 dark:border-[#222] text-[11px] text-slate-400">
+                Yangi kirib kelgan lidlar
+            </div>
+        </a>
+
+        <!-- Card 3: In Progress -->
+        <a href="?channel={{ channel_filter }}&status=in_progress{% if search_query %}&q={{ search_query }}{% endif %}" class="bg-white dark:bg-[#141414] p-4 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:border-amber-400 transition group {% if status_filter == 'in_progress' %}ring-2 ring-amber-500/20 border-amber-500/50{% endif %}">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-amber-600 dark:text-amber-400">Jarayonda</span>
+                <span class="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </span>
+            </div>
+            <div class="mt-2 flex items-baseline gap-2">
+                <span class="text-2xl font-black text-slate-900 dark:text-[#F5F1E8]">{{ counts.in_progress }}</span>
+                <span class="text-[11px] text-amber-600 dark:text-amber-400 font-medium">muloqot faol</span>
+            </div>
+            <div class="mt-2 pt-2 border-t border-slate-100 dark:border-[#222] text-[11px] text-slate-400">
+                Operator yoki AI ishlayapti
+            </div>
+        </a>
+
+        <!-- Card 4: Completed -->
+        <a href="?channel={{ channel_filter }}&status=completed{% if search_query %}&q={{ search_query }}{% endif %}" class="bg-white dark:bg-[#141414] p-4 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xs hover:border-emerald-400 transition group {% if status_filter == 'completed' %}ring-2 ring-emerald-500/20 border-emerald-500/50{% endif %}">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Yakunlangan</span>
+                <span class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-circle-check"></i>
+                </span>
+            </div>
+            <div class="mt-2 flex items-baseline gap-2">
+                <span class="text-2xl font-black text-slate-900 dark:text-[#F5F1E8]">{{ counts.completed }}</span>
+                <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">hal etilgan</span>
+            </div>
+            <div class="mt-2 pt-2 border-t border-slate-100 dark:border-[#222] text-[11px] text-slate-400">
+                Muvaffaqiyatli xizmat ko'rsatildi
+            </div>
+        </a>
+    </div>
+
+    <!-- 3. CRM Filters & Search Bar -->
+    <div class="bg-white dark:bg-[#141414] rounded-2xl p-4 border border-[#E7E5E1] dark:border-[#262626] shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5">
+        <!-- Channel and Status Tabs -->
+        <div class="flex flex-wrap items-center gap-2">
+            <!-- Channel Filters -->
+            <div class="flex items-center bg-slate-100 dark:bg-[#1E1E1E] p-1 rounded-xl text-xs font-bold">
+                <a href="?channel=all{% if status_filter and status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                   class="py-1.5 px-3 rounded-lg transition flex items-center gap-1.5 {% if channel_filter == 'all' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8]{% endif %}">
+                    <span>Barcha kanallar</span>
+                    <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'all' %}bg-white/20 text-white dark:bg-black/15 dark:text-[#0A0A0A]{% else %}bg-slate-200 dark:bg-[#262626] text-slate-600 dark:text-slate-400{% endif %}">{{ counts.all }}</span>
+                </a>
+                <a href="?channel=website{% if status_filter and status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                   class="py-1.5 px-3 rounded-lg transition flex items-center gap-1.5 {% if channel_filter == 'website' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8]{% endif %}">
+                    <i class="fa-solid fa-globe text-xs"></i>
+                    <span>Vebsayt</span>
+                    <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'website' %}bg-white/20 text-white dark:bg-black/15 dark:text-[#0A0A0A]{% else %}bg-slate-200 dark:bg-[#262626] text-slate-600 dark:text-slate-400{% endif %}">{{ counts.website }}</span>
+                </a>
+                <a href="?channel=telegram{% if status_filter and status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                   class="py-1.5 px-3 rounded-lg transition flex items-center gap-1.5 {% if channel_filter == 'telegram' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8]{% endif %}">
+                    <i class="fa-brands fa-telegram text-xs"></i>
+                    <span>Telegram</span>
+                    <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'telegram' %}bg-white/20 text-white dark:bg-black/15 dark:text-[#0A0A0A]{% else %}bg-slate-200 dark:bg-[#262626] text-slate-600 dark:text-slate-400{% endif %}">{{ counts.telegram }}</span>
+                </a>
             </div>
 
-            <!-- Search Form -->
-            <div class="p-3 border-b border-[#E7E5E1] dark:border-[#262626] bg-white dark:bg-[#141414]">
-                <form method="GET" class="relative">
-                    {% if channel_filter and channel_filter != 'all' %}
-                        <input type="hidden" name="channel" value="{{ channel_filter }}">
-                    {% endif %}
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 dark:text-slate-500 text-xs"></i>
-                    <input type="text" name="q" value="{{ search_query }}" placeholder="Qidirish..." class="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] rounded-xl text-xs text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] transition">
-                </form>
+            <!-- CRM Status Dropdown / Pills -->
+            <div class="flex items-center gap-1 overflow-x-auto text-xs font-semibold">
+                <a href="?channel={{ channel_filter }}&status=all{% if search_query %}&q={{ search_query }}{% endif %}" 
+                   class="px-2.5 py-1.5 rounded-lg border transition {% if status_filter == 'all' %}bg-slate-900 text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] border-transparent{% else %}border-[#E7E5E1] dark:border-[#262626] text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#1E1E1E]{% endif %}">
+                    Barcha holatlar
+                </a>
+                <a href="?channel={{ channel_filter }}&status=new{% if search_query %}&q={{ search_query }}{% endif %}" 
+                   class="px-2.5 py-1.5 rounded-lg border transition flex items-center gap-1 {% if status_filter == 'new' %}bg-sky-600 text-white border-sky-600{% else %}border-[#E7E5E1] dark:border-[#262626] text-sky-700 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/40{% endif %}">
+                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                    <span>Yangi</span>
+                </a>
+                <a href="?channel={{ channel_filter }}&status=in_progress{% if search_query %}&q={{ search_query }}{% endif %}" 
+                   class="px-2.5 py-1.5 rounded-lg border transition flex items-center gap-1 {% if status_filter == 'in_progress' %}bg-amber-600 text-white border-amber-600{% else %}border-[#E7E5E1] dark:border-[#262626] text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40{% endif %}">
+                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                    <span>Jarayonda</span>
+                </a>
+                <a href="?channel={{ channel_filter }}&status=completed{% if search_query %}&q={{ search_query }}{% endif %}" 
+                   class="px-2.5 py-1.5 rounded-lg border transition flex items-center gap-1 {% if status_filter == 'completed' %}bg-emerald-600 text-white border-emerald-600{% else %}border-[#E7E5E1] dark:border-[#262626] text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40{% endif %}">
+                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                    <span>Yakunlangan</span>
+                </a>
             </div>
-
-            <!-- Sessions List -->
-            <div class="flex-1 overflow-y-auto divide-y divide-[#E7E5E1] dark:divide-[#262626]" id="sessionsListContainer">
-                {% if sessions %}
-                    {% for s in sessions %}
-                    <a href="{% url 'chatbot:inbox_detail' s.session_id %}?channel={{ channel_filter }}{% if search_query %}&q={{ search_query }}{% endif %}" data-session-id="{{ s.session_id }}" class="session-link-item block p-3.5 transition duration-150 relative hover:bg-white dark:hover:bg-[#141414] {% if active_session and active_session.session_id == s.session_id %}bg-white dark:bg-[#141414] shadow-xs border-l-4 border-[#0A0A0A] dark:border-[#F5F1E8]{% endif %}">
-                        <div class="flex items-center justify-between gap-2.5">
-                            <div class="flex items-center space-x-2.5 min-w-0">
-                                <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#1E1E1E] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center font-bold text-xs shrink-0">
-                                    {% if s.session_id|slice:':3' == 'tg_' %}
-                                        <i class="fa-brands fa-telegram text-sm"></i>
-                                    {% else %}
-                                        <i class="fa-solid fa-globe text-sm"></i>
-                                    {% endif %}
-                                </div>
-                                <div class="min-w-0">
-                                    <h4 class="font-bold text-slate-800 dark:text-[#F5F1E8] text-xs truncate leading-tight session-title">
-                                        {{ s.display_name }}
-                                    </h4>
-                                    {% if s.visitor_phone %}
-                                        <span class="text-[11px] text-slate-500 dark:text-slate-400 block truncate mt-0.5 session-phone">{{ s.visitor_phone }}</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            
-                            <div class="flex flex-col items-end shrink-0 space-y-0.5">
-                                <span class="text-[9px] text-slate-400 dark:text-slate-500 font-medium session-time">
-                                    {{ s.last_message_at|date:"d M" }}
-                                </span>
-                                <span class="text-[9px] text-slate-400 dark:text-slate-500 session-count">
-                                    <i class="fa-solid fa-message mr-0.5 text-slate-300 dark:text-slate-600"></i> <span class="count-val">{{ s.messages.count }}</span>
-                                </span>
-                            </div>
-                        </div>
-                    </a>
-                    {% endfor %}
-                {% else %}
-                    <div class="p-8 text-center text-slate-400 dark:text-slate-500">
-                        <i class="fa-solid fa-comments text-2xl mb-2 text-slate-300 dark:text-slate-600 block"></i>
-                        <p class="text-xs">Murojaatlar topilmadi</p>
-                    </div>
-                {% endif %}
-            </div>
-
         </div>
 
-        <!-- Middle & Right Pane: Active Conversation & Insights Panel -->
-        {% if active_session %}
-            <!-- Middle: Active Chat Area -->
-            <div id="chatAreaPane" class="lg:col-span-6 border-r border-[#E7E5E1] dark:border-[#262626] flex flex-col h-full max-h-[780px] bg-slate-100/50 dark:bg-[#0A0A0A] transition-all duration-300">
-                
-                <!-- Active Conversation Header -->
-                <div class="p-4 border-b border-[#E7E5E1] dark:border-[#262626] flex items-center justify-between gap-3 bg-white dark:bg-[#141414] shrink-0">
-                    <div class="flex items-center space-x-3 min-w-0">
-                        <div class="w-10 h-10 rounded-xl bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
-                            {% if active_session.session_id|slice:':3' == 'tg_' %}
-                                <i class="fa-brands fa-telegram"></i>
-                            {% else %}
-                                <i class="fa-solid fa-globe"></i>
-                            {% endif %}
-                        </div>
-                        <div class="min-w-0">
-                            <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm leading-snug truncate">{{ active_session.display_name }}</h3>
-                            {% if active_session.visitor_phone %}
-                            <div class="flex items-center space-x-2 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                                <span class="font-medium text-slate-700 dark:text-slate-300"><i class="fa-solid fa-phone text-slate-400 dark:text-slate-500 mr-1"></i> {{ active_session.visitor_phone }}</span>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
+        <!-- Search input -->
+        <div class="w-full lg:w-72">
+            <form method="GET" class="relative">
+                {% if channel_filter and channel_filter != 'all' %}
+                    <input type="hidden" name="channel" value="{{ channel_filter }}">
+                {% endif %}
+                {% if status_filter and status_filter != 'all' %}
+                    <input type="hidden" name="status" value="{{ status_filter }}">
+                {% endif %}
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 dark:text-slate-500 text-xs"></i>
+                <input type="text" name="q" value="{{ search_query }}" placeholder="Ism, telefon, xabar, izoh..." 
+                       class="w-full pl-9 pr-8 py-2 bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] rounded-xl text-xs text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] transition">
+                {% if search_query %}
+                <a href="?channel={{ channel_filter }}&status={{ status_filter }}" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs" title="Tozalash">
+                    <i class="fa-solid fa-xmark"></i>
+                </a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
 
-                    <!-- Fast Actions & AI Panel Toggle -->
-                    <div class="flex items-center space-x-1.5 shrink-0">
-                        <button type="button" 
-                                onclick="toggleAiPanel()" 
-                                id="aiPanelToggleBtn"
-                                class="px-3 py-1.5 bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white text-white dark:text-[#0A0A0A] text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-2xs"
-                                title="AI Tahlil panelini ko'rsatish yoki yopish">
-                            <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
-                            <span id="aiToggleText" class="hidden sm:inline">AI Tahlil</span>
-                        </button>
-                        {% if active_session.visitor_phone %}
-                        <a href="tel:{{ active_session.visitor_phone }}" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-xs transition" title="Qo'ng'iroq qilish">
-                            <i class="fa-solid fa-phone"></i>
-                        </a>
+    <!-- 4. CRM Customer / Leads Full-Width Table View -->
+    <div class="bg-white dark:bg-[#141414] rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xs overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse" id="crmCustomersTable">
+                <thead>
+                    <tr class="border-b border-[#E7E5E1] dark:border-[#262626] bg-slate-50/70 dark:bg-[#1A1A1A] text-[11px] uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 select-none">
+                        <th class="py-3.5 px-4 sm:px-6">Mijoz & Manba</th>
+                        <th class="py-3.5 px-4">Aloqa</th>
+                        <th class="py-3.5 px-4">Holat (Status)</th>
+                        <th class="py-3.5 px-4">Mas'ul / Eskalatsiya</th>
+                        <th class="py-3.5 px-4">So'nggi faollik</th>
+                        <th class="py-3.5 px-4">Eslatma</th>
+                        <th class="py-3.5 px-4 sm:px-6 text-right">Amallar</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#E7E5E1] dark:divide-[#262626] text-xs" id="sessionsListContainer">
+                    {% if sessions %}
+                        {% for s in sessions %}
+                        <tr class="hover:bg-slate-50/80 dark:hover:bg-[#1A1A1A] transition group" data-session-id="{{ s.session_id }}">
+                            
+                            <!-- 1. Customer & Channel Source -->
+                            <td class="py-3.5 px-4 sm:px-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 border border-[#E7E5E1] dark:border-[#262626] 
+                                        {% if s.session_id|slice:':3' == 'tg_' %}
+                                            bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400
+                                        {% else %}
+                                            bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400
+                                        {% endif %}">
+                                        {% if s.session_id|slice:':3' == 'tg_' %}
+                                            <i class="fa-brands fa-telegram"></i>
+                                        {% else %}
+                                            <i class="fa-solid fa-globe"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="flex items-center gap-2">
+                                            <h4 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-xs truncate session-title">
+                                                {{ s.display_name }}
+                                            </h4>
+                                            {% if s.session_id|slice:':3' == 'tg_' %}
+                                                <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 font-semibold">Telegram</span>
+                                            {% else %}
+                                                <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 font-semibold">Veb</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 flex items-center gap-2">
+                                            <span>#{{ s.session_id|slice:':10' }}</span>
+                                            <span>•</span>
+                                            <span>{{ s.created_at|date:"d.m.Y H:i" }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- 2. Contact Info -->
+                            <td class="py-3.5 px-4 whitespace-nowrap">
+                                {% if s.visitor_phone %}
+                                    <a href="tel:{{ s.visitor_phone }}" class="inline-flex items-center gap-1.5 font-semibold text-slate-800 dark:text-[#F5F1E8] hover:text-emerald-600 dark:hover:text-emerald-400 transition" title="Qo'ng'iroq qilish">
+                                        <i class="fa-solid fa-phone text-emerald-500 text-[11px]"></i>
+                                        <span>{{ s.visitor_phone }}</span>
+                                    </a>
+                                {% elif s.visitor_email %}
+                                    <a href="mailto:{{ s.visitor_email }}" class="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition truncate max-w-[160px]">
+                                        <i class="fa-solid fa-envelope text-indigo-500 text-[11px]"></i>
+                                        <span class="truncate">{{ s.visitor_email }}</span>
+                                    </a>
+                                {% else %}
+                                    <span class="text-slate-400 dark:text-slate-500 italic text-[11px]">Kiritilmagan</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- 3. CRM Status -->
+                            <td class="py-3.5 px-4 whitespace-nowrap">
+                                {% if s.status == 'new' %}
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span>
+                                        <span>Yangi</span>
+                                    </span>
+                                {% elif s.status == 'in_progress' %}
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                        <span>Jarayonda</span>
+                                    </span>
+                                {% elif s.status == 'completed' %}
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                        <span>Yakunlangan</span>
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-[#1E1E1E] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-[#262626]">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                        <span>Arxiv</span>
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <!-- 4. Assigned Staff / Escalation -->
+                            <td class="py-3.5 px-4 whitespace-nowrap">
+                                {% if s.assigned_staff %}
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="w-6 h-6 rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 flex items-center justify-center text-[10px]">
+                                            <i class="fa-solid fa-headset"></i>
+                                        </span>
+                                        <span class="font-semibold text-slate-800 dark:text-[#F5F1E8]">{{ s.assigned_staff.name }}</span>
+                                    </div>
+                                {% else %}
+                                    <div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                                        <span class="w-6 h-6 rounded-md bg-slate-100 dark:bg-[#1E1E1E] text-slate-600 dark:text-slate-400 flex items-center justify-center text-[10px]">
+                                            <i class="fa-solid fa-robot"></i>
+                                        </span>
+                                        <span>AI Bot</span>
+                                    </div>
+                                {% endif %}
+                            </td>
+
+                            <!-- 5. Last Message & Time -->
+                            <td class="py-3.5 px-4">
+                                <div class="max-w-xs">
+                                    <p class="text-slate-700 dark:text-slate-300 truncate text-[11px]">
+                                        {% if s.last_message %}
+                                            {{ s.last_message.content|striptags|truncatechars:50 }}
+                                        {% else %}
+                                            <span class="text-slate-400 dark:text-slate-500 italic">Xabarlar mavjud emas</span>
+                                        {% endif %}
+                                    </p>
+                                    <div class="flex items-center gap-2 mt-0.5 text-[10px] text-slate-400 dark:text-slate-500">
+                                        <span class="session-time font-medium">{{ s.last_message_at|date:"d M, H:i" }}</span>
+                                        <span>•</span>
+                                        <span class="session-count"><i class="fa-solid fa-message text-[9px]"></i> <span class="count-val">{{ s.messages.count }}</span> ta</span>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- 6. CRM Notes -->
+                            <td class="py-3.5 px-4">
+                                {% if s.notes %}
+                                    <div class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-300 text-[11px] max-w-[140px] truncate" title="{{ s.notes }}">
+                                        <i class="fa-solid fa-note-sticky text-amber-500 shrink-0"></i>
+                                        <span class="truncate">{{ s.notes }}</span>
+                                    </div>
+                                {% else %}
+                                    <span class="text-slate-300 dark:text-slate-600 text-[11px]">—</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- 7. Actions (Chat Icon & Edit) -->
+                            <td class="py-3.5 px-4 sm:px-6 text-right whitespace-nowrap">
+                                <div class="flex items-center justify-end gap-1.5">
+                                    <!-- Chat Button (Opens Pop-up Modal) -->
+                                    <a href="{% url 'chatbot:inbox_detail' s.session_id %}?channel={{ channel_filter }}&status={{ status_filter }}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                                       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] dark:hover:bg-white shadow-2xs transition"
+                                       title="Mijoz bilan chatni ochish">
+                                        <i class="fa-solid fa-comments text-xs"></i>
+                                        <span>Chat</span>
+                                    </a>
+
+                                    <!-- Edit Button -->
+                                    <button type="button" 
+                                            onclick="openLeadModalDirect('{{ s.session_id }}', '{{ s.visitor_name|escapejs }}', '{{ s.visitor_phone|escapejs }}', '{{ s.visitor_email|escapejs }}', '{{ s.status|escapejs }}', '{{ s.notes|escapejs }}')"
+                                            class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-[#1E1E1E] dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-xs transition" 
+                                            title="Tahrirlash">
+                                        <i class="fa-solid fa-user-pen"></i>
+                                    </button>
+
+                                    {% if s.visitor_phone %}
+                                    <!-- Call Button -->
+                                    <a href="tel:{{ s.visitor_phone }}" 
+                                       class="w-7 h-7 rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-xs transition" 
+                                       title="Qo'ng'iroq qilish">
+                                        <i class="fa-solid fa-phone"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="py-12 px-6 text-center text-slate-400 dark:text-slate-500">
+                                <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-[#1E1E1E] text-slate-400 flex items-center justify-center text-xl mx-auto mb-3">
+                                    <i class="fa-solid fa-folder-open"></i>
+                                </div>
+                                <h4 class="font-bold text-slate-700 dark:text-slate-300 text-sm">Mijozlar topilmadi</h4>
+                                <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Tanlangan filtrlar yoki qidiruv bo'yicha hech qanday murojaat chiqmadi.</p>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- ========================================================================= -->
+<!-- 5. CHAT POP-UP WINDOW (MODAL) WITH FULL SCREEN EXPAND SUPPORT -->
+<!-- ========================================================================= -->
+{% if active_session %}
+<div id="chatPopUpModal" 
+     class="fixed inset-0 z-50 overflow-hidden bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 transition-all duration-200"
+     tabindex="-1"
+     aria-modal="true" 
+     role="dialog">
+     
+    <!-- Pop-up Window Card -->
+    <div id="chatPopUpCard" 
+         class="bg-white dark:bg-[#141414] border border-[#E7E5E1] dark:border-[#262626] rounded-3xl shadow-2xl overflow-hidden flex flex-col w-full max-w-5xl h-[88vh]">
+        
+        <!-- Pop-up Header -->
+        <div class="px-5 py-3.5 border-b border-[#E7E5E1] dark:border-[#262626] flex items-center justify-between gap-3 bg-white dark:bg-[#141414] shrink-0">
+            <!-- Left: Avatar & Customer info -->
+            <div class="flex items-center space-x-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
+                    {% if active_session.session_id|slice:':3' == 'tg_' %}
+                        <i class="fa-brands fa-telegram text-base"></i>
+                    {% else %}
+                        <i class="fa-solid fa-globe text-base"></i>
+                    {% endif %}
+                </div>
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm leading-snug truncate">{{ active_session.display_name }}</h3>
+                        <!-- Channel tag -->
+                        {% if active_session.session_id|slice:':3' == 'tg_' %}
+                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 font-semibold">Telegram</span>
+                        {% else %}
+                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 font-semibold">Vebsayt</span>
                         {% endif %}
-                        <button onclick="document.getElementById('editLeadModal').classList.remove('hidden')" class="px-3 py-1.5 bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-xl transition flex items-center gap-1 border border-[#E7E5E1] dark:border-[#262626]" title="Mijoz ma'lumotlarini tahrirlash">
-                            <i class="fa-solid fa-user-pen"></i>
-                            <span class="hidden sm:inline">Tahrirlash</span>
-                        </button>
+                        <!-- Status tag -->
+                        <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold
+                            {% if active_session.status == 'new' %}bg-sky-50 dark:bg-sky-950/40 text-sky-600 border border-sky-200 dark:border-sky-800
+                            {% elif active_session.status == 'in_progress' %}bg-amber-50 dark:bg-amber-950/40 text-amber-600 border border-amber-200 dark:border-amber-800
+                            {% elif active_session.status == 'completed' %}bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 border border-emerald-200 dark:border-emerald-800
+                            {% else %}bg-slate-100 dark:bg-[#1E1E1E] text-slate-600 dark:text-slate-400{% endif %}">
+                            {{ active_session.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                        {% if active_session.visitor_phone %}
+                            <span class="font-medium text-slate-700 dark:text-slate-300"><i class="fa-solid fa-phone text-slate-400 dark:text-slate-500 mr-1"></i> {{ active_session.visitor_phone }}</span>
+                            <span>•</span>
+                        {% endif %}
+                        {% if active_session.assigned_staff %}
+                            <span>Mas'ul: <strong class="text-slate-800 dark:text-slate-200">{{ active_session.assigned_staff.name }}</strong></span>
+                        {% else %}
+                            <span>Rejim: <strong>AI Avto-javob</strong></span>
+                        {% endif %}
                     </div>
                 </div>
+            </div>
 
-                <!-- Notes Banner if exists -->
-                {% if active_session.notes %}
-                <div class="bg-amber-50/80 dark:bg-amber-950/30 border-b border-amber-100 dark:border-amber-900/40 px-4 py-2 text-xs text-amber-900 dark:text-amber-300 flex items-center justify-between shrink-0">
-                    <div class="flex items-center space-x-2 truncate">
-                        <i class="fa-solid fa-note-sticky text-amber-600 dark:text-amber-400 shrink-0"></i>
-                        <span class="truncate"><strong>Eslatma:</strong> {{ active_session.notes }}</span>
-                    </div>
-                    <button onclick="document.getElementById('editLeadModal').classList.remove('hidden')" class="text-[10px] text-amber-700 dark:text-amber-400 underline font-semibold shrink-0 ml-2">O'zgartirish</button>
-                </div>
+            <!-- Right: Action Controls (AI Panel, Call, Edit, Full Screen, Close) -->
+            <div class="flex items-center space-x-1.5 shrink-0">
+                <!-- AI Insights toggle -->
+                <button type="button" 
+                        onclick="toggleAiPanel()" 
+                        id="aiPanelToggleBtn"
+                        class="px-3 py-1.5 bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white text-white dark:text-[#0A0A0A] text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-2xs"
+                        title="AI Tahlil panelini ko'rsatish yoki yopish">
+                    <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                    <span id="aiToggleText" class="hidden sm:inline">AI Tahlil</span>
+                </button>
+
+                {% if active_session.visitor_phone %}
+                <a href="tel:{{ active_session.visitor_phone }}" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-xs transition" title="Qo'ng'iroq qilish">
+                    <i class="fa-solid fa-phone"></i>
+                </a>
                 {% endif %}
 
-                <!-- Messages Timeline (Styled Wallpaper / Slate background - flex-1 fills entire remaining height) -->
-                <div class="flex-1 p-4 sm:p-5 overflow-y-auto space-y-3.5 bg-[#FAFAF9] dark:bg-[#0A0A0A]" id="messagesTimeline">
+                <!-- Edit Lead -->
+                <button type="button" 
+                        onclick="document.getElementById('editLeadModal').classList.remove('hidden')" 
+                        class="px-3 py-1.5 bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-xl transition flex items-center gap-1 border border-[#E7E5E1] dark:border-[#262626]" 
+                        title="Mijoz ma'lumotlarini tahrirlash">
+                    <i class="fa-solid fa-user-pen"></i>
+                    <span class="hidden sm:inline">Tahrirlash</span>
+                </button>
+
+                <!-- FULL SCREEN TOGGLE BUTTON -->
+                <button type="button" 
+                        onclick="toggleFullScreenChat()" 
+                        id="chatFullScreenBtn"
+                        class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1E1E1E] dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-xs transition" 
+                        title="To'liq ekranga kengaytirish (Full Screen)">
+                    <i class="fa-solid fa-expand" id="fullScreenIcon"></i>
+                </button>
+
+                <!-- CLOSE POP-UP BUTTON -->
+                <button type="button" 
+                        onclick="closeChatModal()" 
+                        class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-rose-100 dark:bg-[#1E1E1E] dark:hover:bg-rose-950/60 text-slate-700 hover:text-rose-600 dark:text-slate-300 dark:hover:text-rose-400 border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-sm transition" 
+                        title="Chatni yopish (Esc)">
+                    <i class="fa-solid fa-xmark font-bold"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Notes Banner if exists -->
+        {% if active_session.notes %}
+        <div class="bg-amber-50/80 dark:bg-amber-950/30 border-b border-amber-100 dark:border-amber-900/40 px-5 py-2 text-xs text-amber-900 dark:text-amber-300 flex items-center justify-between shrink-0">
+            <div class="flex items-center space-x-2 truncate">
+                <i class="fa-solid fa-note-sticky text-amber-600 dark:text-amber-400 shrink-0"></i>
+                <span class="truncate"><strong>Eslatma:</strong> {{ active_session.notes }}</span>
+            </div>
+            <button onclick="document.getElementById('editLeadModal').classList.remove('hidden')" class="text-[10px] text-amber-700 dark:text-amber-400 underline font-semibold shrink-0 ml-2">O'zgartirish</button>
+        </div>
+        {% endif %}
+
+        <!-- Modal Main Area (Timeline + AI Panel) -->
+        <div class="flex-1 flex overflow-hidden min-h-0 relative">
+            
+            <!-- Chat Messages Timeline Column -->
+            <div id="chatAreaPane" class="flex-1 flex flex-col h-full bg-[#FAFAF9] dark:bg-[#0A0A0A] overflow-hidden">
+                
+                <!-- Messages Timeline Container -->
+                <div class="flex-1 p-4 sm:p-5 overflow-y-auto space-y-3.5" id="messagesTimeline">
                     {% for msg in active_session.messages.all %}
 
                     <!-- Telegram-style Centered Date Divider -->
@@ -235,7 +554,8 @@
                         </div>
                     </div>
                     {% empty %}
-                    <div id="noMessagesPlaceholder" class="text-center py-12 text-slate-400 dark:text-slate-500">
+                    <div id="noMessagesPlaceholder" class="text-center py-16 text-slate-400 dark:text-slate-500">
+                        <i class="fa-solid fa-comments text-3xl mb-2 text-slate-300 dark:text-slate-600 block"></i>
                         <p class="text-xs">Ushbu suhbatda hali xabarlar yo'q</p>
                     </div>
                     {% endfor %}
@@ -263,129 +583,31 @@
                         </button>
                     </div>
 
-                    <!-- Comprehensive Telegram Emoji & Sticker Picker Popup (Continuous Scroll Groups) -->
+                    <!-- Emoji & Sticker Picker Popup -->
                     <div id="stickerPickerPopup" class="hidden absolute bottom-24 right-3 z-30 w-80 sm:w-96 bg-white dark:bg-[#141414] rounded-2xl shadow-2xl border border-[#E7E5E1] dark:border-[#262626] p-3">
                         <div class="max-h-64 overflow-y-auto pr-1 space-y-3 text-xl text-center select-none divide-y divide-[#E7E5E1] dark:divide-[#262626]">
-                            
-                            <!-- 1. Smiles / Faces -->
+                            <!-- 1. Smiles -->
                             <div class="pt-1">
                                 <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block text-left mb-1.5 px-1">😀 Yuzlar va hissiyotlar</span>
                                 <div class="grid grid-cols-8 gap-1">
                                     <button type="button" onclick="insertSticker('😀')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😀</button>
                                     <button type="button" onclick="insertSticker('😃')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😃</button>
                                     <button type="button" onclick="insertSticker('😄')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😄</button>
-                                    <button type="button" onclick="insertSticker('😁')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😁</button>
                                     <button type="button" onclick="insertSticker('😊')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😊</button>
-                                    <button type="button" onclick="insertSticker('😇')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😇</button>
-                                    <button type="button" onclick="insertSticker('🙂')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🙂</button>
                                     <button type="button" onclick="insertSticker('😉')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😉</button>
                                     <button type="button" onclick="insertSticker('😍')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😍</button>
-                                    <button type="button" onclick="insertSticker('🥰')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🥰</button>
-                                    <button type="button" onclick="insertSticker('😘')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😘</button>
-                                    <button type="button" onclick="insertSticker('😋')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😋</button>
                                     <button type="button" onclick="insertSticker('😎')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😎</button>
-                                    <button type="button" onclick="insertSticker('🤩')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🤩</button>
-                                    <button type="button" onclick="insertSticker('🥳')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🥳</button>
-                                    <button type="button" onclick="insertSticker('😏')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😏</button>
                                     <button type="button" onclick="insertSticker('🤔')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🤔</button>
-                                    <button type="button" onclick="insertSticker('🫡')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🫡</button>
-                                    <button type="button" onclick="insertSticker('🤗')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🤗</button>
-                                    <button type="button" onclick="insertSticker('🤫')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🤫</button>
-                                    <button type="button" onclick="insertSticker('🙄')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🙄</button>
-                                    <button type="button" onclick="insertSticker('😬')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😬</button>
-                                    <button type="button" onclick="insertSticker('🥺')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🥺</button>
-                                    <button type="button" onclick="insertSticker('😭')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">😭</button>
-                                </div>
-                            </div>
-
-                            <!-- 2. Gestures / Hands -->
-                            <div class="pt-2">
-                                <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block text-left mb-1.5 px-1">👍 Qo'llar va imo-ishoralar</span>
-                                <div class="grid grid-cols-8 gap-1">
-                                    <button type="button" onclick="insertSticker('👋')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">👋</button>
                                     <button type="button" onclick="insertSticker('👍')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">👍</button>
-                                    <button type="button" onclick="insertSticker('👎')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">👎</button>
-                                    <button type="button" onclick="insertSticker('👌')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">👌</button>
-                                    <button type="button" onclick="insertSticker('✌️')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">✌️</button>
-                                    <button type="button" onclick="insertSticker('🤞')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🤞</button>
                                     <button type="button" onclick="insertSticker('🤝')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🤝</button>
                                     <button type="button" onclick="insertSticker('👏')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">👏</button>
-                                    <button type="button" onclick="insertSticker('🙌')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🙌</button>
-                                    <button type="button" onclick="insertSticker('🫶')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🫶</button>
-                                    <button type="button" onclick="insertSticker('👐')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">👐</button>
-                                    <button type="button" onclick="insertSticker('🤲')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🤲</button>
                                     <button type="button" onclick="insertSticker('🙏')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🙏</button>
-                                    <button type="button" onclick="insertSticker('✍️')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">✍️</button>
-                                    <button type="button" onclick="insertSticker('💪')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">💪</button>
-                                    <button type="button" onclick="insertSticker('👉')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">👉</button>
-                                </div>
-                            </div>
-
-                            <!-- 3. Business & Work -->
-                            <div class="pt-2">
-                                <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block text-left mb-1.5 px-1">💼 Biznes va savdo</span>
-                                <div class="grid grid-cols-8 gap-1">
-                                    <button type="button" onclick="insertSticker('💼')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">💼</button>
-                                    <button type="button" onclick="insertSticker('📊')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">📊</button>
-                                    <button type="button" onclick="insertSticker('📈')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">📈</button>
-                                    <button type="button" onclick="insertSticker('💰')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">💰</button>
-                                    <button type="button" onclick="insertSticker('💳')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">💳</button>
-                                    <button type="button" onclick="insertSticker('💵')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">💵</button>
-                                    <button type="button" onclick="insertSticker('🛒')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🛒</button>
-                                    <button type="button" onclick="insertSticker('🏷️')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🏷️</button>
-                                    <button type="button" onclick="insertSticker('📦')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">📦</button>
-                                    <button type="button" onclick="insertSticker('🚚')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🚚</button>
-                                    <button type="button" onclick="insertSticker('🏬')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🏬</button>
-                                    <button type="button" onclick="insertSticker('🏢')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🏢</button>
-                                    <button type="button" onclick="insertSticker('📋')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">📋</button>
-                                    <button type="button" onclick="insertSticker('📁')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">📁</button>
-                                    <button type="button" onclick="insertSticker('🎯')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🎯</button>
+                                    <button type="button" onclick="insertSticker('🔥')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🔥</button>
+                                    <button type="button" onclick="insertSticker('✨')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">✨</button>
+                                    <button type="button" onclick="insertSticker('💯')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">💯</button>
                                     <button type="button" onclick="insertSticker('🚀')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🚀</button>
                                 </div>
                             </div>
-
-                            <!-- 4. Symbols & Highlights -->
-                            <div class="pt-2">
-                                <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block text-left mb-1.5 px-1">⚡ Belgilar va e'tibor</span>
-                                <div class="grid grid-cols-8 gap-1">
-                                    <button type="button" onclick="insertSticker('✅')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">✅</button>
-                                    <button type="button" onclick="insertSticker('✨')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">✨</button>
-                                    <button type="button" onclick="insertSticker('🔥')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🔥</button>
-                                    <button type="button" onclick="insertSticker('⚡')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">⚡</button>
-                                    <button type="button" onclick="insertSticker('⭐')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">⭐</button>
-                                    <button type="button" onclick="insertSticker('🌟')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🌟</button>
-                                    <button type="button" onclick="insertSticker('💡')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">💡</button>
-                                    <button type="button" onclick="insertSticker('💯')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">💯</button>
-                                    <button type="button" onclick="insertSticker('🎉')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🎉</button>
-                                    <button type="button" onclick="insertSticker('📌')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">📌</button>
-                                    <button type="button" onclick="insertSticker('📍')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">📍</button>
-                                    <button type="button" onclick="insertSticker('⏰')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">⏰</button>
-                                    <button type="button" onclick="insertSticker('🔔')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🔔</button>
-                                    <button type="button" onclick="insertSticker('❗')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">❗</button>
-                                    <button type="button" onclick="insertSticker('❓')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">❓</button>
-                                    <button type="button" onclick="insertSticker('❤️')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">❤️</button>
-                                </div>
-                            </div>
-
-                            <!-- 5. Objects & Tech -->
-                            <div class="pt-2">
-                                <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block text-left mb-1.5 px-1">🎁 Buyumlar va aloqa</span>
-                                <div class="grid grid-cols-8 gap-1">
-                                    <button type="button" onclick="insertSticker('📞')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">📞</button>
-                                    <button type="button" onclick="insertSticker('📱')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">📱</button>
-                                    <button type="button" onclick="insertSticker('💻')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">💻</button>
-                                    <button type="button" onclick="insertSticker('✉️')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">✉️</button>
-                                    <button type="button" onclick="insertSticker('🎁')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🎁</button>
-                                    <button type="button" onclick="insertSticker('🏆')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🏆</button>
-                                    <button type="button" onclick="insertSticker('👑')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">👑</button>
-                                    <button type="button" onclick="insertSticker('💎')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">💎</button>
-                                    <button type="button" onclick="insertSticker('🔑')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🔑</button>
-                                    <button type="button" onclick="insertSticker('🔒')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🔒</button>
-                                    <button type="button" onclick="insertSticker('🎧')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🎧</button>
-                                    <button type="button" onclick="insertSticker('🌐')" class="p-1 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] rounded-lg">🌐</button>
-                                </div>
-                            </div>
-
                         </div>
                     </div>
 
@@ -398,11 +620,11 @@
                              contenteditable="true"
                              role="textbox"
                              aria-multiline="true"
-                             data-placeholder="Xabar yuborish..."
+                             data-placeholder="Xabar yuborish (Enter - yuborish, Shift+Enter - yangi qator)..."
                              data-empty="true"
                              oninput="handleRichInput(this)"
                              onkeydown="handleRichKeyDown(event)"
-                             class="w-full pl-3.5 pr-20 py-2.5 bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] transition text-slate-900 dark:text-[#F5F1E8] overflow-y-auto max-h-36 min-h-[40px] leading-relaxed break-words whitespace-pre-wrap"></div>
+                             class="w-full pl-3.5 pr-20 py-2.5 bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] transition text-slate-900 dark:text-[#F5F1E8] overflow-y-auto max-h-36 min-h-[42px] leading-relaxed break-words whitespace-pre-wrap"></div>
                         
                         <!-- Actions inside Input container (Sticker & Send) -->
                         <div class="absolute right-1.5 bottom-1.5 flex items-center space-x-1">
@@ -414,7 +636,7 @@
                                 <i class="fa-regular fa-face-smile text-sm"></i>
                             </button>
                             
-                            <!-- Send Button with Modern Icon -->
+                            <!-- Send Button -->
                             <button type="submit" 
                                     id="replySendBtn"
                                     disabled
@@ -427,8 +649,8 @@
                 </div>
             </div>
 
-            <!-- Right: Customer Insights & Recommendations Panel (Collapsible) -->
-            <div id="aiInsightsPane" class="lg:col-span-3 flex flex-col h-full bg-slate-50/50 dark:bg-[#141414] border-l border-[#E7E5E1] dark:border-[#262626] p-5 overflow-y-auto space-y-4 transition-all duration-300">
+            <!-- AI Insights Panel Column (Collapsible) -->
+            <div id="aiInsightsPane" class="w-80 flex flex-col h-full bg-slate-50/70 dark:bg-[#141414] border-l border-[#E7E5E1] dark:border-[#262626] p-4 overflow-y-auto space-y-4 transition-all duration-300 shrink-0">
                 
                 <!-- Panel Header -->
                 <div class="flex items-center justify-between border-b border-[#E7E5E1] dark:border-[#262626] pb-3">
@@ -446,22 +668,22 @@
                 <!-- 1. Customer Intent & Topic -->
                 <div class="space-y-1.5">
                     <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Mijoz maqsadi</span>
-                    <div class="p-3.5 bg-white dark:bg-[#1E1E1E] rounded-xl border border-[#E7E5E1] dark:border-[#262626] shadow-2xs">
+                    <div class="p-3 bg-white dark:bg-[#1E1E1E] rounded-xl border border-[#E7E5E1] dark:border-[#262626] shadow-2xs">
                         <div class="text-xs font-bold text-slate-900 dark:text-[#F5F1E8] mb-1 flex items-center gap-1.5">
                             <i class="fa-solid fa-bullseye text-slate-800 dark:text-[#F5F1E8] text-xs"></i>
-                            {{ insights.intent }}
+                            {{ insights.intent|default:"Savol berish va xizmatlar bilan qiziqish" }}
                         </div>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Asosiy mavzu: <strong class="text-slate-800 dark:text-slate-200">{{ insights.key_topic }}</strong></p>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Asosiy mavzu: <strong class="text-slate-800 dark:text-slate-200">{{ insights.key_topic|default:"Umumiy ma'lumot" }}</strong></p>
                     </div>
                 </div>
 
                 <!-- 2. AI Opinion (Fikr) -->
                 <div class="space-y-1.5">
                     <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Mijoz haqida xulosa</span>
-                    <div class="p-3.5 bg-white dark:bg-[#1E1E1E] rounded-xl border border-[#E7E5E1] dark:border-[#262626] shadow-2xs">
+                    <div class="p-3 bg-white dark:bg-[#1E1E1E] rounded-xl border border-[#E7E5E1] dark:border-[#262626] shadow-2xs">
                         <div class="flex items-start gap-2">
                             <i class="fa-solid fa-lightbulb text-amber-500 dark:text-amber-400 text-xs mt-0.5 shrink-0"></i>
-                            <p class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed">{{ insights.opinion }}</p>
+                            <p class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed">{{ insights.opinion|default:"Mijoz mahsulot yoki xizmat tafsilotlariga faol qiziqmoqda." }}</p>
                         </div>
                     </div>
                 </div>
@@ -469,61 +691,66 @@
                 <!-- 3. Actionable Recommendation (Tavsiya) -->
                 <div class="space-y-1.5">
                     <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Keyingi qadam tavsiyasi</span>
-                    <div class="p-3.5 bg-slate-100 dark:bg-[#1E1E1E] rounded-xl border border-[#E7E5E1] dark:border-[#262626] shadow-2xs">
+                    <div class="p-3 bg-slate-100 dark:bg-[#1E1E1E] rounded-xl border border-[#E7E5E1] dark:border-[#262626] shadow-2xs">
                         <div class="flex items-start gap-2">
                             <i class="fa-solid fa-sparkles text-slate-900 dark:text-[#F5F1E8] text-xs mt-0.5 shrink-0"></i>
-                            <p class="text-xs text-slate-900 dark:text-[#F5F1E8] font-semibold leading-relaxed">{{ insights.recommendation }}</p>
+                            <p class="text-xs text-slate-900 dark:text-[#F5F1E8] font-semibold leading-relaxed">{{ insights.recommendation|default:"Mijozga taklif qilib, qulay vaqtda bog'lanish yoki uchrashuv belgilash tavsiya etiladi." }}</p>
                         </div>
                     </div>
                 </div>
 
             </div>
-        {% else %}
-            <div class="lg:col-span-9 flex flex-col items-center justify-center p-12 text-center text-slate-400 dark:text-slate-500 bg-slate-50/50 dark:bg-[#0A0A0A]">
-                <div class="w-14 h-14 rounded-2xl bg-white dark:bg-[#1E1E1E] text-slate-800 dark:text-[#F5F1E8] flex items-center justify-center text-xl mb-3 border border-[#E7E5E1] dark:border-[#262626] shadow-2xs">
-                    <i class="fa-solid fa-comments"></i>
-                </div>
-                <h3 class="text-sm font-bold text-slate-900 dark:text-[#F5F1E8]">Suhbat tanlanmagan</h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs">
-                    Chap tomondagi ro'yxatdan murojaatchini tanlang.
-                </p>
-            </div>
-        {% endif %}
 
-    </div>
-
-</div>
-
-<!-- Edit Lead Details Modal -->
-{% if active_session %}
-<div id="editLeadModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 dark:bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-[#141414] rounded-2xl max-w-md w-full p-6 shadow-2xl border border-[#E7E5E1] dark:border-[#262626]">
-        <div class="flex items-center justify-between border-b border-[#E7E5E1] dark:border-[#262626] pb-3 mb-4">
-            <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-base">Mijoz Ma'lumotlari</h3>
-            <button onclick="document.getElementById('editLeadModal').classList.add('hidden')" class="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 text-xl font-bold">&times;</button>
         </div>
 
-        <form method="POST" action="{% url 'chatbot:update_lead' active_session.session_id %}" class="space-y-4">
+    </div>
+</div>
+{% endif %}
+
+<!-- ========================================================================= -->
+<!-- 6. EDIT LEAD DETAILS MODAL -->
+<!-- ========================================================================= -->
+<div id="editLeadModal" class="hidden fixed inset-0 z-60 overflow-y-auto bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-[#141414] rounded-2xl max-w-md w-full p-6 shadow-2xl border border-[#E7E5E1] dark:border-[#262626]">
+        <div class="flex items-center justify-between border-b border-[#E7E5E1] dark:border-[#262626] pb-3 mb-4">
+            <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-base flex items-center gap-2">
+                <i class="fa-solid fa-user-pen text-sm"></i>
+                <span>Mijoz Ma'lumotlarini Tahrirlash</span>
+            </h3>
+            <button type="button" onclick="document.getElementById('editLeadModal').classList.add('hidden')" class="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 text-xl font-bold">&times;</button>
+        </div>
+
+        <form method="POST" id="editLeadForm" action="{% if active_session %}{% url 'chatbot:update_lead' active_session.session_id %}{% endif %}" class="space-y-4">
             {% csrf_token %}
 
             <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Ismi</label>
-                <input type="text" name="visitor_name" value="{{ active_session.visitor_name }}" placeholder="Masalan: Anvar Karimov" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Ismi / Tashkilot</label>
+                <input type="text" name="visitor_name" id="edit_visitor_name" value="{{ active_session.visitor_name|default:'' }}" placeholder="Masalan: Anvar Karimov" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Telefon raqami</label>
-                <input type="text" name="visitor_phone" value="{{ active_session.visitor_phone }}" placeholder="+998 90 123 45 67" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">
+                <input type="text" name="visitor_phone" id="edit_visitor_phone" value="{{ active_session.visitor_phone|default:'' }}" placeholder="+998 90 123 45 67" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Email manzili</label>
-                <input type="email" name="visitor_email" value="{{ active_session.visitor_email }}" placeholder="mijoz@example.com" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">
+                <input type="email" name="visitor_email" id="edit_visitor_email" value="{{ active_session.visitor_email|default:'' }}" placeholder="mijoz@example.com" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">CRM Holati (Status)</label>
+                <select name="status" id="edit_status" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">
+                    <option value="new" {% if active_session and active_session.status == 'new' %}selected{% endif %}>Yangi</option>
+                    <option value="in_progress" {% if active_session and active_session.status == 'in_progress' %}selected{% endif %}>Jarayonda</option>
+                    <option value="completed" {% if active_session and active_session.status == 'completed' %}selected{% endif %}>Yakunlangan</option>
+                    <option value="archived" {% if active_session and active_session.status == 'archived' %}selected{% endif %}>Arxiv</option>
+                </select>
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Shaxsiy eslatma / Izoh</label>
-                <textarea name="notes" rows="3" placeholder="Mijoz haqida maxsus eslatma yoki buyurtma tafsilotlari..." class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">{{ active_session.notes }}</textarea>
+                <textarea name="notes" id="edit_notes" rows="3" placeholder="Mijoz haqida maxsus eslatma yoki buyurtma tafsilotlari..." class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">{{ active_session.notes|default:'' }}</textarea>
             </div>
 
             <div class="pt-3 border-t border-[#E7E5E1] dark:border-[#262626] flex items-center justify-end space-x-2">
@@ -537,12 +764,12 @@
         </form>
     </div>
 </div>
-{% endif %}
 
 <script>
     const activeSessionId = "{{ active_session.session_id|default:'' }}";
     let currentVersion = 0;
     let isSyncing = false;
+    let isFullScreen = false;
 
     // Audio notification effects
     const audioReceived = new Audio("{% static 'audio/message_received.mp3' %}");
@@ -556,16 +783,12 @@
             audio.currentTime = 0;
             const playPromise = audio.play();
             if (playPromise !== undefined) {
-                playPromise.catch(() => {
-                    // Autoplay policy prevented playback until user interaction
-                });
+                playPromise.catch(() => {});
             }
-        } catch (e) {
-            // Ignore playback errors
-        }
+        } catch (e) {}
     }
 
-    // Find highest message ID currently on screen
+    // Find highest message ID currently in timeline
     let lastMessageId = 0;
     document.querySelectorAll('#messagesTimeline [data-msg-id]').forEach(el => {
         const id = parseInt(el.getAttribute('data-msg-id'), 10);
@@ -582,7 +805,7 @@
         }
     }
 
-    // Scroll and state on page load
+    // Page Load Setup
     document.addEventListener('DOMContentLoaded', function() {
         scrollTimelineToBottom(true);
         if (localStorage.getItem('lumos_inbox_ai_panel') === 'hidden') {
@@ -590,19 +813,102 @@
         }
     });
 
-    // 2. Toggle AI Insights Panel
+    // 2. TOGGLE FULL SCREEN CHAT MODAL
+    function toggleFullScreenChat() {
+        const modal = document.getElementById('chatPopUpModal');
+        const card = document.getElementById('chatPopUpCard');
+        const icon = document.getElementById('fullScreenIcon');
+        const btn = document.getElementById('chatFullScreenBtn');
+        if (!modal || !card) return;
+
+        isFullScreen = !isFullScreen;
+
+        if (isFullScreen) {
+            // Enter Full Screen
+            modal.classList.remove('p-2', 'sm:p-4');
+            card.classList.remove('max-w-5xl', 'h-[88vh]', 'rounded-3xl');
+            card.classList.add('w-screen', 'h-screen', 'max-w-none', 'rounded-none');
+            if (icon) {
+                icon.classList.remove('fa-expand');
+                icon.classList.add('fa-compress');
+            }
+            if (btn) btn.title = "Kichik oynaga qaytarish";
+        } else {
+            // Exit Full Screen to Floating Window
+            modal.classList.add('p-2', 'sm:p-4');
+            card.classList.remove('w-screen', 'h-screen', 'max-w-none', 'rounded-none');
+            card.classList.add('max-w-5xl', 'h-[88vh]', 'rounded-3xl');
+            if (icon) {
+                icon.classList.remove('fa-compress');
+                icon.classList.add('fa-expand');
+            }
+            if (btn) btn.title = "To'liq ekranga kengaytirish (Full Screen)";
+        }
+
+        setTimeout(() => scrollTimelineToBottom(true), 250);
+    }
+
+    // 3. CLOSE CHAT MODAL
+    function closeChatModal() {
+        const modal = document.getElementById('chatPopUpModal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+        if (isFullScreen) {
+            toggleFullScreenChat();
+        }
+        // Update URL to /dashboard/inbox/ without refreshing the page
+        const currentUrl = new URL(window.location.href);
+        currentUrl.pathname = "{% url 'chatbot:inbox' %}";
+        window.history.pushState({}, '', currentUrl.toString());
+    }
+
+    // Keyboard navigation (Esc key handling)
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const editModal = document.getElementById('editLeadModal');
+            if (editModal && !editModal.classList.contains('hidden')) {
+                editModal.classList.add('hidden');
+                return;
+            }
+            const chatModal = document.getElementById('chatPopUpModal');
+            if (chatModal && !chatModal.classList.contains('hidden')) {
+                if (isFullScreen) {
+                    toggleFullScreenChat();
+                } else {
+                    closeChatModal();
+                }
+            }
+        }
+    });
+
+    // 4. Open Lead Edit Modal for any customer from table
+    function openLeadModalDirect(sessionId, name, phone, email, status, notes) {
+        const form = document.getElementById('editLeadForm');
+        if (form) {
+            form.action = `/dashboard/inbox/${sessionId}/update/`;
+        }
+        document.getElementById('edit_visitor_name').value = name || '';
+        document.getElementById('edit_visitor_phone').value = phone || '';
+        document.getElementById('edit_visitor_email').value = email || '';
+        const statusSelect = document.getElementById('edit_status');
+        if (statusSelect) {
+            statusSelect.value = status || 'new';
+        }
+        document.getElementById('edit_notes').value = notes || '';
+        document.getElementById('editLeadModal').classList.remove('hidden');
+    }
+
+    // 5. Toggle AI Insights Panel
     function toggleAiPanel() {
         const pane = document.getElementById('aiInsightsPane');
-        const chatArea = document.getElementById('chatAreaPane');
         const btnText = document.getElementById('aiToggleText');
         const btn = document.getElementById('aiPanelToggleBtn');
         
-        if (!pane || !chatArea) return;
+        if (!pane) return;
 
         if (pane.classList.contains('hidden')) {
             pane.classList.remove('hidden');
-            chatArea.classList.remove('lg:col-span-9');
-            chatArea.classList.add('lg:col-span-6');
             if (btn) {
                 btn.className = 'px-3 py-1.5 bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white text-white dark:text-[#0A0A0A] text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-2xs';
             }
@@ -610,8 +916,6 @@
             localStorage.setItem('lumos_inbox_ai_panel', 'visible');
         } else {
             pane.classList.add('hidden');
-            chatArea.classList.remove('lg:col-span-6');
-            chatArea.classList.add('lg:col-span-9');
             if (btn) {
                 btn.className = 'px-3 py-1.5 bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 text-xs font-bold rounded-xl transition flex items-center gap-1.5 border border-[#E7E5E1] dark:border-[#262626]';
             }
@@ -620,7 +924,7 @@
         }
     }
 
-    // 3. Handle Rich ContentEditable Input & Toggle Send Button
+    // 6. Handle Rich ContentEditable Input
     function handleRichInput(el) {
         const text = (el.innerText || el.textContent || '').trim();
         const btn = document.getElementById('replySendBtn');
@@ -644,7 +948,7 @@
         }
     }
 
-    // 4. Handle KeyDown: Enter to Send, Ctrl+Enter / Shift+Enter for Newline
+    // 7. KeyDown Handling: Enter to Send, Shift/Ctrl+Enter for Line Break
     function handleRichKeyDown(e) {
         if (e.key === 'Enter' && (e.ctrlKey || e.shiftKey)) {
             e.preventDefault();
@@ -659,7 +963,7 @@
         }
     }
 
-    // 5. AJAX Message Send without Reload
+    // 8. AJAX Message Send without Reload
     async function sendReplyMessage() {
         const inputBox = document.getElementById('replyInputBox');
         const sendBtn = document.getElementById('replySendBtn');
@@ -675,7 +979,6 @@
 
         if (!sendUrl) return;
 
-        // Disable send button with spinner
         sendBtn.disabled = true;
         sendBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-xs"></i>';
 
@@ -700,24 +1003,13 @@
             const data = await resp.json();
 
             if (data.status === 'success' && data.message) {
-                // Instantly append sent message to timeline
                 appendMessageToTimeline(data.message);
-
-                // Play message sent audio effect
                 playAudioSafely(audioSent);
 
-                // Clear input box
                 inputBox.innerHTML = '';
                 inputBox.setAttribute('data-empty', 'true');
                 handleRichInput(inputBox);
-
-                // Scroll smoothly to bottom
                 scrollTimelineToBottom(true);
-
-                // Update sidebar session item
-                if (data.session) {
-                    updateSidebarSession(data.session.id, data.session.last_message_at, data.session.messages_count);
-                }
             } else {
                 alert(data.message || 'Xatolik yuz berdi');
             }
@@ -730,19 +1022,16 @@
         }
     }
 
-    // 6. Append Message to Timeline (Real-time render)
+    // 9. Append Message to Timeline (Real-time render)
     function appendMessageToTimeline(msg) {
         const timeline = document.getElementById('messagesTimeline');
         if (!timeline) return;
 
-        // Check if already in DOM
         if (timeline.querySelector(`[data-msg-id="${msg.id}"]`)) return;
 
-        // Remove empty state placeholder
         const placeholder = document.getElementById('noMessagesPlaceholder');
         if (placeholder) placeholder.remove();
 
-        // Check date divider
         if (msg.date_divider) {
             const allDividers = timeline.querySelectorAll('.date-divider-container');
             const lastDivider = allDividers.length > 0 ? allDividers[allDividers.length - 1] : null;
@@ -815,96 +1104,7 @@
         scrollTimelineToBottom(isStaff);
     }
 
-    // 7. Update Single Sidebar Session
-    function updateSidebarSession(sessionId, lastTime, count) {
-        const container = document.getElementById('sessionsListContainer');
-        if (!container) return;
-
-        const item = container.querySelector(`[data-session-id="${sessionId}"]`);
-        if (item) {
-            const timeEl = item.querySelector('.session-time');
-            if (timeEl && lastTime) timeEl.textContent = lastTime;
-
-            const countEl = item.querySelector('.count-val');
-            if (countEl && count !== undefined) countEl.textContent = count;
-
-            // Move to top if not already first
-            if (container.firstElementChild !== item) {
-                container.prepend(item);
-            }
-        }
-    }
-
-    // 8. Update Sidebar Sessions from Sync Data
-    function updateSidebarSessionsList(sessions) {
-        const container = document.getElementById('sessionsListContainer');
-        if (!container || !sessions) return false;
-
-        let hasNewIncoming = false;
-
-        sessions.forEach(s => {
-            const item = container.querySelector(`[data-session-id="${s.session_id}"]`);
-            if (item) {
-                const timeEl = item.querySelector('.session-time');
-                if (timeEl && s.last_message_at) timeEl.textContent = s.last_message_at;
-
-                const countEl = item.querySelector('.count-val');
-                if (countEl && s.messages_count !== undefined) {
-                    const prevCount = parseInt(countEl.textContent, 10) || 0;
-                    if (currentVersion > 0 && s.session_id !== activeSessionId && s.messages_count > prevCount) {
-                        hasNewIncoming = true;
-                    }
-                    countEl.textContent = s.messages_count;
-                }
-            } else {
-                if (currentVersion > 0) {
-                    hasNewIncoming = true;
-                }
-                // If it's a completely new session not in list, create element and prepend
-                const newA = document.createElement('a');
-                newA.href = `/dashboard/inbox/${s.session_id}/`;
-                newA.setAttribute('data-session-id', s.session_id);
-                newA.className = 'session-link-item block p-3.5 transition duration-150 relative hover:bg-white dark:hover:bg-[#141414]';
-                
-                const iconHtml = s.is_telegram
-                    ? '<i class="fa-brands fa-telegram text-sm"></i>'
-                    : '<i class="fa-solid fa-globe text-sm"></i>';
-
-                const phoneHtml = s.visitor_phone
-                    ? `<span class="text-[11px] text-slate-500 dark:text-slate-400 block truncate mt-0.5 session-phone">${s.visitor_phone}</span>`
-                    : '';
-
-                newA.innerHTML = `
-                    <div class="flex items-center justify-between gap-2.5">
-                        <div class="flex items-center space-x-2.5 min-w-0">
-                            <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#1E1E1E] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center font-bold text-xs shrink-0">
-                                ${iconHtml}
-                            </div>
-                            <div class="min-w-0">
-                                <h4 class="font-bold text-slate-800 dark:text-[#F5F1E8] text-xs truncate leading-tight session-title">
-                                    ${s.display_name}
-                                </h4>
-                                ${phoneHtml}
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end shrink-0 space-y-0.5">
-                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-medium session-time">
-                                ${s.last_message_at}
-                            </span>
-                            <span class="text-[9px] text-slate-400 dark:text-slate-500 session-count">
-                                <i class="fa-solid fa-message mr-0.5 text-slate-300 dark:text-slate-600"></i> <span class="count-val">${s.messages_count}</span>
-                            </span>
-                        </div>
-                    </div>
-                `;
-                container.prepend(newA);
-            }
-        });
-
-        return hasNewIncoming;
-    }
-
-    // 9. Real-time Polling Sync Loop (Every 1500ms)
+    // 10. Real-time Polling Sync Loop (Every 1500ms)
     async function syncRealtimeInbox() {
         if (isSyncing) return;
         isSyncing = true;
@@ -929,12 +1129,7 @@
                         });
                     }
 
-                    let hasIncomingInSidebar = false;
-                    if (data.sessions && data.sessions.length > 0) {
-                        hasIncomingInSidebar = updateSidebarSessionsList(data.sessions);
-                    }
-
-                    if (hasIncomingInChat || hasIncomingInSidebar) {
+                    if (hasIncomingInChat) {
                         playAudioSafely(audioReceived);
                     }
                 }
@@ -943,16 +1138,17 @@
                 }
             }
         } catch (e) {
-            // Silently handle transient connection loss
+            // Handle silently
         } finally {
             isSyncing = false;
         }
     }
 
-    // Start Realtime Polling
-    setInterval(syncRealtimeInbox, 1500);
+    if (activeSessionId) {
+        setInterval(syncRealtimeInbox, 1500);
+    }
 
-    // 10. Format Selected Text Visually (Bold, Italic, Underline, Strikethrough, Monospace)
+    // 11. Format Selected Text Visually
     function formatInputText(type) {
         const inputBox = document.getElementById('replyInputBox');
         if (!inputBox) return;
@@ -980,7 +1176,7 @@
         handleRichInput(inputBox);
     }
 
-    // 11. Categorized Sticker & Emoji Picker
+    // 12. Sticker & Emoji Picker
     function toggleStickerPicker() {
         const popup = document.getElementById('stickerPickerPopup');
         if (popup) {
