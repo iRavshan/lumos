@@ -57,7 +57,7 @@
         <div class="flex items-center bg-slate-100 dark:bg-[#1E1E1E] p-1 rounded-xl text-xs font-bold self-start">
             <a href="?channel=all{% if search_query %}&q={{ search_query }}{% endif %}" 
                class="py-1.5 px-3 rounded-lg transition flex items-center gap-1.5 {% if channel_filter == 'all' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8]{% endif %}">
-                <span>Barcha kanallar</span>
+                <span>Barchasi</span>
                 <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'all' %}bg-white/20 text-white dark:bg-black/15 dark:text-[#0A0A0A]{% else %}bg-slate-200 dark:bg-[#262626] text-slate-600 dark:text-slate-400{% endif %}">{{ counts.all }}</span>
             </a>
             <a href="?channel=website{% if search_query %}&q={{ search_query }}{% endif %}" 
@@ -128,15 +128,8 @@
                                             <h4 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-xs truncate session-title">
                                                 {{ s.display_name }}
                                             </h4>
-                                            {% if s.session_id|slice:':3' == 'tg_' %}
-                                                <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 font-semibold">Telegram</span>
-                                            {% else %}
-                                                <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 font-semibold">Veb</span>
-                                            {% endif %}
                                         </div>
                                         <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 flex items-center gap-2">
-                                            <span>#{{ s.session_id|slice:':10' }}</span>
-                                            <span>•</span>
                                             <span>{{ s.created_at|date:"d.m.Y H:i" }}</span>
                                         </div>
                                     </div>
@@ -222,96 +215,195 @@
      
     <!-- Pop-up Window Card -->
     <div id="chatPopUpCard" 
-         class="bg-white dark:bg-[#141414] border border-[#E7E5E1] dark:border-[#262626] rounded-3xl shadow-2xl overflow-hidden flex flex-col w-full max-w-5xl h-[88vh]">
+         class="bg-white dark:bg-[#141414] border border-[#E7E5E1] dark:border-[#262626] rounded-3xl shadow-2xl overflow-hidden flex flex-row w-full max-w-5xl h-[88vh] relative">
         
-        <!-- Pop-up Header -->
-        <div class="px-5 py-3.5 border-b border-[#E7E5E1] dark:border-[#262626] flex items-center justify-between gap-3 bg-white dark:bg-[#141414] shrink-0">
-            <!-- Left: Avatar & Customer info -->
-            <div class="flex items-center space-x-3 min-w-0">
-                <div class="w-10 h-10 rounded-xl bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
-                    {% if active_session.session_id|slice:':3' == 'tg_' %}
-                        <i class="fa-brands fa-telegram text-base"></i>
-                    {% else %}
-                        <i class="fa-solid fa-globe text-base"></i>
+        <!-- 1. POP-UP SESSIONS SIDEBAR (Boshqa mijozlar ro'yxati) -->
+        <div id="popupSessionsSidebar" 
+             class="hidden w-full md:w-80 shrink-0 border-r border-[#E7E5E1] dark:border-[#262626] flex-col h-full bg-slate-50/40 dark:bg-[#0A0A0A] transition-all duration-200 z-20 absolute inset-0 md:static">
+            
+            <!-- Channel Filter Tabs -->
+            <div class="p-3 border-b border-[#E7E5E1] dark:border-[#262626] bg-white dark:bg-[#141414] shrink-0">
+                <div class="flex items-center justify-between mb-2 md:hidden">
+                    <span class="font-bold text-xs text-slate-800 dark:text-[#F5F1E8]">Mijozlar ro'yxati</span>
+                    <button type="button" onclick="togglePopupSessionsList()" class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-[#1E1E1E] text-slate-500 hover:text-slate-800 dark:hover:text-[#F5F1E8] flex items-center justify-center text-xs">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-[#1E1E1E] p-1 rounded-xl text-xs font-bold text-center">
+                    <a href="?channel=all{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="py-1.5 px-1 rounded-lg transition flex items-center justify-center gap-1 {% if channel_filter == 'all' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs font-bold{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8]{% endif %}">
+                        <span>Barchasi</span>
+                        <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'all' %}bg-white/20 text-white dark:bg-black/15 dark:text-[#0A0A0A]{% else %}bg-slate-200 dark:bg-[#262626] text-slate-600 dark:text-slate-400{% endif %}">{{ counts.all }}</span>
+                    </a>
+                    <a href="?channel=website{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="py-1.5 px-1 rounded-lg transition flex items-center justify-center gap-1 {% if channel_filter == 'website' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs font-bold{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8]{% endif %}">
+                        <i class="fa-solid fa-globe text-[11px]"></i>
+                        <span>Veb</span>
+                        <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'website' %}bg-white/20 text-white dark:bg-black/15 dark:text-[#0A0A0A]{% else %}bg-slate-200 dark:bg-[#262626] text-slate-600 dark:text-slate-400{% endif %}">{{ counts.website }}</span>
+                    </a>
+                    <a href="?channel=telegram{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="py-1.5 px-1 rounded-lg transition flex items-center justify-center gap-1 {% if channel_filter == 'telegram' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs font-bold{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8]{% endif %}">
+                        <i class="fa-brands fa-telegram text-[12px]"></i>
+                        <span>TG</span>
+                        <span class="text-[10px] px-1.5 py-0.2 rounded-full {% if channel_filter == 'telegram' %}bg-white/20 text-white dark:bg-black/15 dark:text-[#0A0A0A]{% else %}bg-slate-200 dark:bg-[#262626] text-slate-600 dark:text-slate-400{% endif %}">{{ counts.telegram }}</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Search Form -->
+            <div class="p-3 border-b border-[#E7E5E1] dark:border-[#262626] bg-white dark:bg-[#141414] shrink-0">
+                <form method="GET" class="relative">
+                    {% if channel_filter and channel_filter != 'all' %}
+                        <input type="hidden" name="channel" value="{{ channel_filter }}">
                     {% endif %}
-                </div>
-                <div class="min-w-0">
-                    <div class="flex items-center gap-2">
-                        <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm leading-snug truncate">{{ active_session.display_name }}</h3>
-                        <!-- Channel tag -->
-                        {% if active_session.session_id|slice:':3' == 'tg_' %}
-                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 font-semibold">Telegram</span>
-                        {% else %}
-                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 font-semibold">Vebsayt</span>
-                        {% endif %}
-                        <!-- Status tag -->
-                        <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold
-                            {% if active_session.status == 'new' %}bg-sky-50 dark:bg-sky-950/40 text-sky-600 border border-sky-200 dark:border-sky-800
-                            {% elif active_session.status == 'in_progress' %}bg-amber-50 dark:bg-amber-950/40 text-amber-600 border border-amber-200 dark:border-amber-800
-                            {% elif active_session.status == 'completed' %}bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 border border-emerald-200 dark:border-emerald-800
-                            {% else %}bg-slate-100 dark:bg-[#1E1E1E] text-slate-600 dark:text-slate-400{% endif %}">
-                            {{ active_session.get_status_display }}
-                        </span>
-                    </div>
-                    <div class="flex items-center space-x-2 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                        {% if active_session.visitor_phone %}
-                            <span class="font-medium text-slate-700 dark:text-slate-300"><i class="fa-solid fa-phone text-slate-400 dark:text-slate-500 mr-1"></i> {{ active_session.visitor_phone }}</span>
-                            <span>•</span>
-                        {% endif %}
-                        {% if active_session.assigned_staff %}
-                            <span>Mas'ul: <strong class="text-slate-800 dark:text-slate-200">{{ active_session.assigned_staff.name }}</strong></span>
-                        {% else %}
-                            <span>Rejim: <strong>AI Avto-javob</strong></span>
-                        {% endif %}
-                    </div>
-                </div>
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 dark:text-slate-500 text-xs"></i>
+                    <input type="text" name="q" id="popupSessionSearchInput" value="{{ search_query }}" placeholder="Qidirish..." oninput="filterPopupSessionsList(this.value)" class="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] rounded-xl text-xs text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] transition">
+                </form>
             </div>
 
-            <!-- Right: Action Controls (AI Panel, Call, Edit, Full Screen, Close) -->
-            <div class="flex items-center space-x-1.5 shrink-0">
-                <!-- AI Insights toggle -->
-                <button type="button" 
-                        onclick="toggleAiPanel()" 
-                        id="aiPanelToggleBtn"
-                        class="px-3 py-1.5 bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white text-white dark:text-[#0A0A0A] text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-2xs"
-                        title="AI Tahlil panelini ko'rsatish yoki yopish">
-                    <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
-                    <span id="aiToggleText" class="hidden sm:inline">AI Tahlil</span>
-                </button>
-
-                {% if active_session.visitor_phone %}
-                <a href="tel:{{ active_session.visitor_phone }}" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-xs transition" title="Qo'ng'iroq qilish">
-                    <i class="fa-solid fa-phone"></i>
-                </a>
+            <!-- Sessions List -->
+            <div class="flex-1 overflow-y-auto divide-y divide-[#E7E5E1] dark:divide-[#262626]" id="sessionsListContainer">
+                {% if sessions %}
+                    {% for s in sessions %}
+                    <a href="{% url 'chatbot:inbox_detail' s.session_id %}?channel={{ channel_filter }}{% if search_query %}&q={{ search_query }}{% endif %}" data-session-id="{{ s.session_id }}" class="session-link-item block p-3.5 transition duration-150 relative hover:bg-white dark:hover:bg-[#141414] {% if active_session and active_session.session_id == s.session_id %}bg-white dark:bg-[#141414] shadow-xs border-l-4 border-[#0A0A0A] dark:border-[#F5F1E8]{% endif %}">
+                        <div class="flex items-center justify-between gap-2.5">
+                            <div class="flex items-center space-x-2.5 min-w-0">
+                                <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#1E1E1E] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center font-bold text-xs shrink-0">
+                                    {% if s.session_id|slice:':3' == 'tg_' %}
+                                        <i class="fa-brands fa-telegram text-sm"></i>
+                                    {% else %}
+                                        <i class="fa-solid fa-globe text-sm"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="min-w-0">
+                                    <h4 class="font-bold text-slate-800 dark:text-[#F5F1E8] text-xs truncate leading-tight session-title">
+                                        {{ s.display_name }}
+                                    </h4>
+                                    {% if s.visitor_phone %}
+                                        <span class="text-[11px] text-slate-500 dark:text-slate-400 block truncate mt-0.5 session-phone">{{ s.visitor_phone }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="flex flex-col items-end shrink-0 space-y-0.5">
+                                <span class="text-[9px] text-slate-400 dark:text-slate-500 font-medium session-time">
+                                    {{ s.last_message_at|date:"d M" }}
+                                </span>
+                                <span class="text-[9px] text-slate-400 dark:text-slate-500 session-count">
+                                    <i class="fa-solid fa-message mr-0.5 text-slate-300 dark:text-slate-600"></i> <span class="count-val">{{ s.messages.count }}</span>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                {% else %}
+                    <div class="p-8 text-center text-slate-400 dark:text-slate-500">
+                        <i class="fa-solid fa-inbox text-2xl mb-2"></i>
+                        <p class="text-xs">Murojaatlar topilmadi</p>
+                    </div>
                 {% endif %}
-
-                <!-- Edit Lead -->
-                <button type="button" 
-                        onclick="document.getElementById('editLeadModal').classList.remove('hidden')" 
-                        class="px-3 py-1.5 bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-xl transition flex items-center gap-1 border border-[#E7E5E1] dark:border-[#262626]" 
-                        title="Mijoz ma'lumotlarini tahrirlash">
-                    <i class="fa-solid fa-user-pen"></i>
-                    <span class="hidden sm:inline">Tahrirlash</span>
-                </button>
-
-                <!-- FULL SCREEN TOGGLE BUTTON -->
-                <button type="button" 
-                        onclick="toggleFullScreenChat()" 
-                        id="chatFullScreenBtn"
-                        class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1E1E1E] dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-xs transition" 
-                        title="To'liq ekranga kengaytirish (Full Screen)">
-                    <i class="fa-solid fa-expand" id="fullScreenIcon"></i>
-                </button>
-
-                <!-- CLOSE POP-UP BUTTON -->
-                <button type="button" 
-                        onclick="closeChatModal()" 
-                        class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-rose-100 dark:bg-[#1E1E1E] dark:hover:bg-rose-950/60 text-slate-700 hover:text-rose-600 dark:text-slate-300 dark:hover:text-rose-400 border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-sm transition" 
-                        title="Chatni yopish (Esc)">
-                    <i class="fa-solid fa-xmark font-bold"></i>
-                </button>
             </div>
+
         </div>
+
+        <!-- 2. ACTIVE CHAT AREA COLUMN -->
+        <div id="chatMainWrapper" class="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-[#FAFAF9] dark:bg-[#0A0A0A]">
+
+            <!-- Pop-up Chat Header -->
+            <div class="px-4 sm:px-5 py-3.5 border-b border-[#E7E5E1] dark:border-[#262626] flex items-center justify-between gap-3 bg-white dark:bg-[#141414] shrink-0">
+                <!-- Left: Back Button + Avatar & Customer info -->
+                <div class="flex items-center space-x-2.5 min-w-0">
+                    
+                    <!-- LEFT ARROW ICON BUTTON (Takes to other customers list) -->
+                    <button type="button" 
+                            onclick="togglePopupSessionsList()" 
+                            id="popupBackToSessionsBtn"
+                            class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1E1E1E] dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-xs transition shrink-0" 
+                            title="Boshqa mijozlar ro'yxatiga o'tish">
+                        <i class="fa-solid fa-arrow-left text-xs"></i>
+                    </button>
+
+                    <!-- Avatar -->
+                    <div class="w-10 h-10 rounded-xl bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
+                        {% if active_session.session_id|slice:':3' == 'tg_' %}
+                            <i class="fa-brands fa-telegram text-base"></i>
+                        {% else %}
+                            <i class="fa-solid fa-globe text-base"></i>
+                        {% endif %}
+                    </div>
+
+                    <!-- Customer info -->
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm leading-snug truncate">{{ active_session.display_name }}</h3>
+                            <!-- Status tag -->
+                            <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold
+                                {% if active_session.status == 'new' %}bg-sky-50 dark:bg-sky-950/40 text-sky-600 border border-sky-200 dark:border-sky-800
+                                {% elif active_session.status == 'in_progress' %}bg-amber-50 dark:bg-amber-950/40 text-amber-600 border border-amber-200 dark:border-amber-800
+                                {% elif active_session.status == 'completed' %}bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 border border-emerald-200 dark:border-emerald-800
+                                {% else %}bg-slate-100 dark:bg-[#1E1E1E] text-slate-600 dark:text-slate-400{% endif %}">
+                                {{ active_session.get_status_display }}
+                            </span>
+                        </div>
+                        <div class="flex items-center space-x-2 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                            {% if active_session.visitor_phone %}
+                                <span class="font-medium text-slate-700 dark:text-slate-300"><i class="fa-solid fa-phone text-slate-400 dark:text-slate-500 mr-1"></i> {{ active_session.visitor_phone }}</span>
+                                <span>•</span>
+                            {% endif %}
+                            {% if active_session.assigned_staff %}
+                                <span>Mas'ul: <strong class="text-slate-800 dark:text-slate-200">{{ active_session.assigned_staff.name }}</strong></span>
+                            {% else %}
+                                <span>Rejim: <strong>AI Avto-javob</strong></span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Action Controls (AI Panel, Call, Edit, Full Screen, Close) -->
+                <div class="flex items-center space-x-1.5 shrink-0">
+                    <!-- AI Insights toggle -->
+                    <button type="button" 
+                            onclick="toggleAiPanel()" 
+                            id="aiPanelToggleBtn"
+                            class="px-3 py-1.5 bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white text-white dark:text-[#0A0A0A] text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-2xs"
+                            title="AI Tahlil panelini ko'rsatish yoki yopish">
+                        <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                        <span id="aiToggleText" class="hidden sm:inline">AI Tahlil</span>
+                    </button>
+
+                    {% if active_session.visitor_phone %}
+                    <a href="tel:{{ active_session.visitor_phone }}" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-xs transition" title="Qo'ng'iroq qilish">
+                        <i class="fa-solid fa-phone"></i>
+                    </a>
+                    {% endif %}
+
+                    <!-- Edit Lead -->
+                    <button type="button" 
+                            onclick="document.getElementById('editLeadModal').classList.remove('hidden')" 
+                            class="px-3 py-1.5 bg-slate-100 dark:bg-[#1E1E1E] hover:bg-slate-200 dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-xl transition flex items-center gap-1 border border-[#E7E5E1] dark:border-[#262626]" 
+                            title="Mijoz ma'lumotlarini tahrirlash">
+                        <i class="fa-solid fa-user-pen"></i>
+                        <span class="hidden sm:inline">Tahrirlash</span>
+                    </button>
+
+                    <!-- FULL SCREEN TOGGLE BUTTON -->
+                    <button type="button" 
+                            onclick="toggleFullScreenChat()" 
+                            id="chatFullScreenBtn"
+                            class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1E1E1E] dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-xs transition" 
+                            title="To'liq ekranga kengaytirish (Full Screen)">
+                        <i class="fa-solid fa-expand" id="fullScreenIcon"></i>
+                    </button>
+
+                    <!-- CLOSE POP-UP BUTTON -->
+                    <button type="button" 
+                            onclick="closeChatModal()" 
+                            class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-rose-100 dark:bg-[#1E1E1E] dark:hover:bg-rose-950/60 text-slate-700 hover:text-rose-600 dark:text-slate-300 dark:hover:text-rose-400 border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-sm transition" 
+                            title="Chatni yopish (Esc)">
+                        <i class="fa-solid fa-xmark font-bold"></i>
+                    </button>
+                </div>
+            </div>
 
         <!-- Notes Banner if exists -->
         {% if active_session.notes %}
@@ -524,6 +616,7 @@
 
         </div>
 
+        </div>
     </div>
 </div>
 {% endif %}
@@ -632,14 +725,65 @@
         if (localStorage.getItem('lumos_inbox_ai_panel') === 'hidden') {
             toggleAiPanel();
         }
+        const sidebar = document.getElementById('popupSessionsSidebar');
+        const backBtn = document.getElementById('popupBackToSessionsBtn');
+        if (sidebar && sessionStorage.getItem('lumos_popup_sessions_open') === 'true' && !isFullScreen) {
+            sidebar.classList.remove('hidden');
+            if (backBtn) {
+                backBtn.classList.add('bg-slate-200', 'dark:bg-[#262626]');
+                backBtn.title = "Mijozlar ro'yxatini yashirish";
+            }
+        }
     });
 
-    // 2. TOGGLE FULL SCREEN CHAT MODAL
+    // 2. TOGGLE POPUP SESSIONS SIDEBAR (Boshqa mijozlar ro'yxatiga o'tish)
+    function togglePopupSessionsList() {
+        const sidebar = document.getElementById('popupSessionsSidebar');
+        const backBtn = document.getElementById('popupBackToSessionsBtn');
+        if (!sidebar) return;
+
+        const isHidden = sidebar.classList.contains('hidden');
+        if (isHidden) {
+            sidebar.classList.remove('hidden');
+            sessionStorage.setItem('lumos_popup_sessions_open', 'true');
+            if (backBtn) {
+                backBtn.classList.add('bg-slate-200', 'dark:bg-[#262626]');
+                backBtn.title = "Mijozlar ro'yxatini yashirish";
+            }
+            const searchInput = document.getElementById('popupSessionSearchInput');
+            if (searchInput) setTimeout(() => searchInput.focus(), 150);
+        } else {
+            sidebar.classList.add('hidden');
+            sessionStorage.setItem('lumos_popup_sessions_open', 'false');
+            if (backBtn) {
+                backBtn.classList.remove('bg-slate-200', 'dark:bg-[#262626]');
+                backBtn.title = "Boshqa mijozlar ro'yxatiga o'tish";
+            }
+        }
+    }
+
+    // Client-side quick filter for popup sessions list
+    function filterPopupSessionsList(query) {
+        const q = (query || '').toLowerCase().trim();
+        const items = document.querySelectorAll('#sessionsListContainer .session-link-item');
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            if (!q || text.includes(q)) {
+                item.classList.remove('hidden');
+            } else {
+                item.classList.add('hidden');
+            }
+        });
+    }
+
+    // 3. TOGGLE FULL SCREEN CHAT MODAL
     function toggleFullScreenChat() {
         const modal = document.getElementById('chatPopUpModal');
         const card = document.getElementById('chatPopUpCard');
         const icon = document.getElementById('fullScreenIcon');
         const btn = document.getElementById('chatFullScreenBtn');
+        const sidebar = document.getElementById('popupSessionsSidebar');
+        const backBtn = document.getElementById('popupBackToSessionsBtn');
         if (!modal || !card) return;
 
         isFullScreen = !isFullScreen;
@@ -654,6 +798,9 @@
                 icon.classList.add('fa-compress');
             }
             if (btn) btn.title = "Kichik oynaga qaytarish";
+            // In maximized mode, show sidebar side-by-side & hide the left-arrow toggle button
+            if (sidebar) sidebar.classList.remove('hidden');
+            if (backBtn) backBtn.classList.add('hidden');
         } else {
             // Exit Full Screen to Floating Window
             modal.classList.add('p-2', 'sm:p-4');
@@ -664,6 +811,11 @@
                 icon.classList.add('fa-expand');
             }
             if (btn) btn.title = "To'liq ekranga kengaytirish (Full Screen)";
+            // When not maximized, show back button and respect sidebar state
+            if (backBtn) backBtn.classList.remove('hidden');
+            if (sidebar && sessionStorage.getItem('lumos_popup_sessions_open') !== 'true') {
+                sidebar.classList.add('hidden');
+            }
         }
 
         setTimeout(() => scrollTimelineToBottom(true), 250);
@@ -925,7 +1077,34 @@
         scrollTimelineToBottom(isStaff);
     }
 
-    // 10. Real-time Polling Sync Loop (Every 1500ms)
+    // 10. Update Sidebar Sessions from Sync Data
+    function updateSidebarSessionsList(sessions) {
+        const container = document.getElementById('sessionsListContainer');
+        if (!container || !sessions) return false;
+
+        let hasNewIncoming = false;
+
+        sessions.forEach(s => {
+            const item = container.querySelector(`[data-session-id="${s.session_id}"]`);
+            if (item) {
+                const timeEl = item.querySelector('.session-time');
+                if (timeEl && s.last_message_at) timeEl.textContent = s.last_message_at;
+
+                const countEl = item.querySelector('.count-val');
+                if (countEl && s.messages_count !== undefined) {
+                    const prevCount = parseInt(countEl.textContent, 10) || 0;
+                    if (currentVersion > 0 && s.session_id !== activeSessionId && s.messages_count > prevCount) {
+                        hasNewIncoming = true;
+                    }
+                    countEl.textContent = s.messages_count;
+                }
+            }
+        });
+
+        return hasNewIncoming;
+    }
+
+    // 11. Real-time Polling Sync Loop (Every 1500ms)
     async function syncRealtimeInbox() {
         if (isSyncing) return;
         isSyncing = true;
@@ -950,7 +1129,12 @@
                         });
                     }
 
-                    if (hasIncomingInChat) {
+                    let hasIncomingInSidebar = false;
+                    if (data.sessions && data.sessions.length > 0) {
+                        hasIncomingInSidebar = updateSidebarSessionsList(data.sessions);
+                    }
+
+                    if (hasIncomingInChat || hasIncomingInSidebar) {
                         playAudioSafely(audioReceived);
                     }
                 }
