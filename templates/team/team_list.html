@@ -98,25 +98,51 @@
                     </span>
                 </div>
 
-                <!-- TMA Link Box (Pleep-style) -->
-                <div class="bg-slate-50 dark:bg-[#1E1E1E] rounded-xl p-3 border border-[#E7E5E1] dark:border-[#262626] space-y-1.5">
-                    <div class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                        <span class="flex items-center gap-1.5">
-                            <i class="fa-brands fa-telegram text-sky-500"></i> Operator TMA havolasi:
-                        </span>
+                <!-- Unique Links Container: Telegram TMA & Web Access -->
+                <div class="space-y-2.5">
+                    <!-- 1. Telegram Bot Mini App Link -->
+                    <div class="bg-slate-50 dark:bg-[#1E1E1E] rounded-xl p-3 border border-[#E7E5E1] dark:border-[#262626] space-y-1.5">
+                        <div class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                            <span class="flex items-center gap-1.5 text-sky-600 dark:text-sky-400">
+                                <i class="fa-brands fa-telegram text-sm"></i> Telegram Mini App havolasi:
+                            </span>
+                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-normal">Botda ochiladi</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" readonly value="{% if business.chatbot_config.telegram_bot_username %}https://t.me/{{ business.chatbot_config.telegram_bot_username|cut:'@' }}?start={{ op.auth_token }}{% else %}{{ request.scheme }}://{{ request.get_host }}/tma/operator/{{ op.auth_token }}/{% endif %}" class="w-full text-xs bg-white dark:bg-[#141414] border border-[#E7E5E1] dark:border-[#262626] rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-[#F5F1E8] font-mono outline-none select-all focus:border-slate-400">
+                            <button onclick="navigator.clipboard.writeText('{% if business.chatbot_config.telegram_bot_username %}https://t.me/{{ business.chatbot_config.telegram_bot_username|cut:'@' }}?start={{ op.auth_token }}{% else %}{{ request.scheme }}://{{ request.get_host }}/tma/operator/{{ op.auth_token }}/{% endif %}'); alert('Telegram Mini App havolasi nusxalandi!');" class="px-2.5 py-1.5 rounded-lg bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] text-white text-xs font-bold transition shrink-0 shadow-2xs" title="Havolani nusxalash">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                            <a href="{% if business.chatbot_config.telegram_bot_username %}https://t.me/{{ business.chatbot_config.telegram_bot_username|cut:'@' }}?start={{ op.auth_token }}{% else %}{{ request.scheme }}://{{ request.get_host }}/tma/operator/{{ op.auth_token }}/{% endif %}" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-900/50 hover:bg-sky-100 dark:hover:bg-sky-950/60 text-xs font-bold transition shrink-0" title="Telegramda ochish">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                        </div>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <input type="text" readonly value="{{ request.scheme }}://{{ request.get_host }}/tma/operator/{{ op.auth_token }}/" class="w-full text-xs bg-white dark:bg-[#141414] border border-[#E7E5E1] dark:border-[#262626] rounded-lg px-2.5 py-2 text-slate-800 dark:text-[#F5F1E8] font-mono outline-none select-all focus:border-slate-400">
-                        <button onclick="navigator.clipboard.writeText('{{ request.scheme }}://{{ request.get_host }}/tma/operator/{{ op.auth_token }}/'); alert('Operator TMA havolasi nusxalandi!');" class="px-3 py-2 rounded-lg bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] text-white text-xs font-bold transition shrink-0 shadow-2xs">
-                            <i class="fa-solid fa-copy"></i>
-                        </button>
+
+                    <!-- 2. Web Access & Password Setup Link -->
+                    <div class="bg-slate-50 dark:bg-[#1E1E1E] rounded-xl p-3 border border-[#E7E5E1] dark:border-[#262626] space-y-1.5">
+                        <div class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                            <span class="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400">
+                                <i class="fa-solid fa-globe text-xs"></i> Vebsaytga kirish havolasi:
+                            </span>
+                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-normal">Faqat parol o'rnatish</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" readonly value="{{ request.scheme }}://{{ request.get_host }}/team/setup/{{ op.auth_token }}/" class="w-full text-xs bg-white dark:bg-[#141414] border border-[#E7E5E1] dark:border-[#262626] rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-[#F5F1E8] font-mono outline-none select-all focus:border-slate-400">
+                            <button onclick="navigator.clipboard.writeText('{{ request.scheme }}://{{ request.get_host }}/team/setup/{{ op.auth_token }}/'); alert('Vebsaytga kirish havolasi nusxalandi!');" class="px-2.5 py-1.5 rounded-lg bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] text-white text-xs font-bold transition shrink-0 shadow-2xs" title="Havolani nusxalash">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                            <a href="{{ request.scheme }}://{{ request.get_host }}/team/setup/{{ op.auth_token }}/" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-900/50 hover:bg-indigo-100 dark:hover:bg-indigo-950/60 text-xs font-bold transition shrink-0" title="Vebsaytda ochish">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Action buttons -->
                 <div class="pt-1 border-t border-slate-100 dark:border-[#262626] flex items-center justify-end">
                     <button type="button" 
-                            onclick="openEditStaffModal('{{ op.id }}', '{{ op.name|escapejs }}', '{{ op.role }}', '{{ op.telegram_username|default:''|escapejs }}', {{ op.is_active|yesno:'true,false' }}, '{{ request.scheme }}://{{ request.get_host }}/tma/{{ op.role }}/{{ op.auth_token }}/')"
+                            onclick="openEditStaffModal('{{ op.id }}', '{{ op.name|escapejs }}', '{{ op.role }}', {{ op.is_active|yesno:'true,false' }}, '{% if business.chatbot_config.telegram_bot_username %}https://t.me/{{ business.chatbot_config.telegram_bot_username|cut:'@' }}?start={{ op.auth_token }}{% else %}{{ request.scheme }}://{{ request.get_host }}/tma/operator/{{ op.auth_token }}/{% endif %}', '{{ request.scheme }}://{{ request.get_host }}/team/setup/{{ op.auth_token }}/')"
                             class="text-xs font-bold text-slate-700 hover:text-black dark:text-slate-300 dark:hover:text-white transition inline-flex items-center gap-1.5 cursor-pointer px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-[#1E1E1E]">
                         <i class="fa-solid fa-pen-to-square text-xs"></i> Tahrirlash
                     </button>
@@ -172,25 +198,51 @@
                     </div>
                 </div>
 
-                <!-- Supervisor TMA Link Box (Pleep-style) -->
-                <div class="bg-slate-50 dark:bg-[#1E1E1E] rounded-xl p-3 border border-[#E7E5E1] dark:border-[#262626] space-y-1.5">
-                    <div class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                        <span class="flex items-center gap-1.5">
-                            <i class="fa-brands fa-telegram text-sky-500"></i> Supervisor TMA havolasi:
-                        </span>
+                <!-- Unique Links Container: Telegram TMA & Web Access -->
+                <div class="space-y-2.5">
+                    <!-- 1. Telegram Bot Mini App Link -->
+                    <div class="bg-slate-50 dark:bg-[#1E1E1E] rounded-xl p-3 border border-[#E7E5E1] dark:border-[#262626] space-y-1.5">
+                        <div class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                            <span class="flex items-center gap-1.5 text-sky-600 dark:text-sky-400">
+                                <i class="fa-brands fa-telegram text-sm"></i> Telegram Mini App havolasi:
+                            </span>
+                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-normal">Botda ochiladi</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" readonly value="{% if business.chatbot_config.telegram_bot_username %}https://t.me/{{ business.chatbot_config.telegram_bot_username|cut:'@' }}?start={{ sup.auth_token }}{% else %}{{ request.scheme }}://{{ request.get_host }}/tma/supervisor/{{ sup.auth_token }}/{% endif %}" class="w-full text-xs bg-white dark:bg-[#141414] border border-[#E7E5E1] dark:border-[#262626] rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-[#F5F1E8] font-mono outline-none select-all focus:border-slate-400">
+                            <button onclick="navigator.clipboard.writeText('{% if business.chatbot_config.telegram_bot_username %}https://t.me/{{ business.chatbot_config.telegram_bot_username|cut:'@' }}?start={{ sup.auth_token }}{% else %}{{ request.scheme }}://{{ request.get_host }}/tma/supervisor/{{ sup.auth_token }}/{% endif %}'); alert('Telegram Mini App havolasi nusxalandi!');" class="px-2.5 py-1.5 rounded-lg bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] text-white text-xs font-bold transition shrink-0 shadow-2xs" title="Havolani nusxalash">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                            <a href="{% if business.chatbot_config.telegram_bot_username %}https://t.me/{{ business.chatbot_config.telegram_bot_username|cut:'@' }}?start={{ sup.auth_token }}{% else %}{{ request.scheme }}://{{ request.get_host }}/tma/supervisor/{{ sup.auth_token }}/{% endif %}" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-900/50 hover:bg-sky-100 dark:hover:bg-sky-950/60 text-xs font-bold transition shrink-0" title="Telegramda ochish">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                        </div>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <input type="text" readonly value="{{ request.scheme }}://{{ request.get_host }}/tma/supervisor/{{ sup.auth_token }}/" class="w-full text-xs bg-white dark:bg-[#141414] border border-[#E7E5E1] dark:border-[#262626] rounded-lg px-2.5 py-2 text-slate-800 dark:text-[#F5F1E8] font-mono outline-none select-all focus:border-slate-400">
-                        <button onclick="navigator.clipboard.writeText('{{ request.scheme }}://{{ request.get_host }}/tma/supervisor/{{ sup.auth_token }}/'); alert('Supervisor TMA havolasi nusxalandi!');" class="px-3 py-2 rounded-lg bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] text-white text-xs font-bold transition shrink-0 shadow-2xs">
-                            <i class="fa-solid fa-copy"></i>
-                        </button>
+
+                    <!-- 2. Web Access & Password Setup Link -->
+                    <div class="bg-slate-50 dark:bg-[#1E1E1E] rounded-xl p-3 border border-[#E7E5E1] dark:border-[#262626] space-y-1.5">
+                        <div class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                            <span class="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400">
+                                <i class="fa-solid fa-globe text-xs"></i> Vebsaytga kirish havolasi:
+                            </span>
+                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-normal">Faqat parol o'rnatish</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" readonly value="{{ request.scheme }}://{{ request.get_host }}/team/setup/{{ sup.auth_token }}/" class="w-full text-xs bg-white dark:bg-[#141414] border border-[#E7E5E1] dark:border-[#262626] rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-[#F5F1E8] font-mono outline-none select-all focus:border-slate-400">
+                            <button onclick="navigator.clipboard.writeText('{{ request.scheme }}://{{ request.get_host }}/team/setup/{{ sup.auth_token }}/'); alert('Vebsaytga kirish havolasi nusxalandi!');" class="px-2.5 py-1.5 rounded-lg bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] text-white text-xs font-bold transition shrink-0 shadow-2xs" title="Havolani nusxalash">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                            <a href="{{ request.scheme }}://{{ request.get_host }}/team/setup/{{ sup.auth_token }}/" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-900/50 hover:bg-indigo-100 dark:hover:bg-indigo-950/60 text-xs font-bold transition shrink-0" title="Vebsaytda ochish">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Action buttons -->
                 <div class="pt-1 border-t border-slate-100 dark:border-[#262626] flex items-center justify-end">
                     <button type="button" 
-                            onclick="openEditStaffModal('{{ sup.id }}', '{{ sup.name|escapejs }}', '{{ sup.role }}', '{{ sup.telegram_username|default:''|escapejs }}', {{ sup.is_active|yesno:'true,false' }}, '{{ request.scheme }}://{{ request.get_host }}/tma/{{ sup.role }}/{{ sup.auth_token }}/')"
+                            onclick="openEditStaffModal('{{ sup.id }}', '{{ sup.name|escapejs }}', '{{ sup.role }}', {{ sup.is_active|yesno:'true,false' }}, '{% if business.chatbot_config.telegram_bot_username %}https://t.me/{{ business.chatbot_config.telegram_bot_username|cut:'@' }}?start={{ sup.auth_token }}{% else %}{{ request.scheme }}://{{ request.get_host }}/tma/supervisor/{{ sup.auth_token }}/{% endif %}', '{{ request.scheme }}://{{ request.get_host }}/team/setup/{{ sup.auth_token }}/')"
                             class="text-xs font-bold text-slate-700 hover:text-black dark:text-slate-300 dark:hover:text-white transition inline-flex items-center gap-1.5 cursor-pointer px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-[#1E1E1E]">
                         <i class="fa-solid fa-pen-to-square text-xs"></i> Tahrirlash
                     </button>
@@ -251,45 +303,28 @@
                        class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- Xodim roli -->
-                <div>
-                    <label for="staffRoleSelect" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400 font-semibold mb-1.5">
-                        Xodim roli <span class="text-rose-500">*</span>
-                    </label>
-                    <select id="staffRoleSelect" 
-                            name="role" 
-                            class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 outline-none font-medium transition cursor-pointer">
-                        <option value="operator">Operator (Mijozlar bilan chat)</option>
-                        <option value="supervisor">Supervisor (Nazorat & Eskalatsiya)</option>
-                    </select>
-                </div>
-
-                <!-- Telegram username -->
-                <div>
-                    <label for="staffTgInput" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400 font-semibold mb-1.5">
-                        Telegram @username
-                    </label>
-                    <input type="text" 
-                           id="staffTgInput" 
-                           name="telegram_username" 
-                           placeholder="@username" 
-                           class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">
-                </div>
+            <!-- Xodim roli -->
+            <div>
+                <label for="staffRoleSelect" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400 font-semibold mb-1.5">
+                    Xodim roli <span class="text-rose-500">*</span>
+                </label>
+                <select id="staffRoleSelect" 
+                        name="role" 
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 outline-none font-medium transition cursor-pointer">
+                    <option value="operator">Operator (Mijozlar bilan jonli chat)</option>
+                    <option value="supervisor">Supervisor (Sifat nazorati & Eskalatsiya)</option>
+                </select>
             </div>
 
-            <!-- Xodim faolligi (Toggle switch) -->
-            <div class="pt-1">
-                <label class="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] cursor-pointer hover:border-slate-300 dark:hover:border-zinc-600 transition select-none">
-                    <div>
-                        <span class="text-xs font-bold text-slate-800 dark:text-[#F5F1E8] block">Xodim faol</span>
-                        <span class="text-[11px] text-slate-400 dark:text-slate-500">Mijozlar murojaati ushbu xodimga biriktiriladi</span>
-                    </div>
-                    <div class="relative inline-flex items-center">
-                        <input type="checkbox" name="is_active" id="staffIsActive" checked class="sr-only peer">
-                        <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-500 dark:peer-checked:bg-emerald-500"></div>
-                    </div>
-                </label>
+            <!-- Informational Banner -->
+            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
+                    <i class="fa-solid fa-wand-magic-sparkles text-indigo-600 dark:text-indigo-400"></i>
+                    <span>Avtomatik havolalar shakllanadi:</span>
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                    Xodim qo'shilgach, u uchun <strong>Telegram Bot Mini App</strong> va <strong>Vebsaytga kirish (faqat parol o'rnatish)</strong> uchun maxsus unique havolalar avtomatik tarzda yaratiladi.
+                </p>
             </div>
 
             <!-- Modal Footer Buttons -->
@@ -298,7 +333,7 @@
                     Bekor qilish
                 </button>
                 <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] shadow-xs transition inline-flex items-center gap-1.5">
-                    <i class="fa-solid fa-check"></i> Qo'shish
+                    <i class="fa-solid fa-check"></i> Xodimni qo'shish
                 </button>
             </div>
         </form>
@@ -357,41 +392,42 @@
                     </select>
                 </div>
 
-                <!-- Telegram username -->
+                <!-- Xodim faolligi (Toggle switch) -->
                 <div>
-                    <label for="editStaffTgInput" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400 font-semibold mb-1.5">
-                        Telegram @username
+                    <span class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400 font-semibold mb-1.5">
+                        Xodim holati
+                    </span>
+                    <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] cursor-pointer hover:border-slate-300 dark:hover:border-zinc-600 transition select-none">
+                        <span class="text-xs font-bold text-slate-800 dark:text-[#F5F1E8]">Faol</span>
+                        <div class="relative inline-flex items-center">
+                            <input type="checkbox" name="is_active" id="editStaffIsActive" class="sr-only peer">
+                            <div class="w-10 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-500 dark:peer-checked:bg-emerald-500"></div>
+                        </div>
                     </label>
-                    <input type="text" 
-                           id="editStaffTgInput" 
-                           name="telegram_username" 
-                           placeholder="@username" 
-                           class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">
                 </div>
             </div>
 
-            <!-- Xodim faolligi (Toggle switch) -->
-            <div class="pt-1">
-                <label class="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626] cursor-pointer hover:border-slate-300 dark:hover:border-zinc-600 transition select-none">
-                    <div>
-                        <span class="text-xs font-bold text-slate-800 dark:text-[#F5F1E8] block">Xodim faol</span>
-                        <span class="text-[11px] text-slate-400 dark:text-slate-500">Mijozlar murojaati ushbu xodimga biriktiriladi</span>
-                    </div>
-                    <div class="relative inline-flex items-center">
-                        <input type="checkbox" name="is_active" id="editStaffIsActive" class="sr-only peer">
-                        <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-500 dark:peer-checked:bg-emerald-500"></div>
-                    </div>
-                </label>
-            </div>
-
-            <!-- TMA Link Display inside modal -->
+            <!-- 1. TMA Link Display inside modal -->
             <div class="p-3 bg-slate-50 dark:bg-[#1E1E1E] rounded-xl border border-[#E7E5E1] dark:border-[#262626] space-y-1">
-                <span class="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1.5">
-                    <i class="fa-brands fa-telegram text-sky-500"></i> TMA Havolasi:
+                <span class="text-[10px] font-mono uppercase tracking-wider text-sky-600 dark:text-sky-400 font-bold flex items-center gap-1.5">
+                    <i class="fa-brands fa-telegram text-sm"></i> Telegram Mini App havolasi:
                 </span>
                 <div class="flex items-center space-x-2">
                     <input type="text" id="editStaffTmaUrl" readonly class="w-full text-xs bg-white dark:bg-[#141414] border border-[#E7E5E1] dark:border-[#262626] rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-[#F5F1E8] font-mono outline-none select-all">
-                    <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('editStaffTmaUrl').value); alert('TMA havolasi nusxalandi!');" class="px-2.5 py-1.5 rounded-lg bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] text-white text-xs font-bold transition shrink-0">
+                    <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('editStaffTmaUrl').value); alert('Telegram Mini App havolasi nusxalandi!');" class="px-2.5 py-1.5 rounded-lg bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] text-white text-xs font-bold transition shrink-0" title="Nusxalash">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. Web Access Link Display inside modal -->
+            <div class="p-3 bg-slate-50 dark:bg-[#1E1E1E] rounded-xl border border-[#E7E5E1] dark:border-[#262626] space-y-1">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-indigo-600 dark:text-indigo-400 font-bold flex items-center gap-1.5">
+                    <i class="fa-solid fa-globe text-xs"></i> Vebsaytga kirish havolasi:
+                </span>
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="editStaffWebUrl" readonly class="w-full text-xs bg-white dark:bg-[#141414] border border-[#E7E5E1] dark:border-[#262626] rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-[#F5F1E8] font-mono outline-none select-all">
+                    <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('editStaffWebUrl').value); alert('Vebsayt havolasi nusxalandi!');" class="px-2.5 py-1.5 rounded-lg bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] text-white text-xs font-bold transition shrink-0" title="Nusxalash">
                         <i class="fa-solid fa-copy"></i>
                     </button>
                 </div>
@@ -399,14 +435,14 @@
 
             <!-- Modal Footer Buttons -->
             <div class="pt-4 border-t border-[#E7E5E1] dark:border-[#262626] flex items-center justify-between">
-                <a href="#" id="editStaffDeleteBtn" class="px-3.5 py-2.5 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 transition inline-flex items-center gap-1.5 cursor-pointer" onclick="return confirm('Rostdan ham ushbu xodimni o\'chirmoqchimisiz?')">
+                <a href="#" id="editStaffDeleteBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 transition inline-flex items-center gap-1.5 cursor-pointer" onclick="return confirm('Rostdan ham ushbu xodimni o\'chirmoqchimisiz?')">
                     <i class="fa-solid fa-trash-can"></i> Xodimni o'chirish
                 </a>
                 <div class="flex items-center space-x-2.5">
-                    <button type="button" onclick="closeEditStaffModal()" class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] border border-transparent dark:border-[#262626] transition">
+                    <button type="button" onclick="closeEditStaffModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] border border-transparent dark:border-[#262626] transition">
                         Bekor qilish
                     </button>
-                    <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] shadow-xs transition inline-flex items-center gap-1.5">
+                    <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] shadow-xs transition inline-flex items-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Saqlash
                     </button>
                 </div>
@@ -436,7 +472,7 @@
         if (modal) modal.classList.add('hidden');
     }
 
-    function openEditStaffModal(id, name, role, telegramUsername, isActive, tmaUrl) {
+    function openEditStaffModal(id, name, role, isActive, tmaUrl, webUrl) {
         const modal = document.getElementById('editStaffModal');
         if (!modal) return;
 
@@ -453,9 +489,9 @@
         document.getElementById('editModalTitle').textContent = `«${name}» ma'lumotlarini tahrirlash`;
         document.getElementById('editStaffNameInput').value = name;
         document.getElementById('editStaffRoleSelect').value = role;
-        document.getElementById('editStaffTgInput').value = telegramUsername;
         document.getElementById('editStaffIsActive').checked = isActive;
-        document.getElementById('editStaffTmaUrl').value = tmaUrl;
+        document.getElementById('editStaffTmaUrl').value = tmaUrl || '';
+        document.getElementById('editStaffWebUrl').value = webUrl || '';
 
         modal.classList.remove('hidden');
         setTimeout(function() {

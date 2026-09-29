@@ -448,6 +448,40 @@ def handle_telegram_update(api_key, update_data):
 
     # Handle /start or /help command
     if text.startswith('/start'):
+        # Check if staff auth token is passed: /start staff_... or /startapp staff_...
+        token_candidate = text.replace('/start', '').replace('/help', '').strip()
+        if token_candidate.startswith('staff_'):
+            from apps.team.models import StaffMember
+            from django.conf import settings
+            staff = StaffMember.objects.filter(auth_token=token_candidate).first()
+            if staff:
+                # Update staff chat_id & telegram username
+                staff.telegram_chat_id = str(chat_id)
+                if user_username:
+                    staff.telegram_username = f"@{user_username}"
+                staff.save(update_fields=['telegram_chat_id', 'telegram_username'])
+
+                site_url = getattr(settings, 'SITE_URL', 'https://lumos.uz').rstrip('/')
+                web_app_url = f"{site_url}/tma/{staff.role}/{staff.auth_token}/"
+
+                welcome_staff_msg = (
+                    f"👋 Assalomu alaykum, {staff.name}!\n\n"
+                    f"Siz «{config.business.name}» korxonasiga {staff.get_role_display()} sifatida muvaffaqiyatli biriktirildingiz.\n\n"
+                    f"Mijozlar bilan ishlash uchun quyidagi tugma orqali ishchi panelni (Mini App) ochishingiz mumkin:"
+                )
+                reply_markup = {
+                    'inline_keyboard': [
+                        [
+                            {
+                                'text': "📱 Mini Appni ochish",
+                                'web_app': {'url': web_app_url}
+                            }
+                        ]
+                    ]
+                }
+                send_telegram_bot_message(config.telegram_bot_token, chat_id, welcome_staff_msg, reply_markup=reply_markup)
+                return {'ok': True}
+
         welcome_txt = config.welcome_message or (
             f"Assalomu alaykum! {config.business.name} qo‘llab-quvvatlash xizmatiga xush kelibsiz.\n\n"
             "Sizni qiziqtirgan barcha savollarni bemalol shu yerga yozib qoldirishingiz mumkin. "

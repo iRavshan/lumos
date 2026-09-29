@@ -46,20 +46,26 @@ def team_create_view(request):
     business = request.user.business
 
     if request.method == 'POST':
-        form = StaffMemberForm(request.POST)
-        if form.is_valid():
-            staff = form.save(commit=False)
-            staff.business = business
-            staff.save()
-            messages.success(request, f"«{staff.name}» muvaffaqiyatli qo'shildi. TMA havolasi shakllantirildi.")
-        else:
-            err_msgs = []
-            for field, errs in form.errors.items():
-                err_msgs.append(f"{', '.join(errs)}")
-            messages.error(request, "Xodim qo'shishda xatolik: " + "; ".join(err_msgs))
+        name = request.POST.get('name', '').strip()
+        role = request.POST.get('role', 'operator').strip()
+        
+        if not name:
+            messages.error(request, "Xodim ismi va familiyasini kiritish majburiy.")
+            return redirect('team:team_list')
+
+        if role not in ['operator', 'supervisor']:
+            role = 'operator'
+
+        staff = StaffMember.objects.create(
+            business=business,
+            name=name,
+            role=role,
+            is_active=True,
+            is_online=True,
+        )
+        messages.success(request, f"«{staff.name}» muvaffaqiyatli qo'shildi! Telegram Mini App va Vebsayt havolalari shakllantirildi.")
         return redirect('team:team_list')
 
-    # GET requests redirect to team_list since modal is used instead of a separate page
     return redirect('team:team_list')
 
 
@@ -72,19 +78,74 @@ def team_edit_view(request, staff_id):
     staff = get_object_or_404(StaffMember, id=staff_id, business=business)
 
     if request.method == 'POST':
-        form = StaffMemberForm(request.POST, instance=staff)
-        if form.is_valid():
-            form.save()
-            messages.success(request, f"«{staff.name}» ma'lumotlari muvaffaqiyatli yangilandi.")
-        else:
-            err_msgs = []
-            for field, errs in form.errors.items():
-                err_msgs.append(f"{', '.join(errs)}")
-            messages.error(request, "Tahrirlashda xatolik: " + "; ".join(err_msgs))
+        name = request.POST.get('name', '').strip()
+        role = request.POST.get('role', staff.role).strip()
+        is_active = request.POST.get('is_active') in ['on', 'true', True]
+
+        if name:
+            staff.name = name
+        if role in ['operator', 'supervisor']:
+            staff.role = role
+        staff.is_active = is_active
+        staff.save()
+        messages.success(request, f"«{staff.name}» ma'lumotlari muvaffaqiyatli yangilandi.")
         return redirect('team:team_list')
 
-    # GET requests redirect to team_list since edit is handled via modal
     return redirect('team:team_list')
+
+
+def staff_setup_password_view(request, token):
+    """
+    Xodim uchun maxsus vebsaytga kirish va parol o'rnatish sahifasi.
+    Sahifa ochilganda xodimdan faqatgina yangi parol o'rnatish so'raladi.
+    """
+    staff = get_object_or_404(StaffMember, auth_token=token)
+    business = staff.business
+
+    error_msg = None
+
+    if request.method == 'POST':
+        password = request.POST.get('password', '').strip()
+        password_confirm = request.POST.get('password_confirm', '').strip()
+
+        if not password:
+            error_msg = "Parol kiritilishi shart."
+        elif len(password) < 6:
+            error_msg = "Parol kamida 6 ta belgidan iborat bo'lishi kerak."
+        elif password != password_confirm:
+            error_msg = "Kiritilgan parollar bir-biriga mos kelmadi."
+        else:
+            from django.contrib.auth.models import User
+            from django.contrib.auth import login
+
+            username = f"staff_{staff.id}"
+            user = User.objects.filter(username=username).first()
+            if not user:
+                user = User.objects.create_user(
+                    username=username,
+                    email=f"{username}@{business.slug or 'lumos'}.uz",
+                    first_name=staff.name,
+                    password=password
+                )
+            else:
+                user.set_password(password)
+                user.first_name = staff.name
+                user.save()
+
+            # Avtomatik tarzda tizimga kiritish
+            login(request, user)
+            messages.success(request, f"Parol muvaffaqiyatli o'rnatildi! Xush kelibsiz, {staff.name}.")
+
+            if staff.role == 'operator':
+                return redirect('chatbot:inbox')
+            else:
+                return redirect('team:team_analytics')
+
+    return render(request, 'team/staff_setup.html', {
+        'staff': staff,
+        'business': business,
+        'error_msg': error_msg,
+    })
 
 
 @login_required

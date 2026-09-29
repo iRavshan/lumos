@@ -1,0 +1,150 @@
+{% extends 'shared/_base.html' %}
+
+{% block title %}Parol o'rnatish - {{ staff.name }} | {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="min-h-[calc(100vh-160px)] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
+        <!-- Logo / Icon -->
+        <div class="w-12 h-12 rounded-2xl bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] flex items-center justify-center text-lg mx-auto mb-3 shadow-xs">
+            <i class="fa-solid fa-key"></i>
+        </div>
+
+        <!-- Business & Welcome Title -->
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-[#1E1E1E] text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626] mb-3">
+            <i class="fa-solid fa-building text-[10px] text-slate-400"></i>
+            <span>«{{ business.name }}» jamoasi</span>
+        </div>
+
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight">
+            Xush kelibsiz, {{ staff.name }}!
+        </h2>
+        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            Vebsayt boshqaruv paneliga kirish uchun o'zingizga yangi parol o'rnating
+        </p>
+    </div>
+
+    <div class="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-white dark:bg-[#141414] py-7 px-6 sm:px-8 rounded-2xl border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-5">
+            
+            <!-- Staff Profile Pill -->
+            <div class="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-[#1E1E1E] border border-[#E7E5E1] dark:border-[#262626]">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-lg bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+                        {{ staff.name|first|upper }}
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-slate-900 dark:text-[#F5F1E8]">{{ staff.name }}</div>
+                        <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">Login: staff_{{ staff.id }}</div>
+                    </div>
+                </div>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold uppercase tracking-wider {% if staff.role == 'operator' %}bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800{% else %}bg-violet-50 text-violet-700 border border-violet-200 dark:bg-violet-950/40 dark:text-violet-400 dark:border-violet-800{% endif %}">
+                    {{ staff.get_role_display }}
+                </span>
+            </div>
+
+            <!-- Error Banner -->
+            {% if error_msg %}
+            <div class="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-xs font-semibold text-rose-700 dark:text-rose-400 flex items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation shrink-0"></i>
+                <span>{{ error_msg }}</span>
+            </div>
+            {% endif %}
+
+            <!-- Password Form -->
+            <form method="POST" class="space-y-4" id="staffSetupForm">
+                {% csrf_token %}
+
+                <!-- Yangi parol -->
+                <div>
+                    <label for="newPasswordInput" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-300 font-semibold mb-1.5">
+                        Yangi parol <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <input type="password" 
+                               id="newPasswordInput" 
+                               name="password" 
+                               required 
+                               minlength="6"
+                               placeholder="Kamida 6 ta belgi kiriting"
+                               autocomplete="new-password"
+                               class="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] focus:border-slate-800 dark:focus:border-white outline-none transition text-xs font-medium text-slate-900 dark:text-white bg-slate-50 dark:bg-[#1E1E1E] placeholder-slate-400 dark:placeholder-slate-500">
+                        <button type="button" 
+                                onclick="togglePassVisibility('newPasswordInput', this)" 
+                                class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-xs transition">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Parolni tasdiqlash -->
+                <div>
+                    <label for="confirmPasswordInput" class="block text-[11px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-300 font-semibold mb-1.5">
+                        Parolni tasdiqlang <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <input type="password" 
+                               id="confirmPasswordInput" 
+                               name="password_confirm" 
+                               required 
+                               minlength="6"
+                               placeholder="Parolni qayta kiriting"
+                               autocomplete="new-password"
+                               class="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] focus:border-slate-800 dark:focus:border-white outline-none transition text-xs font-medium text-slate-900 dark:text-white bg-slate-50 dark:bg-[#1E1E1E] placeholder-slate-400 dark:placeholder-slate-500">
+                        <button type="button" 
+                                onclick="togglePassVisibility('confirmPasswordInput', this)" 
+                                class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-xs transition">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-2">
+                    <button type="submit" 
+                            id="submitPassBtn"
+                            class="w-full flex justify-center items-center py-2.5 px-4 rounded-xl text-xs font-bold transition bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] text-white shadow-xs">
+                        <span>Parol o'rnatish va tizimga kirish</span>
+                        <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Telegram TMA Option -->
+            {% if staff.telegram_tma_url or staff.auth_token %}
+            <div class="pt-4 border-t border-[#E7E5E1] dark:border-[#262626] text-center space-y-2">
+                <span class="text-[11px] text-slate-400 dark:text-slate-500">Telegram orqali ishlashni xohlaysizmi?</span>
+                <div>
+                    <a href="{% if staff.telegram_tma_url %}{{ staff.telegram_tma_url }}{% else %}{{ staff.web_tma_url }}{% endif %}" 
+                       target="_blank"
+                       class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-950/60 transition">
+                        <i class="fa-brands fa-telegram text-sm"></i>
+                        <span>Telegram Mini Appni ochish</span>
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function togglePassVisibility(inputId, btn) {
+        var input = document.getElementById(inputId);
+        if (!input) return;
+        var icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            if (icon) {
+                icon.className = 'fa-regular fa-eye-slash';
+            }
+        } else {
+            input.type = 'password';
+            if (icon) {
+                icon.className = 'fa-regular fa-eye';
+            }
+        }
+    }
+</script>
+{% endblock %}

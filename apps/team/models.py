@@ -95,6 +95,22 @@ class StaffMember(models.Model):
         breached = self.sla_breaches
         return int(((total - breached) / total) * 100)
 
+    @property
+    def telegram_tma_url(self):
+        chatbot = getattr(self.business, 'chatbot_config', None)
+        if chatbot and chatbot.telegram_bot_username:
+            username = chatbot.telegram_bot_username.lstrip('@')
+            return f"https://t.me/{username}?start={self.auth_token}"
+        return None
+
+    @property
+    def web_tma_url(self):
+        return f"/tma/{self.role}/{self.auth_token}/"
+
+    @property
+    def web_setup_url(self):
+        return f"/team/setup/{self.auth_token}/"
+
 
 class EscalationLog(models.Model):
     RESOLVED_CHOICES = (

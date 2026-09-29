@@ -5,6 +5,7 @@ from .views import (
     team_edit_view,
     team_delete_view,
     team_analytics_view,
+    staff_setup_password_view,
     tma_operator_view,
     tma_supervisor_view,
     tma_toggle_status_api,
@@ -22,6 +23,9 @@ urlpatterns = [
     path('dashboard/team/<int:staff_id>/edit/', team_edit_view, name='team_edit'),
     path('dashboard/team/<int:staff_id>/delete/', team_delete_view, name='team_delete'),
     path('dashboard/team/analytics/', team_analytics_view, name='team_analytics'),
+
+    # Staff Web Setup (Set Password)
+    path('team/setup/<str:token>/', staff_setup_password_view, name='staff_setup'),
 
     # Telegram Mini App (TMA)
     path('tma/operator/<str:token>/', tma_operator_view, name='tma_operator'),
