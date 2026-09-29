@@ -13,9 +13,20 @@
             </h1>
             <p class="text-slate-500 dark:text-slate-400 text-xs mt-2">«{{ business.name }}» uchun shaxsiy Telegram botingizni ulang va mijozlar savollariga AI orqali javob bering</p>
         </div>
+
+        <div class="flex items-center gap-2.5 shrink-0">
+            {% if chatbot.telegram_bot_username and chatbot.telegram_bot_active %}
+            <a href="https://t.me/{{ chatbot.telegram_bot_username }}" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/40 dark:hover:bg-sky-900/40 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800 font-bold text-xs shadow-xs transition">
+                <i class="fa-brands fa-telegram mr-1.5"></i> Botni ochish
+            </a>
+            {% endif %}
+            <a href="{% url 'chatbot:demo_page' chatbot.api_key %}" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] text-white font-bold text-xs shadow-xs transition shrink-0">
+                <i class="fa-solid fa-play mr-1.5"></i> Jonli sinov
+            </a>
+        </div>
     </div>
 
-    <!-- 2. Navigation Tabs (Agent vs Widget vs Telegram Bot) -->
+    <!-- 2. Navigation Tabs (Agent vs Widget vs Telegram Bot vs Biznes Profili) -->
     <div class="flex space-x-2 border-b border-[#E7E5E1] dark:border-[#262626] pb-1 overflow-x-auto scrollbar-thin">
         <a href="{% url 'chatbot:agent_settings' %}" class="px-4 py-2.5 font-bold text-xs sm:text-sm text-slate-500 hover:text-slate-800 dark:hover:text-white border-b-2 border-transparent transition flex items-center shrink-0">
             <i class="fa-solid fa-robot mr-2 text-indigo-600 dark:text-indigo-400"></i> Savdo Agenti
@@ -25,6 +36,9 @@
         </a>
         <a href="{% url 'chatbot:telegram_settings' %}" class="px-4 py-2.5 font-bold text-xs sm:text-sm text-slate-900 dark:text-[#F5F1E8] border-b-2 border-slate-900 dark:border-[#F5F1E8] transition flex items-center shrink-0">
             <i class="fa-brands fa-telegram mr-2 text-sky-500"></i> Telegram Bot
+        </a>
+        <a href="{% url 'businesses:edit' %}" class="px-4 py-2.5 font-bold text-xs sm:text-sm text-slate-500 hover:text-slate-800 dark:hover:text-white border-b-2 border-transparent transition flex items-center shrink-0">
+            <i class="fa-solid fa-sliders mr-2 text-slate-500"></i> Biznes Profili
         </a>
     </div>
 

@@ -1,0 +1,482 @@
+{% extends 'shared/_base.html' %}
+
+{% block title %}Yordam markazi va Qo'llanma - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- 1. Header Card -->
+    <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 sm:p-8 border border-[#E7E5E1] dark:border-[#262626] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider font-bold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-900/60">
+                    Bilimlar bazasi & FAQ
+                </span>
+            </div>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight flex items-center gap-2.5">
+                <i class="fa-solid fa-circle-question text-indigo-600 dark:text-indigo-400"></i> Yordam va Qo'llab-quvvatlash markazi
+            </h1>
+            <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1.5 max-w-2xl leading-relaxed">
+                Lumos platformasini sozlash, AI sotuv agenti, Telegram bot, vebsayt vidjeti va jamoa boshqaruvi bo'yicha to'liq qo'llanma hamda savollarga javoblar.
+            </p>
+        </div>
+
+        <div class="flex items-center gap-2.5 shrink-0">
+            {% if chatbot %}
+            <a href="{% url 'chatbot:demo_page' chatbot.api_key %}" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1E1E1E] dark:hover:bg-[#262626] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] font-bold text-xs shadow-xs transition">
+                <i class="fa-solid fa-play mr-1.5 text-indigo-600 dark:text-indigo-400"></i> Jonli sinov
+            </a>
+            {% endif %}
+            <a href="https://t.me/lumos_support" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] text-white font-bold text-xs shadow-xs transition">
+                <i class="fa-brands fa-telegram mr-1.5 text-sky-400"></i> Texnik yordam
+            </a>
+        </div>
+    </div>
+
+    <!-- 2. Search Box Card -->
+    <div class="bg-white dark:bg-[#141414] rounded-2xl p-4 sm:p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs">
+        <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400 dark:text-slate-500 text-sm"></i>
+            <input type="text" 
+                   id="faqSearchInput" 
+                   oninput="handleFaqSearch(this.value)"
+                   placeholder="Savolingiz yoki mavzuni qidiring... (masalan: vidjet o'rnatish, telegram bot, scraping, operator, excel)"
+                   class="w-full pl-11 pr-10 py-3 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] transition">
+            <button type="button" 
+                    id="clearSearchBtn" 
+                    onclick="clearFaqSearch()" 
+                    class="hidden absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 3. Core Modules Guide Cards (Asosiy tizimlar yo'riqnomasi) -->
+    <div>
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-[#F5F1E8] flex items-center gap-2">
+                <i class="fa-solid fa-book-open-reader text-indigo-600 dark:text-indigo-400"></i> Asosiy imkoniyatlar bo'yicha tezkor qo'llanma
+            </h2>
+            <span class="text-xs text-slate-400 dark:text-slate-500">5 ta asosiy bo'lim</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+            <!-- Card 1: AI Savdo Agenti & Scraping -->
+            <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs flex flex-col justify-between hover:border-slate-300 dark:hover:border-zinc-700 transition group">
+                <div class="space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-900/60 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm">AI Savdo Agenti & Scraping</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Saytingiz havolasi kiritilgach, tizim avtomatik ravishda barcha sahifalarni scrape qilib, 768-o'lchamli pgvector bilimlar bazasini shakllantiradi.
+                    </p>
+                    <ul class="text-[11px] text-slate-600 dark:text-slate-400 space-y-1.5 pt-1">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-[10px]"></i> Har 24 soatda avtomatik qayta scrape</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-[10px]"></i> Dashboarddan darhol sinxronlash</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-[10px]"></i> Inson kabi kechikish (human delay)</li>
+                    </ul>
+                </div>
+                <div class="pt-4 mt-3 border-t border-[#E7E5E1] dark:border-[#262626]">
+                    <a href="{% url 'chatbot:agent_settings' %}" class="inline-flex items-center text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
+                        <span>Agentni sozlash</span> <i class="fa-solid fa-arrow-right ml-1.5 text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 2: Vebsayt Vidjeti -->
+            <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs flex flex-col justify-between hover:border-slate-300 dark:hover:border-zinc-700 transition group">
+                <div class="space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-900/60 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm">Vebsayt Vidjeti (Web Chat)</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Saytingizga 1 qator JavaScript kodini joylash orqali tashrif buyuruvchilarga 24/7 jonli yordam beruvchi aqlli vidjetni ulab olasiz.
+                    </p>
+                    <ul class="text-[11px] text-slate-600 dark:text-slate-400 space-y-1.5 pt-1">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-[10px]"></i> WordPress, Tilda, HTML moslik</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-[10px]"></i> Brend rangi va salomlashish matni</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-[10px]"></i> Mobil qurilmalarga to'liq moslashgan</li>
+                    </ul>
+                </div>
+                <div class="pt-4 mt-3 border-t border-[#E7E5E1] dark:border-[#262626]">
+                    <a href="{% url 'chatbot:settings' %}" class="inline-flex items-center text-xs font-bold text-sky-600 dark:text-sky-400 hover:underline">
+                        <span>Vidjet kodini olish</span> <i class="fa-solid fa-arrow-right ml-1.5 text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 3: Telegram Bot -->
+            <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs flex flex-col justify-between hover:border-slate-300 dark:hover:border-zinc-700 transition group">
+                <div class="space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-950/40 text-sky-500 border border-sky-200 dark:border-sky-900/60 flex items-center justify-center text-lg">
+                        <i class="fa-brands fa-telegram"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm">Telegram Bot Integratsiyasi</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Telegramdagi mijozlaringiz uchun shaxsiy botingizni ulang. Bot avtomatik salomlashadi va savollarga professional javob beradi.
+                    </p>
+                    <ul class="text-[11px] text-slate-600 dark:text-slate-400 space-y-1.5 pt-1">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-[10px]"></i> @BotFather orqali oson ulash</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-[10px]"></i> Telegram HTML formatlangan matn</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-[10px]"></i> Barcha lidlar Inbox CRMga tushadi</li>
+                    </ul>
+                </div>
+                <div class="pt-4 mt-3 border-t border-[#E7E5E1] dark:border-[#262626]">
+                    <a href="{% url 'chatbot:telegram_settings' %}" class="inline-flex items-center text-xs font-bold text-sky-600 dark:text-sky-400 hover:underline">
+                        <span>Botni ulash</span> <i class="fa-solid fa-arrow-right ml-1.5 text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 4: Inbox CRM -->
+            <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs flex flex-col justify-between hover:border-slate-300 dark:hover:border-zinc-700 transition group">
+                <div class="space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900/60 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-inbox"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm">Inbox CRM & Jonli Muloqot</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Sayt va Telegramdan kelgan har bir mijoz yagona ro'yxatda jamlanadi. Mijoz bilan bevosita muloqot qilib, bitimga yetaklang.
+                    </p>
+                    <ul class="text-[11px] text-slate-600 dark:text-slate-400 space-y-1.5 pt-1">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-[10px]"></i> Pop-up chat va to'liq ekran rejimi</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-[10px]"></i> Shaxsiy eslatmalar va statuslar</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-[10px]"></i> Excel (.xlsx) formatida eksport</li>
+                    </ul>
+                </div>
+                <div class="pt-4 mt-3 border-t border-[#E7E5E1] dark:border-[#262626]">
+                    <a href="{% url 'chatbot:inbox' %}" class="inline-flex items-center text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline">
+                        <span>Inboxga o'tish</span> <i class="fa-solid fa-arrow-right ml-1.5 text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 5: Jamoa & TMA -->
+            <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs flex flex-col justify-between hover:border-slate-300 dark:hover:border-zinc-700 transition group md:col-span-2 lg:col-span-1">
+                <div class="space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/60 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-users-gear"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm">Operatorlar & Telegram Mini App</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Operatorlaringiz o'z telefonlarida Telegram Mini App orqali mijozlarga darhol javob berishadi. SLA nazorati kechikishlarni oldini oladi.
+                    </p>
+                    <ul class="text-[11px] text-slate-600 dark:text-slate-400 space-y-1.5 pt-1">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-[10px]"></i> Operator va Supervisor rollari</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-[10px]"></i> Avtomatik supervisorga eskalatsiya</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-[10px]"></i> Har bir xodim samaradorligi analitikasi</li>
+                    </ul>
+                </div>
+                <div class="pt-4 mt-3 border-t border-[#E7E5E1] dark:border-[#262626]">
+                    <a href="{% url 'team:team_list' %}" class="inline-flex items-center text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline">
+                        <span>Jamoani boshqarish</span> <i class="fa-solid fa-arrow-right ml-1.5 text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 6: Analitika & KPI -->
+            <div class="bg-white dark:bg-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs flex flex-col justify-between hover:border-slate-300 dark:hover:border-zinc-700 transition group md:col-span-2 lg:col-span-1">
+                <div class="space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-900/60 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm">Analitika & Konversiya</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Qaysi kanal ko'proq lid keltirmoqda? Qaysi soatlarda faollik yuqori? Barcha ko'rsatkichlarni grafiklar orqali kuzatib boring.
+                    </p>
+                    <ul class="text-[11px] text-slate-600 dark:text-slate-400 space-y-1.5 pt-1">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-[10px]"></i> 7 kunlik, 30 kunlik dinamika</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-[10px]"></i> Telefon va email to'planish foizi</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-[10px]"></i> Eskalatsiyalar tahlili</li>
+                    </ul>
+                </div>
+                <div class="pt-4 mt-3 border-t border-[#E7E5E1] dark:border-[#262626]">
+                    <a href="{% url 'businesses:analytics' %}" class="inline-flex items-center text-xs font-bold text-violet-600 dark:text-violet-400 hover:underline">
+                        <span>Hisobotlarni ko'rish</span> <i class="fa-solid fa-arrow-right ml-1.5 text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 4. Interactive FAQ Section (Savollar & Javoblar) -->
+    <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 sm:p-8 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-6">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E7E5E1] dark:border-[#262626] pb-4">
+            <div>
+                <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-[#F5F1E8] flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-question text-indigo-600 dark:text-indigo-400"></i> Tez-tez beriladigan savollar (FAQ)
+                </h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Savolni ustiga bosib batafsil javobni o'qing</p>
+            </div>
+
+            <!-- Category Filter Buttons -->
+            <div class="flex items-center gap-1.5 flex-wrap" id="faqFilterTabs">
+                <button type="button" onclick="filterFaqByCategory('all')" class="faq-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A]" data-cat="all">
+                    Barchasi
+                </button>
+                <button type="button" onclick="filterFaqByCategory('ai')" class="faq-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] transition" data-cat="ai">
+                    AI Agent
+                </button>
+                <button type="button" onclick="filterFaqByCategory('widget')" class="faq-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] transition" data-cat="widget">
+                    Vidjet
+                </button>
+                <button type="button" onclick="filterFaqByCategory('telegram')" class="faq-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] transition" data-cat="telegram">
+                    Telegram
+                </button>
+                <button type="button" onclick="filterFaqByCategory('crm')" class="faq-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] transition" data-cat="crm">
+                    CRM & Jamoa
+                </button>
+            </div>
+        </div>
+
+        <!-- FAQ Items List -->
+        <div class="space-y-3" id="faqListContainer">
+
+            <!-- FAQ Item 1 -->
+            <div class="faq-item rounded-xl border border-[#E7E5E1] dark:border-[#262626] overflow-hidden transition" data-cat="ai" data-keywords="scraping vebsayt yangilanish bilimlar bazasi avtomatik 24 soat">
+                <button type="button" onclick="toggleFaqItem(this)" class="w-full text-left p-4 sm:p-4.5 bg-slate-50/60 hover:bg-slate-100/70 dark:bg-[#191919] dark:hover:bg-[#202020] flex items-center justify-between gap-3 transition">
+                    <span class="font-bold text-xs sm:text-sm text-slate-800 dark:text-[#F5F1E8] flex items-center gap-2.5">
+                        <i class="fa-solid fa-circle-nodes text-indigo-600 dark:text-indigo-400 text-xs"></i>
+                        Vebsaytimdagi yangi ma'lumotlarni AI qanday o'rganadi va qachon yangilanadi?
+                    </span>
+                    <i class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-200"></i>
+                </button>
+                <div class="faq-answer hidden p-4 sm:p-5 text-xs text-slate-600 dark:text-slate-300 bg-white dark:bg-[#141414] border-t border-[#E7E5E1] dark:border-[#262626] space-y-2 leading-relaxed">
+                    <p>
+                        Lumos sizning vebsaytingizni <strong>har 24 soatda avtomatik ravishda</strong> qayta scrape qiladi. Agar saytingizda yangi maqola, narxlar yoki xizmatlar qo'shilsa, tizim ularni aniqlab, pgvector bilimlar bazasiga yangilaydi.
+                    </p>
+                    <p>
+                        Agar kutishni xohlamasangiz va hoziroq ma'lumotlarni yangilamoqchi bo'lsangiz, <strong>Bosh sahifa (Dashboard)</strong> dagi yangilanish panelidan <strong>«Hoziroq sinxronlash»</strong> tugmasini bosing — agent 1-2 daqiqa ichida barcha yangi ma'lumotlarni o'zlashtiradi.
+                    </p>
+                </div>
+            </div>
+
+            <!-- FAQ Item 2 -->
+            <div class="faq-item rounded-xl border border-[#E7E5E1] dark:border-[#262626] overflow-hidden transition" data-cat="widget" data-keywords="vidjet ulash wordpress tilda kod o'rnatish saytga joylash script">
+                <button type="button" onclick="toggleFaqItem(this)" class="w-full text-left p-4 sm:p-4.5 bg-slate-50/60 hover:bg-slate-100/70 dark:bg-[#191919] dark:hover:bg-[#202020] flex items-center justify-between gap-3 transition">
+                    <span class="font-bold text-xs sm:text-sm text-slate-800 dark:text-[#F5F1E8] flex items-center gap-2.5">
+                        <i class="fa-solid fa-code text-sky-600 dark:text-sky-400 text-xs"></i>
+                        Vebsaytimga chat vidjetini qanday ulayman?
+                    </span>
+                    <i class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-200"></i>
+                </button>
+                <div class="faq-answer hidden p-4 sm:p-5 text-xs text-slate-600 dark:text-slate-300 bg-white dark:bg-[#141414] border-t border-[#E7E5E1] dark:border-[#262626] space-y-2 leading-relaxed">
+                    <p>
+                        Vidjetni ulash juda oson va bor-yo'g'i 1 daqiqa vaqt oladi:
+                    </p>
+                    <ol class="list-decimal pl-4 space-y-1">
+                        <li>«Vebsayt Vidjeti» sozlamalari sahifasiga o'ting va tayyor <code>&lt;script&gt;</code> kodini nusxalang;</li>
+                        <li>O'z vebsaytingiz kodining <code>&lt;/body&gt;</code> tegi yopilishidan oldin ushbu kodni joylang;</li>
+                        <li><strong>Tilda uchun:</strong> HTML-blok (T123) qo'shib, ichiga joylang;</li>
+                        <li><strong>WordPress uchun:</strong> «Header and Footer Scripts» plagini orqali Footer qismiga joylang.</li>
+                    </ol>
+                    <p>Shundan so'ng vebsaytingizning pastki o'ng burchagida qulay muloqot vidjeti paydo bo'ladi.</p>
+                </div>
+            </div>
+
+            <!-- FAQ Item 3 -->
+            <div class="faq-item rounded-xl border border-[#E7E5E1] dark:border-[#262626] overflow-hidden transition" data-cat="telegram" data-keywords="telegram bot token botfather ulash qanday qilinadi">
+                <button type="button" onclick="toggleFaqItem(this)" class="w-full text-left p-4 sm:p-4.5 bg-slate-50/60 hover:bg-slate-100/70 dark:bg-[#191919] dark:hover:bg-[#202020] flex items-center justify-between gap-3 transition">
+                    <span class="font-bold text-xs sm:text-sm text-slate-800 dark:text-[#F5F1E8] flex items-center gap-2.5">
+                        <i class="fa-brands fa-telegram text-sky-500 text-xs"></i>
+                        Telegram botni qanday yaratib, Lumosga ulash mumkin?
+                    </span>
+                    <i class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-200"></i>
+                </button>
+                <div class="faq-answer hidden p-4 sm:p-5 text-xs text-slate-600 dark:text-slate-300 bg-white dark:bg-[#141414] border-t border-[#E7E5E1] dark:border-[#262626] space-y-2 leading-relaxed">
+                    <p>
+                        Telegram botni ulash bosqichlari:
+                    </p>
+                    <ol class="list-decimal pl-4 space-y-1">
+                        <li>Telegramda rasmiy <strong>@BotFather</strong> botini oching va <code>/newbot</code> buyrug'ini yuboring;</li>
+                        <li>Botingiz uchun nom va oxiri <code>_bot</code> bilan tugaydigan username tanlang (masalan, <code>mybusiness_support_bot</code>);</li>
+                        <li>BotFather bergan <strong>HTTP API Tokenni</strong> nusxalab oling;</li>
+                        <li>Lumos panelidagi «Telegram Bot» sahifasiga kirib, tokenni joylang va «Telegram botni faollashtirish»ni yoqib, Saqlash tugmasini bosing.</li>
+                    </ol>
+                    <p>Endi mijozlaringiz Telegram botingizga yozgan barcha xabarlar AI orqali professional javob oladi va to'g'ridan-to'g'ri Inboxga tushadi.</p>
+                </div>
+            </div>
+
+            <!-- FAQ Item 4 -->
+            <div class="faq-item rounded-xl border border-[#E7E5E1] dark:border-[#262626] overflow-hidden transition" data-cat="ai" data-keywords="insoniy kechikish delay typing sotuvchi personasi bot emas">
+                <button type="button" onclick="toggleFaqItem(this)" class="w-full text-left p-4 sm:p-4.5 bg-slate-50/60 hover:bg-slate-100/70 dark:bg-[#191919] dark:hover:bg-[#202020] flex items-center justify-between gap-3 transition">
+                    <span class="font-bold text-xs sm:text-sm text-slate-800 dark:text-[#F5F1E8] flex items-center gap-2.5">
+                        <i class="fa-solid fa-user-tie text-indigo-600 dark:text-indigo-400 text-xs"></i>
+                        AI mijoz bilan xuddi haqiqiy sotuv menejeri kabi gaplashishi qanday ta'minlanadi?
+                    </span>
+                    <i class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-200"></i>
+                </button>
+                <div class="faq-answer hidden p-4 sm:p-5 text-xs text-slate-600 dark:text-slate-300 bg-white dark:bg-[#141414] border-t border-[#E7E5E1] dark:border-[#262626] space-y-2 leading-relaxed">
+                    <p>
+                        Lumos AI agenti maxsus sozlangan neyrotarmoq ko'rsatmalari asosida ishlaydi:
+                    </p>
+                    <ul class="list-disc pl-4 space-y-1">
+                        <li><strong>O'zini bot deb tanishtirmaydi:</strong> Kompaniyaning rasmiy sotuv menejeri sifatida muloqot qiladi;</li>
+                        <li><strong>Ochiq savollar beradi:</strong> Shunchaki quruq javob berib to'xtamaydi, balki mijozning ehtiyoji, tajribasi yoki qiziqishini so'rab muloqotni rivojlantiradi;</li>
+                        <li><strong>Inson kabi kechikish:</strong> Darhol 0 soniyada javob bermay, 4-8 soniya o'ylab yozish (typing) holatini ko'rsatadi, matnni ixcham bo'laklarda ketma-ket yuboradi.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- FAQ Item 5 -->
+            <div class="faq-item rounded-xl border border-[#E7E5E1] dark:border-[#262626] overflow-hidden transition" data-cat="crm" data-keywords="operator supervisor tma eskalatsiya sla xodim navbatchilik">
+                <button type="button" onclick="toggleFaqItem(this)" class="w-full text-left p-4 sm:p-4.5 bg-slate-50/60 hover:bg-slate-100/70 dark:bg-[#191919] dark:hover:bg-[#202020] flex items-center justify-between gap-3 transition">
+                    <span class="font-bold text-xs sm:text-sm text-slate-800 dark:text-[#F5F1E8] flex items-center gap-2.5">
+                        <i class="fa-solid fa-users text-emerald-600 dark:text-emerald-400 text-xs"></i>
+                        Operatorlar qanday javob berishadi va SLA muddati nima?
+                    </span>
+                    <i class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-200"></i>
+                </button>
+                <div class="faq-answer hidden p-4 sm:p-5 text-xs text-slate-600 dark:text-slate-300 bg-white dark:bg-[#141414] border-t border-[#E7E5E1] dark:border-[#262626] space-y-2 leading-relaxed">
+                    <p>
+                        «Jamoa boshqaruvi» bo'limida har bir operator uchun <strong>Telegram Mini App (TMA)</strong> havolasi yaratiladi. Operator o'z telefonida ushbu havolani ochib, navbatchilikni yoqadi va chatlarni to'g'ridan-to'g'ri Telegram ichida qabul qiladi.
+                    </p>
+                    <p>
+                        <strong>SLA (Service Level Agreement):</strong> Har bir operatorga javob berish vaqti belgilanadi (masalan, 5 daqiqa). Agar operator ushbu vaqt ichida mijozga javob yozmasa, chat avtomatik tarzda <strong>Supervisorga (katta menejerga)</strong> eskalatsiya qilinadi va eslatma yuboriladi.
+                    </p>
+                </div>
+            </div>
+
+            <!-- FAQ Item 6 -->
+            <div class="faq-item rounded-xl border border-[#E7E5E1] dark:border-[#262626] overflow-hidden transition" data-cat="crm" data-keywords="inbox excel eksport lidlar mijozlar ro'yxati telefon raqam">
+                <button type="button" onclick="toggleFaqItem(this)" class="w-full text-left p-4 sm:p-4.5 bg-slate-50/60 hover:bg-slate-100/70 dark:bg-[#191919] dark:hover:bg-[#202020] flex items-center justify-between gap-3 transition">
+                    <span class="font-bold text-xs sm:text-sm text-slate-800 dark:text-[#F5F1E8] flex items-center gap-2.5">
+                        <i class="fa-solid fa-file-excel text-emerald-600 dark:text-emerald-400 text-xs"></i>
+                        Mijozlar bazasini Excel formatida yuklab olsa bo'ladimi?
+                    </span>
+                    <i class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-200"></i>
+                </button>
+                <div class="faq-answer hidden p-4 sm:p-5 text-xs text-slate-600 dark:text-slate-300 bg-white dark:bg-[#141414] border-t border-[#E7E5E1] dark:border-[#262626] space-y-2 leading-relaxed">
+                    <p>
+                        Ha, albatta! <strong>Inbox</strong> sahifasining yuqori o'ng burchagida <strong>«Excelda yuklab olish»</strong> tugmasi mavjud.
+                    </p>
+                    <p>
+                        Ushbu tugmani bosganingizda barcha mijozlarning ismlari, telefon raqamlari, murojaat qilgan kanali (Vebsayt yoki Telegram), birinchi va oxirgi muloqot vaqtlari hamda kiritilgan shaxsiy eslatmalar to'liq <code>.xlsx</code> formatida yuklab beriladi.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Empty Search State -->
+            <div id="noFaqResults" class="hidden py-10 text-center text-slate-400 dark:text-slate-500">
+                <i class="fa-solid fa-magnifying-glass text-2xl mb-2"></i>
+                <p class="font-bold text-sm text-slate-700 dark:text-slate-300">Bunday so'rov bo'yicha savol topilmadi</p>
+                <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Boshqa kalit so'zni kiritib ko'ring yoki to'g'ridan-to'g'ri texnik yordamga yozing.</p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- 5. Direct Support & Contact Card -->
+    <div class="bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent dark:from-indigo-950/30 dark:via-[#141414] dark:to-[#141414] rounded-2xl p-6 sm:p-8 border border-indigo-200/70 dark:border-indigo-900/40 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div class="space-y-2">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider font-bold bg-indigo-600 text-white">
+                24/7 Qo'llab-quvvatlash
+            </span>
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-[#F5F1E8]">
+                Boshqa savollaringiz yoki texnik yordam kerakmi?
+            </h3>
+            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-xl">
+                Bizning mutaxassislarimiz tizimni biznesingizga to'g'ri sozlashda, maxsus integratsiyalarni amalga oshirishda doimo yordamga tayyor.
+            </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+            <a href="https://t.me/lumos_support" target="_blank" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs shadow-xs transition">
+                <i class="fa-brands fa-telegram text-sm"></i>
+                <span>Telegram Support</span>
+            </a>
+            <a href="mailto:support@lumos.uz" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white dark:bg-[#1E1E1E] hover:bg-slate-100 dark:hover:bg-[#262626] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] font-bold text-xs shadow-xs transition">
+                <i class="fa-solid fa-envelope text-indigo-600 dark:text-indigo-400"></i>
+                <span>support@lumos.uz</span>
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<!-- Interactive FAQ Accordion and Search Script -->
+<script>
+    function toggleFaqItem(btn) {
+        var answer = btn.nextElementSibling;
+        var icon = btn.querySelector('.fa-chevron-down');
+        if (!answer) return;
+
+        var isHidden = answer.classList.contains('hidden');
+        if (isHidden) {
+            answer.classList.remove('hidden');
+            if (icon) icon.style.transform = 'rotate(180deg)';
+        } else {
+            answer.classList.add('hidden');
+            if (icon) icon.style.transform = 'rotate(0deg)';
+        }
+    }
+
+    var currentCategory = 'all';
+
+    function filterFaqByCategory(category) {
+        currentCategory = category;
+        var buttons = document.querySelectorAll('.faq-filter-btn');
+        buttons.forEach(function(btn) {
+            if (btn.getAttribute('data-cat') === category) {
+                btn.className = 'faq-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A]';
+            } else {
+                btn.className = 'faq-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] transition';
+            }
+        });
+        applyFaqFilters();
+    }
+
+    function handleFaqSearch(query) {
+        var clearBtn = document.getElementById('clearSearchBtn');
+        if (clearBtn) {
+            clearBtn.classList.toggle('hidden', !query.trim());
+        }
+        applyFaqFilters();
+    }
+
+    function clearFaqSearch() {
+        var input = document.getElementById('faqSearchInput');
+        if (input) {
+            input.value = '';
+            input.focus();
+        }
+        var clearBtn = document.getElementById('clearSearchBtn');
+        if (clearBtn) clearBtn.classList.add('hidden');
+        applyFaqFilters();
+    }
+
+    function applyFaqFilters() {
+        var searchInput = document.getElementById('faqSearchInput');
+        var query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        var items = document.querySelectorAll('.faq-item');
+        var visibleCount = 0;
+
+        items.forEach(function(item) {
+            var itemCat = item.getAttribute('data-cat') || '';
+            var text = item.textContent.toLowerCase();
+            var keywords = (item.getAttribute('data-keywords') || '').toLowerCase();
+
+            var matchesCat = (currentCategory === 'all' || itemCat === currentCategory);
+            var matchesSearch = (!query || text.includes(query) || keywords.includes(query));
+
+            if (matchesCat && matchesSearch) {
+                item.classList.remove('hidden');
+                visibleCount++;
+            } else {
+                item.classList.add('hidden');
+            }
+        });
+
+        var noResults = document.getElementById('noFaqResults');
+        if (noResults) {
+            noResults.classList.toggle('hidden', visibleCount > 0);
+        }
+    }
+</script>
+{% endblock %}

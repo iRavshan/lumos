@@ -19,7 +19,7 @@
         </a>
     </div>
 
-    <!-- 2. Navigation Tabs (Agent vs Widget vs Telegram Bot) -->
+    <!-- 2. Navigation Tabs (Agent vs Widget vs Telegram Bot vs Biznes Profili) -->
     <div class="flex space-x-2 border-b border-[#E7E5E1] dark:border-[#262626] pb-1 overflow-x-auto scrollbar-thin">
         <a href="{% url 'chatbot:agent_settings' %}" class="px-4 py-2.5 font-bold text-xs sm:text-sm text-slate-500 hover:text-slate-800 dark:hover:text-white border-b-2 border-transparent transition flex items-center shrink-0">
             <i class="fa-solid fa-robot mr-2 text-indigo-600 dark:text-indigo-400"></i> Savdo Agenti
@@ -29,6 +29,9 @@
         </a>
         <a href="{% url 'chatbot:telegram_settings' %}" class="px-4 py-2.5 font-bold text-xs sm:text-sm text-slate-500 hover:text-slate-800 dark:hover:text-white border-b-2 border-transparent transition flex items-center shrink-0">
             <i class="fa-brands fa-telegram mr-2 text-sky-500"></i> Telegram Bot
+        </a>
+        <a href="{% url 'businesses:edit' %}" class="px-4 py-2.5 font-bold text-xs sm:text-sm text-slate-500 hover:text-slate-800 dark:hover:text-white border-b-2 border-transparent transition flex items-center shrink-0">
+            <i class="fa-solid fa-sliders mr-2 text-slate-500"></i> Biznes Profili
         </a>
     </div>
 
@@ -98,7 +101,7 @@
                 <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-4">
                     <div class="flex items-center justify-between border-b border-slate-100 dark:border-[#262626] pb-3">
                         <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm flex items-center">
-                            <i class="fa-solid fa-palette text-indigo-600 dark:text-indigo-400 mr-2"></i> Vidjet Asosiy Rangi
+                            <i class="fa-solid fa-palette text-indigo-600 dark:text-indigo-400 mr-2"></i> Vidjet rangi
                         </h3>
                         <span class="text-xs text-slate-400 dark:text-slate-500">Brendingizga mos rang tanlang</span>
                     </div>

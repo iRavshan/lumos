@@ -283,3 +283,17 @@ def business_analytics_view(request):
         'period': period,
     })
 
+
+@login_required
+def help_view(request):
+    if not hasattr(request.user, 'business'):
+        return redirect('businesses:onboarding')
+
+    business = request.user.business
+    chatbot = getattr(business, 'chatbot_config', None)
+
+    return render(request, 'businesses/help.html', {
+        'business': business,
+        'chatbot': chatbot,
+    })
+
