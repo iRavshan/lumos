@@ -7,6 +7,9 @@ from .views import (
     business_analytics_view,
     favicon_proxy_view,
     help_view,
+    terms_view,
+    privacy_view,
+    feedback_view,
 )
 
 app_name = 'businesses'
@@ -17,6 +20,9 @@ urlpatterns = [
     path('dashboard/edit/', edit_business_view, name='edit'),
     path('dashboard/analytics/', business_analytics_view, name='analytics'),
     path('dashboard/help/', help_view, name='help'),
+    path('dashboard/feedback/', feedback_view, name='feedback'),
+    path('terms/', terms_view, name='terms'),
+    path('privacy/', privacy_view, name='privacy'),
     path('api/favicon/<int:business_id>/', favicon_proxy_view, name='favicon_proxy'),
 ]
 

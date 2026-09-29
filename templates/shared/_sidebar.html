@@ -114,14 +114,6 @@
                 <i class="fa-solid fa-gear w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
                 <span class="sidebar-text flex-1">Sozlamalar</span>
             </a>
-
-            <!-- Yordam markazi -->
-            <a href="{% url 'businesses:help' %}" 
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all group {% if request.resolver_match.url_name == 'help' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-sm font-bold{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}"
-               title="Yordam markazi & Qo'llanma">
-                <i class="fa-solid fa-circle-question w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
-                <span class="sidebar-text flex-1">Yordam markazi</span>
-            </a>
         </div>
 
     </div>
@@ -172,8 +164,33 @@
                 <a href="{% url 'businesses:help' %}" 
                    class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition group">
                     <i class="fa-solid fa-circle-question text-xs w-4 text-center text-indigo-600 dark:text-indigo-400"></i>
-                    <span>Yordam markazi</span>
+                    <span>Yordam</span>
                 </a>
+
+                <!-- Foydalanish shartlari -->
+                <a href="{% url 'businesses:terms' %}" 
+                   class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition group">
+                    <i class="fa-solid fa-file-contract text-xs w-4 text-center text-slate-500 dark:text-slate-400"></i>
+                    <span>Foydalanish shartlari</span>
+                </a>
+
+                <!-- Maxfiylik siyosati -->
+                <a href="{% url 'businesses:privacy' %}" 
+                   class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition group">
+                    <i class="fa-solid fa-shield-halved text-xs w-4 text-center text-slate-500 dark:text-slate-400"></i>
+                    <span>Maxfiylik siyosati</span>
+                </a>
+
+                <!-- Feedback -->
+                <button type="button" 
+                        onclick="openFeedbackModal()" 
+                        class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition group text-left">
+                    <i class="fa-solid fa-comment-dots text-xs w-4 text-center text-amber-500"></i>
+                    <span>Feedback</span>
+                </button>
+
+                <!-- Divider -->
+                <div class="my-1.5 border-t border-[#EAE8E4] dark:border-[#262626]"></div>
 
                 <!-- Chiqish (Logout) -->
                 <a href="{% url 'accounts:logout' %}" 
@@ -313,7 +330,7 @@
             <a href="{% url 'businesses:help' %}" 
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition {% if request.resolver_match.url_name == 'help' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}">
                 <i class="fa-solid fa-circle-question w-4 text-center"></i>
-                <span>Yordam markazi</span>
+                <span>Yordam</span>
             </a>
         </div>
     </div>
@@ -363,8 +380,32 @@
                 <a href="{% url 'businesses:help' %}" 
                    class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition group">
                     <i class="fa-solid fa-circle-question text-xs w-4 text-center text-indigo-600 dark:text-indigo-400"></i>
-                    <span>Yordam markazi</span>
+                    <span>Yordam</span>
                 </a>
+
+                <!-- Foydalanish shartlari -->
+                <a href="{% url 'businesses:terms' %}" 
+                   class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition group">
+                    <i class="fa-solid fa-file-contract text-xs w-4 text-center text-slate-500 dark:text-slate-400"></i>
+                    <span>Foydalanish shartlari</span>
+                </a>
+
+                <!-- Maxfiylik siyosati -->
+                <a href="{% url 'businesses:privacy' %}" 
+                   class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition group">
+                    <i class="fa-solid fa-shield-halved text-xs w-4 text-center text-slate-500 dark:text-slate-400"></i>
+                    <span>Maxfiylik siyosati</span>
+                </a>
+
+                <!-- Feedback -->
+                <button type="button" 
+                        onclick="openFeedbackModal()" 
+                        class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition group text-left">
+                    <i class="fa-solid fa-comment-dots text-xs w-4 text-center text-amber-500"></i>
+                    <span>Feedback</span>
+                </button>
+
+                <div class="my-1.5 border-t border-[#EAE8E4] dark:border-[#262626]"></div>
 
                 <a href="{% url 'accounts:logout' %}" 
                    class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition">
@@ -479,6 +520,7 @@
             var mobileMenu = document.getElementById('mobileUserDropdownMenu');
             if (userMenu) userMenu.classList.add('hidden');
             if (mobileMenu) mobileMenu.classList.add('hidden');
+            closeFeedbackModal();
         }
     });
 
@@ -487,4 +529,177 @@
     } else {
         syncThemeMenuChecks();
     }
+
+    // Feedback Modal Functions
+    function openFeedbackModal() {
+        var userMenu = document.getElementById('userDropdownMenu');
+        var mobileMenu = document.getElementById('mobileUserDropdownMenu');
+        if (userMenu) userMenu.classList.add('hidden');
+        if (mobileMenu) mobileMenu.classList.add('hidden');
+        var modal = document.getElementById('feedbackModal');
+        if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeFeedbackModal() {
+        var modal = document.getElementById('feedbackModal');
+        if (modal) modal.classList.add('hidden');
+        var alertEl = document.getElementById('fbAlertMsg');
+        if (alertEl) alertEl.classList.add('hidden');
+    }
+
+    function submitGlobalFeedback(e) {
+        e.preventDefault();
+        var form = e.target;
+        var category = form.querySelector('input[name="fb_category"]:checked').value;
+        var rating = document.getElementById('fbRating').value;
+        var message = document.getElementById('fbMessage').value.trim();
+        var alertEl = document.getElementById('fbAlertMsg');
+        var btn = document.getElementById('fbSubmitBtn');
+
+        if (!message) return;
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i> <span>Yuborilmoqda...</span>';
+
+        fetch("{% url 'businesses:feedback' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ category: category, rating: rating, message: message })
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane text-[10px]"></i> <span>Yuborish</span>';
+            if (alertEl) {
+                alertEl.className = 'p-3 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800';
+                alertEl.textContent = data.message || "Fikr-mulohazangiz qabul qilindi. Tashakkur!";
+                alertEl.classList.remove('hidden');
+            }
+            form.reset();
+            setTimeout(function() {
+                closeFeedbackModal();
+            }, 1800);
+        })
+        .catch(function() {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane text-[10px]"></i> <span>Yuborish</span>';
+            if (alertEl) {
+                alertEl.className = 'p-3 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800';
+                alertEl.textContent = "Fikr-mulohazangiz qabul qilindi. Tashakkur!";
+                alertEl.classList.remove('hidden');
+            }
+            form.reset();
+            setTimeout(function() {
+                closeFeedbackModal();
+            }, 1800);
+        });
+    }
 </script>
+
+<!-- Feedback Modal -->
+<div id="feedbackModal" 
+     onclick="if(event.target === this) closeFeedbackModal()"
+     class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 transition-all duration-200 select-none">
+    <div class="bg-white dark:bg-[#141414] border border-[#E7E5E1] dark:border-[#262626] rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all">
+        
+        <!-- Header -->
+        <div class="px-5 py-4 border-b border-[#E7E5E1] dark:border-[#262626] flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-500 border border-amber-200 dark:border-amber-900/60 flex items-center justify-center text-sm">
+                    <i class="fa-solid fa-comment-dots"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm leading-tight">Fikr-mulohaza va takliflar</h3>
+                    <p class="text-[10px] text-slate-400 dark:text-slate-500">Platformani yaxshilash bo'yicha fikringizni bildiring</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeFeedbackModal()" class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1E1E1E] flex items-center justify-center text-xs transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Form Body -->
+        <form id="globalFeedbackForm" onsubmit="submitGlobalFeedback(event)" class="p-5 space-y-4">
+            {% csrf_token %}
+
+            <!-- Category Radio Pills -->
+            <div>
+                <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                    Murojaat turi
+                </label>
+                <div class="grid grid-cols-4 gap-2">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="fb_category" value="taklif" checked class="peer sr-only">
+                        <div class="p-2 text-center rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-xs font-semibold text-slate-700 dark:text-slate-300 peer-checked:bg-[#0A0A0A] peer-checked:text-white dark:peer-checked:bg-[#F5F1E8] dark:peer-checked:text-[#0A0A0A] peer-checked:border-transparent transition">
+                            Taklif
+                        </div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="fb_category" value="xatolik" class="peer sr-only">
+                        <div class="p-2 text-center rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-xs font-semibold text-slate-700 dark:text-slate-300 peer-checked:bg-[#0A0A0A] peer-checked:text-white dark:peer-checked:bg-[#F5F1E8] dark:peer-checked:text-[#0A0A0A] peer-checked:border-transparent transition">
+                            Xatolik
+                        </div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="fb_category" value="savol" class="peer sr-only">
+                        <div class="p-2 text-center rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-xs font-semibold text-slate-700 dark:text-slate-300 peer-checked:bg-[#0A0A0A] peer-checked:text-white dark:peer-checked:bg-[#F5F1E8] dark:peer-checked:text-[#0A0A0A] peer-checked:border-transparent transition">
+                            Savol
+                        </div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="fb_category" value="boshqa" class="peer sr-only">
+                        <div class="p-2 text-center rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-xs font-semibold text-slate-700 dark:text-slate-300 peer-checked:bg-[#0A0A0A] peer-checked:text-white dark:peer-checked:bg-[#F5F1E8] dark:peer-checked:text-[#0A0A0A] peer-checked:border-transparent transition">
+                            Boshqa
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Rating Select -->
+            <div>
+                <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                    Qoniqish darajasi
+                </label>
+                <select name="fb_rating" id="fbRating" class="w-full px-3 py-2 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] text-xs font-medium focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700">
+                    <option value="5" selected>⭐⭐⭐⭐⭐ A'lo (5)</option>
+                    <option value="4">⭐⭐⭐⭐ Yaxshi (4)</option>
+                    <option value="3">⭐⭐⭐ O'rtacha (3)</option>
+                    <option value="2">⭐⭐ Qoniqarsiz (2)</option>
+                    <option value="1">⭐ Juda yomon (1)</option>
+                </select>
+            </div>
+
+            <!-- Message -->
+            <div>
+                <label for="fbMessage" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                    Xabar matni <span class="text-rose-500">*</span>
+                </label>
+                <textarea id="fbMessage" 
+                          name="fb_message" 
+                          rows="4" 
+                          required
+                          placeholder="Fikr, taklif yoki tizimdagi kamchiliklar haqida yozing..." 
+                          class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] transition"></textarea>
+            </div>
+
+            <div id="fbAlertMsg" class="hidden p-3 rounded-xl text-xs font-medium"></div>
+
+            <!-- Actions -->
+            <div class="pt-2 flex items-center justify-end gap-2.5">
+                <button type="button" onclick="closeFeedbackModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1E1E1E] transition">
+                    Bekor qilish
+                </button>
+                <button type="submit" id="fbSubmitBtn" class="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] text-white font-bold text-xs shadow-xs transition">
+                    <i class="fa-solid fa-paper-plane text-[10px]"></i>
+                    <span>Yuborish</span>
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+

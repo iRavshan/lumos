@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
 import logging
@@ -296,4 +296,44 @@ def help_view(request):
         'business': business,
         'chatbot': chatbot,
     })
+
+
+def terms_view(request):
+    business = getattr(request.user, 'business', None) if request.user.is_authenticated else None
+    return render(request, 'businesses/terms.html', {'business': business})
+
+
+def privacy_view(request):
+    business = getattr(request.user, 'business', None) if request.user.is_authenticated else None
+    return render(request, 'businesses/privacy.html', {'business': business})
+
+
+@login_required
+def feedback_view(request):
+    business = getattr(request.user, 'business', None)
+    if request.method == 'POST':
+        import json
+        if request.content_type == 'application/json':
+            try:
+                data = json.loads(request.body)
+            except Exception:
+                data = {}
+            category = data.get('category', 'taklif')
+            message = data.get('message', '').strip()
+            rating = data.get('rating', 5)
+        else:
+            category = request.POST.get('category', 'taklif')
+            message = request.POST.get('message', '').strip()
+            rating = request.POST.get('rating', 5)
+
+        logger.info(f"Feedback from {request.user.username} (biz: {getattr(business, 'name', 'N/A')}): cat={category}, rating={rating}, msg={message}")
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json':
+            return JsonResponse({'status': 'success', 'message': "Fikr-mulohazangiz muvaffaqiyatli qabul qilindi. Tashakkur!"})
+
+        messages.success(request, "Fikr-mulohazangiz muvaffaqiyatli qabul qilindi. Tashakkur!")
+        return redirect('businesses:dashboard')
+
+    return render(request, 'businesses/feedback.html', {'business': business})
+
 

@@ -1,0 +1,99 @@
+{% extends 'shared/_base.html' %}
+
+{% block title %}Foydalanish shartlari - Lumos{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+    <!-- Header Card -->
+    <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 sm:p-8 border border-[#E7E5E1] dark:border-[#262626] shadow-xs">
+        <a href="{% url 'businesses:dashboard' %}" class="inline-flex items-center text-xs font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-white mb-3">
+            <i class="fa-solid fa-arrow-left mr-1.5 text-[10px]"></i> Bosh sahifaga qaytish
+        </a>
+        <div class="flex items-center gap-2 mb-2">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider font-bold bg-slate-100 dark:bg-[#1E1E1E] text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626]">
+                Rasmiy hujjat
+            </span>
+            <span class="text-[11px] text-slate-400 dark:text-slate-500">So'nggi yangilanish: 2026-yil</span>
+        </div>
+        <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight flex items-center gap-2.5">
+            <i class="fa-solid fa-file-contract text-indigo-600 dark:text-indigo-400"></i> Foydalanish Shartlari (Terms of Service)
+        </h1>
+        <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1.5 leading-relaxed">
+            Lumos platformasidan foydalanish bo'yicha foydalanuvchi va xizmat ko'rsatuvchi o'rtasidagi rasmiy shartnoma qoidalari.
+        </p>
+    </div>
+
+    <!-- Content Card -->
+    <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 sm:p-8 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-6 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+        
+        <section class="space-y-2">
+            <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-[#F5F1E8] flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-bold shrink-0">1</span>
+                Umumiy qoidalar
+            </h2>
+            <p>
+                Ushbu Foydalanish shartlari (keyingi o'rinlarda «Shartlar») Lumos platformasi (keyingi o'rinlarda «Platforma» yoki «Xizmat») orqali taqdim etiladigan barcha sun'iy intellekt xizmatlari, vebsayt vidjetlari, Telegram bot integratsiyalari va boshqaruv paneli vositalaridan foydalanish tartibini belgilaydi.
+            </p>
+            <p>
+                Platformada ro'yxatdan o'tish yoki xizmatlardan foydalanish orqali siz ushbu Shartlarga to'liq va so'zsiz rozilik bildirgan hisoblanasiz.
+            </p>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-[#F5F1E8] flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-bold shrink-0">2</span>
+                Xizmat tavsifi va AI imkoniyatlari
+            </h2>
+            <p>
+                Lumos biznes egalariga mijozlar bilan muloqotni avtomatlashtirish, vebsayt ma'lumotlarini tahlil qilib bilimlar bazasi shakllantirish (RAG texnologiyasi), Telegram bot va veb-vidjetlar orqali savdo agenti xizmatlarini taqdim etadi.
+            </p>
+            <ul class="list-disc pl-5 space-y-1 text-slate-600 dark:text-slate-400">
+                <li>AI agent biznes kiritgan vebsayt va ko'rsatmalar asosida mustaqil javob beradi;</li>
+                <li>Biznes egasi istalgan vaqtda ma'lumotlarni tahrirlashi, qo'shimcha bilim kiritishi yoki o'chirishi mumkin;</li>
+                <li>Operatorlar Telegram Mini App (TMA) orqali muloqotga to'g'ridan-to'g'ri aralashish imkoniyatiga ega.</li>
+            </ul>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-[#F5F1E8] flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-bold shrink-0">3</span>
+                Foydalanuvchi majburiyatlari va qat'iy taqiqlar
+            </h2>
+            <p>
+                Foydalanuvchi Lumos platformasidan faqat qonuniy maqsadlarda foydalanish majburiyatini oladi. Quyidagilar qat'iyan man etiladi:
+            </p>
+            <ul class="list-disc pl-5 space-y-1 text-slate-600 dark:text-slate-400">
+                <li>Qonunga zid, firibgarlik, spam yoki zararli dasturlar tarqatishga qaratilgan ma'lumotlarni AI agent orqali yuborish;</li>
+                <li>Boshqa shaxslar yoki tashkilotlarning mualliflik huquqlarini buzuvchi kontentlarni yuklash;</li>
+                <li>Tizim serverlariga noqonuniy kirish yoki xavfsizlik choralarini chetlab o'tishga urinish.</li>
+            </ul>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-[#F5F1E8] flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-bold shrink-0">4</span>
+                Ma'lumotlar xavfsizligi va maxfiylik
+            </h2>
+            <p>
+                Har bir biznesning mijozlar bazasi, yozishmalar tarixi va bilimlar bazasi qat'iy izolyatsiya qilingan (multi-tenant arxitekturasi). Hech bir biznesning ma'lumotlari boshqa foydalanuvchilarga ko'rinmaydi yoki boshqa bizneslar botlarini o'qitish uchun ishlatilmaydi.
+            </p>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-[#F5F1E8] flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-bold shrink-0">5</span>
+                Shartlarning o'zgarishi va bog'lanish
+            </h2>
+            <p>
+                Lumos ushbu Foydalanish shartlarini istalgan vaqtda yangilash huquqini saqlab qoladi. Muhim o'zgarishlar haqida foydalanuvchilar boshqaruv paneli orqali xabardor qilinadi.
+            </p>
+            <p class="pt-2">
+                Savollaringiz bo'lsa, rasmiy qo'llab-quvvatlash xizmatimizga murojaat qilishingiz mumkin: <a href="mailto:support@lumos.uz" class="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">support@lumos.uz</a> yoki Telegram: <a href="https://t.me/lumos_support" target="_blank" class="text-sky-600 dark:text-sky-400 font-bold hover:underline">@lumos_support</a>.
+            </p>
+        </section>
+
+    </div>
+
+</div>
+{% endblock %}
