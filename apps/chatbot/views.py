@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import ChatbotConfig, ChatSession, ChatMessage
 from django.db.models import Q, Count
+from django.core.paginator import Paginator
 from django.urls import reverse
 from .forms import ChatbotConfigForm, TelegramBotConfigForm, AgentConfigForm
 from .services import generate_rag_response, extract_contact_info, analyze_session_insights
@@ -375,6 +376,8 @@ def inbox_view(request, session_id=None):
     if status_filter in ['new', 'in_progress', 'completed', 'archived']:
         sessions_qs = sessions_qs.filter(status=status_filter)
 
+    sessions_qs = sessions_qs.order_by('-last_message_at', '-created_at')
+
     # CRM Counts
     all_sessions = chatbot.sessions.all()
     counts = {
@@ -387,7 +390,11 @@ def inbox_view(request, session_id=None):
         'archived': all_sessions.filter(status='archived').count(),
     }
 
-    sessions_list = list(sessions_qs)
+    # Pagination: 15 sessions per page
+    paginator = Paginator(sessions_qs, 15)
+    page_number = request.GET.get('page', 1)
+    sessions_page = paginator.get_page(page_number)
+    page_range = paginator.get_elided_page_range(sessions_page.number, on_each_side=1, on_ends=1)
 
     # Active session selection & Insights
     active_session = None
@@ -400,7 +407,8 @@ def inbox_view(request, session_id=None):
     return render(request, 'chatbot/inbox.html', {
         'business': business,
         'chatbot': chatbot,
-        'sessions': sessions_list,
+        'sessions': sessions_page,
+        'page_range': page_range,
         'active_session': active_session,
         'insights': insights,
         'counts': counts,
@@ -422,8 +430,10 @@ def update_lead_view(request, session_id):
     if request.method == 'POST':
         session.visitor_name = request.POST.get('visitor_name', '').strip()
         session.visitor_phone = request.POST.get('visitor_phone', '').strip()
-        session.visitor_email = request.POST.get('visitor_email', '').strip()
-        session.status = request.POST.get('status', session.status)
+        if 'visitor_email' in request.POST:
+            session.visitor_email = request.POST.get('visitor_email', '').strip()
+        if 'status' in request.POST:
+            session.status = request.POST.get('status', session.status)
         session.notes = request.POST.get('notes', '').strip()
         session.save()
         messages.success(request, f"«{session.display_name}» ma'lumotlari muvaffaqiyatli yangilandi.")

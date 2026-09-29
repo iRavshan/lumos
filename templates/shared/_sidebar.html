@@ -153,30 +153,25 @@
                     </p>
                 </div>
 
-                <!-- Theme / Rejim Switchers -->
-                <div class="space-y-0.5">
+                <!-- Theme / Rejim Toggle Switch Button -->
+                <div class="space-y-1">
                     <span class="px-2.5 pt-1 text-[9px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold block">Rejim</span>
                     
-                    <!-- Kunduzgi rejim -->
                     <button type="button" 
-                            onclick="setAppTheme('light')" 
-                            class="theme-opt-light w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition">
+                            onclick="handleThemeToggle()" 
+                            class="w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition group"
+                            title="Mavzuni almashtirish (Kunduzgi / Tungi)">
                         <span class="flex items-center gap-2.5">
-                            <i class="fa-solid fa-sun text-amber-500 text-xs w-4 text-center"></i>
-                            <span>Kunduzgi rejim</span>
+                            <i class="themeMenuIcon fa-solid fa-moon text-xs w-4 text-center text-slate-500 dark:text-indigo-400"></i>
+                            <span class="themeMenuText">Tungi rejim</span>
                         </span>
-                        <i class="theme-check-light fa-solid fa-check text-xs text-slate-900 dark:text-white hidden"></i>
-                    </button>
-
-                    <!-- Tungi rejim -->
-                    <button type="button" 
-                            onclick="setAppTheme('dark')" 
-                            class="theme-opt-dark w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition">
-                        <span class="flex items-center gap-2.5">
-                            <i class="fa-solid fa-moon text-indigo-400 text-xs w-4 text-center"></i>
-                            <span>Tungi rejim</span>
-                        </span>
-                        <i class="theme-check-dark fa-solid fa-check text-xs text-slate-900 dark:text-white hidden"></i>
+                        <!-- Toggle Switch Pill -->
+                        <div class="w-9 h-5 rounded-full bg-slate-300 dark:bg-indigo-600 p-0.5 transition-colors relative flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-white shadow-xs transform transition-transform duration-200 ease-in-out translate-x-0 dark:translate-x-4 flex items-center justify-center">
+                                <i class="fa-solid fa-sun text-[8px] text-amber-500 dark:hidden"></i>
+                                <i class="fa-solid fa-moon text-[8px] text-indigo-600 hidden dark:inline"></i>
+                            </div>
+                        </div>
                     </button>
                 </div>
 
@@ -351,27 +346,25 @@
                     </p>
                 </div>
 
-                <div class="space-y-0.5">
+                <!-- Theme / Rejim Toggle Switch Button -->
+                <div class="space-y-1">
                     <span class="px-2.5 pt-1 text-[9px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold block">Rejim</span>
                     
                     <button type="button" 
-                            onclick="setAppTheme('light')" 
-                            class="theme-opt-light w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition">
+                            onclick="handleThemeToggle()" 
+                            class="w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition group"
+                            title="Mavzuni almashtirish (Kunduzgi / Tungi)">
                         <span class="flex items-center gap-2.5">
-                            <i class="fa-solid fa-sun text-amber-500 text-xs w-4 text-center"></i>
-                            <span>Kunduzgi rejim</span>
+                            <i class="themeMenuIcon fa-solid fa-moon text-xs w-4 text-center text-slate-500 dark:text-indigo-400"></i>
+                            <span class="themeMenuText">Tungi rejim</span>
                         </span>
-                        <i class="theme-check-light fa-solid fa-check text-xs text-slate-900 dark:text-white hidden"></i>
-                    </button>
-
-                    <button type="button" 
-                            onclick="setAppTheme('dark')" 
-                            class="theme-opt-dark w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition">
-                        <span class="flex items-center gap-2.5">
-                            <i class="fa-solid fa-moon text-indigo-400 text-xs w-4 text-center"></i>
-                            <span>Tungi rejim</span>
-                        </span>
-                        <i class="theme-check-dark fa-solid fa-check text-xs text-slate-900 dark:text-white hidden"></i>
+                        <!-- Toggle Switch Pill -->
+                        <div class="w-9 h-5 rounded-full bg-slate-300 dark:bg-indigo-600 p-0.5 transition-colors relative flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-white shadow-xs transform transition-transform duration-200 ease-in-out translate-x-0 dark:translate-x-4 flex items-center justify-center">
+                                <i class="fa-solid fa-sun text-[8px] text-amber-500 dark:hidden"></i>
+                                <i class="fa-solid fa-moon text-[8px] text-indigo-600 hidden dark:inline"></i>
+                            </div>
+                        </div>
                     </button>
                 </div>
 
@@ -448,40 +441,26 @@
         }
     }
 
-    function setAppTheme(theme) {
-        if (theme === 'dark') {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('lumos_theme', 'dark');
+    function handleThemeToggle() {
+        if (typeof toggleDarkMode === 'function') {
+            toggleDarkMode();
         } else {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('lumos_theme', 'light');
-        }
-        if (typeof updateThemeIcons === 'function') {
-            updateThemeIcons();
+            var isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('lumos_theme', isDark ? 'dark' : 'light');
         }
         syncThemeMenuChecks();
     }
 
     function syncThemeMenuChecks() {
         var isDark = document.documentElement.classList.contains('dark');
-        document.querySelectorAll('.theme-check-dark').forEach(function(el) {
-            el.classList.toggle('hidden', !isDark);
+        document.querySelectorAll('.themeMenuText').forEach(function(el) {
+            el.textContent = isDark ? 'Tungi rejim' : 'Kunduzgi rejim';
         });
-        document.querySelectorAll('.theme-check-light').forEach(function(el) {
-            el.classList.toggle('hidden', isDark);
-        });
-        document.querySelectorAll('.theme-opt-dark').forEach(function(el) {
+        document.querySelectorAll('.themeMenuIcon').forEach(function(el) {
             if (isDark) {
-                el.classList.add('bg-slate-100', 'dark:bg-[#262626]', 'font-bold');
+                el.className = 'themeMenuIcon fa-solid fa-moon text-xs w-4 text-center text-indigo-400';
             } else {
-                el.classList.remove('bg-slate-100', 'dark:bg-[#262626]', 'font-bold');
-            }
-        });
-        document.querySelectorAll('.theme-opt-light').forEach(function(el) {
-            if (!isDark) {
-                el.classList.add('bg-slate-100', 'dark:bg-[#262626]', 'font-bold');
-            } else {
-                el.classList.remove('bg-slate-100', 'dark:bg-[#262626]', 'font-bold');
+                el.className = 'themeMenuIcon fa-solid fa-sun text-xs w-4 text-center text-amber-500';
             }
         });
     }

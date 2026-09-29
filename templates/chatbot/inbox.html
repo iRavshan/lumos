@@ -1,7 +1,7 @@
 {% extends 'shared/_base.html' %}
 {% load static %}
 
-{% block title %}Mijozlar & CRM Chatlar - {{ business.name }}{% endblock %}
+{% block title %}Mijozlar & chatlar - {{ business.name }}{% endblock %}
 
 {% block content %}
 <style>
@@ -36,7 +36,7 @@
                 <span class="w-8 h-8 rounded-xl bg-[#0A0A0A] dark:bg-[#F5F1E8] text-white dark:text-[#0A0A0A] flex items-center justify-center text-xs shrink-0">
                     <i class="fa-solid fa-address-book"></i>
                 </span>
-                <span>Mijozlar va CRM Chatlar</span>
+                <span>Mijozlar va chatlar</span>
             </h1>
             <p class="text-slate-500 dark:text-slate-400 text-xs mt-1.5">Vebsayt vidjeti va Telegram botdan kelgan barcha mijozlar, lidlar ma'lumotlari va jonli suhbatlar boshqaruvi</p>
         </div>
@@ -98,8 +98,7 @@
             <table class="w-full text-left border-collapse" id="crmCustomersTable">
                 <thead>
                     <tr class="border-b border-[#E7E5E1] dark:border-[#262626] bg-slate-50/70 dark:bg-[#1A1A1A] text-[11px] uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 select-none">
-                        <th class="py-3.5 px-4 sm:px-6">Mijoz & Manba</th>
-                        <th class="py-3.5 px-4">Aloqa</th>
+                        <th class="py-3.5 px-4 sm:px-6">Mijoz</th>
                         <th class="py-3.5 px-4 sm:px-6 text-right">Amallar</th>
                     </tr>
                 </thead>
@@ -131,33 +130,23 @@
                                         </div>
                                         <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 flex items-center gap-2">
                                             <span>{{ s.created_at|date:"d.m.Y H:i" }}</span>
+                                            {% if s.visitor_phone %}
+                                            <span class="text-slate-300 dark:text-zinc-600">•</span>
+                                            <a href="tel:{{ s.visitor_phone }}" class="hover:text-slate-700 dark:hover:text-slate-300 transition">{{ s.visitor_phone }}</a>
+                                            {% elif s.visitor_email %}
+                                            <span class="text-slate-300 dark:text-zinc-600">•</span>
+                                            <span class="truncate max-w-[130px]">{{ s.visitor_email }}</span>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
-                            </td>
-
-                            <!-- 2. Contact Info -->
-                            <td class="py-3.5 px-4 whitespace-nowrap">
-                                {% if s.visitor_phone %}
-                                    <a href="tel:{{ s.visitor_phone }}" class="inline-flex items-center gap-1.5 font-semibold text-slate-800 dark:text-[#F5F1E8] hover:text-emerald-600 dark:hover:text-emerald-400 transition" title="Qo'ng'iroq qilish">
-                                        <i class="fa-solid fa-phone text-emerald-500 text-[11px]"></i>
-                                        <span>{{ s.visitor_phone }}</span>
-                                    </a>
-                                {% elif s.visitor_email %}
-                                    <a href="mailto:{{ s.visitor_email }}" class="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition truncate max-w-[160px]">
-                                        <i class="fa-solid fa-envelope text-indigo-500 text-[11px]"></i>
-                                        <span class="truncate">{{ s.visitor_email }}</span>
-                                    </a>
-                                {% else %}
-                                    <span class="text-slate-400 dark:text-slate-500 italic text-[11px]">Kiritilmagan</span>
-                                {% endif %}
                             </td>
 
                             <!-- 3. Actions (Chat Icon & Edit) -->
                             <td class="py-3.5 px-4 sm:px-6 text-right whitespace-nowrap">
                                 <div class="flex items-center justify-end gap-1.5">
                                     <!-- Chat Button (Opens Pop-up Modal) -->
-                                    <a href="{% url 'chatbot:inbox_detail' s.session_id %}?channel={{ channel_filter }}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                                    <a href="{% url 'chatbot:inbox_detail' s.session_id %}?channel={{ channel_filter }}{% if search_query %}&q={{ search_query }}{% endif %}{% if sessions.number > 1 %}&page={{ sessions.number }}{% endif %}" 
                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] dark:hover:bg-white shadow-2xs transition"
                                        title="Mijoz bilan chatni ochish">
                                         <i class="fa-solid fa-comments text-xs"></i>
@@ -187,7 +176,7 @@
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="3" class="py-12 px-6 text-center text-slate-400 dark:text-slate-500">
+                            <td colspan="2" class="py-12 px-6 text-center text-slate-400 dark:text-slate-500">
                                 <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-[#1E1E1E] text-slate-400 flex items-center justify-center text-xl mx-auto mb-3">
                                     <i class="fa-solid fa-folder-open"></i>
                                 </div>
@@ -199,6 +188,70 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination Controls -->
+        {% if sessions.paginator.count > 0 %}
+        <div class="px-4 sm:px-6 py-3.5 border-t border-[#E7E5E1] dark:border-[#262626] bg-slate-50/50 dark:bg-[#171717] flex flex-col sm:flex-row items-center justify-between gap-3 select-none">
+            <!-- Count Info -->
+            <div class="text-xs text-slate-500 dark:text-slate-400">
+                Jami <span class="font-bold text-slate-800 dark:text-[#F5F1E8]">{{ sessions.paginator.count }}</span> tadan 
+                <span class="font-bold text-slate-800 dark:text-[#F5F1E8]">{{ sessions.start_index }}-{{ sessions.end_index }}</span> ko'rsatilmoqda
+            </div>
+
+            <!-- Page Navigation Buttons -->
+            {% if sessions.paginator.num_pages > 1 %}
+            <div class="flex items-center gap-1.5">
+                <!-- Previous Page Button -->
+                {% if sessions.has_previous %}
+                <a href="?page={{ sessions.previous_page_number }}{% if channel_filter and channel_filter != 'all' %}&channel={{ channel_filter }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                   class="px-3 py-1.5 rounded-xl bg-white dark:bg-[#1E1E1E] hover:bg-slate-100 dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626] text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition"
+                   title="Oldingi sahifa">
+                    <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                    <span class="hidden sm:inline">Oldingi</span>
+                </a>
+                {% else %}
+                <span class="px-3 py-1.5 rounded-xl bg-slate-100/60 dark:bg-[#141414] text-slate-400 dark:text-slate-600 border border-[#E7E5E1]/60 dark:border-[#262626]/60 text-xs font-semibold flex items-center gap-1.5 cursor-not-allowed opacity-60">
+                    <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                    <span class="hidden sm:inline">Oldingi</span>
+                </span>
+                {% endif %}
+
+                <!-- Page numbers -->
+                <div class="flex items-center gap-1">
+                    {% for p in page_range %}
+                        {% if p == sessions.paginator.ELLIPSIS %}
+                            <span class="w-8 h-8 flex items-center justify-center text-slate-400 dark:text-slate-600 text-xs">...</span>
+                        {% elif p == sessions.number %}
+                            <span class="w-8 h-8 rounded-xl bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] font-bold text-xs flex items-center justify-center shadow-2xs">
+                                {{ p }}
+                            </span>
+                        {% else %}
+                            <a href="?page={{ p }}{% if channel_filter and channel_filter != 'all' %}&channel={{ channel_filter }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+                               class="w-8 h-8 rounded-xl bg-white dark:bg-[#1E1E1E] hover:bg-slate-100 dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626] font-medium text-xs flex items-center justify-center shadow-2xs transition">
+                                {{ p }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <!-- Next Page Button -->
+                {% if sessions.has_next %}
+                <a href="?page={{ sessions.next_page_number }}{% if channel_filter and channel_filter != 'all' %}&channel={{ channel_filter }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                   class="px-3 py-1.5 rounded-xl bg-white dark:bg-[#1E1E1E] hover:bg-slate-100 dark:hover:bg-[#262626] text-slate-700 dark:text-slate-300 border border-[#E7E5E1] dark:border-[#262626] text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition"
+                   title="Keyingi sahifa">
+                    <span class="hidden sm:inline">Keyingi</span>
+                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </a>
+                {% else %}
+                <span class="px-3 py-1.5 rounded-xl bg-slate-100/60 dark:bg-[#141414] text-slate-400 dark:text-slate-600 border border-[#E7E5E1]/60 dark:border-[#262626]/60 text-xs font-semibold flex items-center gap-1.5 cursor-not-allowed opacity-60">
+                    <span class="hidden sm:inline">Keyingi</span>
+                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
 
 </div>
@@ -262,10 +315,10 @@
             </div>
 
             <!-- Sessions List -->
-            <div class="flex-1 overflow-y-auto divide-y divide-[#E7E5E1] dark:divide-[#262626]" id="sessionsListContainer">
+            <div class="flex-1 overflow-y-auto divide-y divide-[#E7E5E1] dark:divide-[#262626]" id="popupSessionsListContainer">
                 {% if sessions %}
                     {% for s in sessions %}
-                    <a href="{% url 'chatbot:inbox_detail' s.session_id %}?channel={{ channel_filter }}{% if search_query %}&q={{ search_query }}{% endif %}" data-session-id="{{ s.session_id }}" class="session-link-item block p-3.5 transition duration-150 relative hover:bg-white dark:hover:bg-[#141414] {% if active_session and active_session.session_id == s.session_id %}bg-white dark:bg-[#141414] shadow-xs border-l-4 border-[#0A0A0A] dark:border-[#F5F1E8]{% endif %}">
+                    <a href="{% url 'chatbot:inbox_detail' s.session_id %}?channel={{ channel_filter }}{% if search_query %}&q={{ search_query }}{% endif %}{% if sessions.number > 1 %}&page={{ sessions.number }}{% endif %}" data-session-id="{{ s.session_id }}" class="session-link-item block p-3.5 transition duration-150 relative hover:bg-white dark:hover:bg-[#141414] {% if active_session and active_session.session_id == s.session_id %}bg-white dark:bg-[#141414] shadow-xs border-l-4 border-[#0A0A0A] dark:border-[#F5F1E8]{% endif %}">
                         <div class="flex items-center justify-between gap-2.5">
                             <div class="flex items-center space-x-2.5 min-w-0">
                                 <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#1E1E1E] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center font-bold text-xs shrink-0">
@@ -629,7 +682,7 @@
         <div class="flex items-center justify-between border-b border-[#E7E5E1] dark:border-[#262626] pb-3 mb-4">
             <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-base flex items-center gap-2">
                 <i class="fa-solid fa-user-pen text-sm"></i>
-                <span>Mijoz Ma'lumotlarini Tahrirlash</span>
+                <span>Mijoz ma'lumotlarini tahrirlash</span>
             </h3>
             <button type="button" onclick="document.getElementById('editLeadModal').classList.add('hidden')" class="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 text-xl font-bold">&times;</button>
         </div>
@@ -645,21 +698,6 @@
             <div>
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Telefon raqami</label>
                 <input type="text" name="visitor_phone" id="edit_visitor_phone" value="{{ active_session.visitor_phone|default:'' }}" placeholder="+998 90 123 45 67" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Email manzili</label>
-                <input type="email" name="visitor_email" id="edit_visitor_email" value="{{ active_session.visitor_email|default:'' }}" placeholder="mijoz@example.com" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">CRM Holati (Status)</label>
-                <select name="status" id="edit_status" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] text-xs focus:ring-2 focus:ring-slate-300 dark:focus:ring-zinc-700 focus:bg-white dark:focus:bg-[#141414] outline-none font-medium transition">
-                    <option value="new" {% if active_session and active_session.status == 'new' %}selected{% endif %}>Yangi</option>
-                    <option value="in_progress" {% if active_session and active_session.status == 'in_progress' %}selected{% endif %}>Jarayonda</option>
-                    <option value="completed" {% if active_session and active_session.status == 'completed' %}selected{% endif %}>Yakunlangan</option>
-                    <option value="archived" {% if active_session and active_session.status == 'archived' %}selected{% endif %}>Arxiv</option>
-                </select>
             </div>
 
             <div>
@@ -765,7 +803,7 @@
     // Client-side quick filter for popup sessions list
     function filterPopupSessionsList(query) {
         const q = (query || '').toLowerCase().trim();
-        const items = document.querySelectorAll('#sessionsListContainer .session-link-item');
+        const items = document.querySelectorAll('#popupSessionsListContainer .session-link-item');
         items.forEach(item => {
             const text = item.textContent.toLowerCase();
             if (!q || text.includes(q)) {
@@ -861,14 +899,12 @@
         if (form) {
             form.action = `/dashboard/inbox/${sessionId}/update/`;
         }
-        document.getElementById('edit_visitor_name').value = name || '';
-        document.getElementById('edit_visitor_phone').value = phone || '';
-        document.getElementById('edit_visitor_email').value = email || '';
-        const statusSelect = document.getElementById('edit_status');
-        if (statusSelect) {
-            statusSelect.value = status || 'new';
-        }
-        document.getElementById('edit_notes').value = notes || '';
+        const nameEl = document.getElementById('edit_visitor_name');
+        if (nameEl) nameEl.value = name || '';
+        const phoneEl = document.getElementById('edit_visitor_phone');
+        if (phoneEl) phoneEl.value = phone || '';
+        const notesEl = document.getElementById('edit_notes');
+        if (notesEl) notesEl.value = notes || (typeof status === 'string' && status !== 'new' && status !== 'in_progress' && status !== 'completed' && status !== 'archived' ? status : '') || '';
         document.getElementById('editLeadModal').classList.remove('hidden');
     }
 
