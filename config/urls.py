@@ -16,6 +16,7 @@ urlpatterns = [
     path('', include('apps.businesses.urls', namespace='businesses')),
     path('', include('apps.chatbot.urls', namespace='chatbot')),
     path('', include('apps.team.urls', namespace='team')),
+    path('dashboard/knowledge/', include('apps.knowledge.urls', namespace='knowledge')),
     path('humans.txt', TemplateView.as_view(template_name='humans.txt', content_type='text/plain')),
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
     path('llms.txt', TemplateView.as_view(template_name='llms.txt', content_type='text/plain')),

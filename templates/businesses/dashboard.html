@@ -238,5 +238,238 @@
         </div>
     </div>
 
+    <!-- Bilimlar Bazasi Sinxronizatsiya Paneli -->
+    <div class="bg-gradient-to-br from-amber-50/60 via-orange-50/30 to-white dark:from-amber-950/20 dark:via-[#181818] dark:to-[#141414] rounded-2xl p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-xl bg-white dark:bg-[#222] border border-[#E7E5E1] dark:border-[#262626] flex items-center justify-center text-sm shadow-2xs">
+                    <i class="fa-solid fa-brain text-amber-600 dark:text-amber-400"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm">Bilimlar Bazasi</h3>
+                    <p class="text-[11px] text-slate-400 font-mono">
+                        {% if business.domain and business.telegram_username %}
+                            {{ business.domain }} • @{{ business.telegram_username }}
+                        {% elif business.domain %}
+                            {{ business.domain }}
+                        {% elif business.telegram_username %}
+                            Telegram: @{{ business.telegram_username }}
+                        {% else %}
+                            Manba kiritilmagan
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <button id="syncNowBtn" onclick="startKnowledgeSync()" 
+                    {% if not business.website and not business.telegram %}disabled{% endif %}
+                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:hover:bg-white dark:text-[#0A0A0A] text-white font-bold text-xs shadow-xs transition disabled:opacity-40 disabled:cursor-not-allowed">
+                <i id="syncBtnIcon" class="fa-solid fa-arrows-rotate text-[10px]"></i>
+                <span id="syncBtnText">Hoziroq sinxronlash</span>
+            </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-3 gap-2 text-center mb-4">
+            <div class="bg-white/70 dark:bg-[#141414]/70 rounded-xl p-2.5 border border-[#E7E5E1] dark:border-[#262626]">
+                <div class="text-sm font-extrabold text-slate-900 dark:text-[#F5F1E8]" id="statPages">{{ knowledge_unique_pages }}</div>
+                <div class="text-[10px] text-slate-400">Sahifalar</div>
+            </div>
+            <div class="bg-white/70 dark:bg-[#141414]/70 rounded-xl p-2.5 border border-[#E7E5E1] dark:border-[#262626]">
+                <div class="text-sm font-extrabold text-slate-900 dark:text-[#F5F1E8]" id="statChunks">{{ knowledge_total_chunks }}</div>
+                <div class="text-[10px] text-slate-400">Chunklar</div>
+            </div>
+            <div class="bg-white/70 dark:bg-[#141414]/70 rounded-xl p-2.5 border border-[#E7E5E1] dark:border-[#262626]">
+                <div class="text-sm font-extrabold text-slate-900 dark:text-[#F5F1E8]" id="statStatus">
+                    {% if last_sync %}
+                        {% if last_sync.status == 'success' %}
+                            <span class="text-emerald-600 dark:text-emerald-400">✓</span>
+                        {% elif last_sync.status == 'running' %}
+                            <span class="text-amber-500">⏳</span>
+                        {% elif last_sync.status == 'failed' %}
+                            <span class="text-rose-500">✗</span>
+                        {% else %}
+                            <span class="text-slate-400">—</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-slate-400">—</span>
+                    {% endif %}
+                </div>
+                <div class="text-[10px] text-slate-400">Holat</div>
+            </div>
+        </div>
+
+        <!-- Last Sync Info -->
+        <div class="flex items-center justify-between text-[11px] text-slate-400 pt-3 border-t border-[#E7E5E1]/80 dark:border-[#262626]">
+            <div id="syncStatusText">
+                {% if last_sync %}
+                    {% if last_sync.status == 'success' %}
+                        <span class="text-emerald-600 dark:text-emerald-400 font-semibold">
+                            <i class="fa-solid fa-circle-check mr-1"></i>
+                            {{ last_sync.pages_scraped }} sahifa, {{ last_sync.chunks_stored }} chunk yangilandi
+                        </span>
+                    {% elif last_sync.status == 'running' %}
+                        <span class="text-amber-500 font-semibold">
+                            <i class="fa-solid fa-spinner fa-spin mr-1"></i>
+                            Sinxronizatsiya jarayonda...
+                        </span>
+                    {% elif last_sync.status == 'failed' %}
+                        <span class="text-rose-500 font-semibold">
+                            <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+                            Xatolik yuz berdi
+                        </span>
+                    {% elif last_sync.status == 'no_data' %}
+                        <span class="text-slate-400 font-semibold">
+                            <i class="fa-solid fa-info-circle mr-1"></i>
+                            Ma'lumot topilmadi
+                        </span>
+                    {% endif %}
+                {% else %}
+                    <span>Hali sinxronlanmagan</span>
+                {% endif %}
+            </div>
+            <div id="syncTimeText">
+                {% if last_sync and last_sync.completed_at %}
+                    {{ last_sync.completed_at|timesince }} oldin
+                {% elif last_sync and last_sync.status == 'running' %}
+                    Hozir jarayonda
+                {% else %}
+                    —
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
 </div>
+
+<script>
+const SYNC_URL = "{% url 'knowledge:sync' %}";
+const STATUS_URL = "{% url 'knowledge:sync_status' %}";
+const CSRF_TOKEN = "{{ csrf_token }}";
+let syncPollingInterval = null;
+
+function startKnowledgeSync() {
+    const btn = document.getElementById('syncNowBtn');
+    const icon = document.getElementById('syncBtnIcon');
+    const text = document.getElementById('syncBtnText');
+    
+    btn.disabled = true;
+    icon.classList.add('fa-spin');
+    text.textContent = 'Sinxronlanmoqda...';
+
+    fetch(SYNC_URL, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': CSRF_TOKEN,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'started') {
+            updateStatusUI('running');
+            startPolling();
+        } else if (data.status === 'already_running') {
+            updateStatusUI('running');
+            startPolling();
+        } else {
+            btn.disabled = false;
+            icon.classList.remove('fa-spin');
+            text.textContent = 'Hoziroq sinxronlash';
+            if (data.error) {
+                document.getElementById('syncStatusText').innerHTML = 
+                    `<span class="text-rose-500 font-semibold"><i class="fa-solid fa-triangle-exclamation mr-1"></i>${data.error}</span>`;
+            }
+        }
+    })
+    .catch(() => {
+        btn.disabled = false;
+        icon.classList.remove('fa-spin');
+        text.textContent = 'Hoziroq sinxronlash';
+    });
+}
+
+function startPolling() {
+    if (syncPollingInterval) clearInterval(syncPollingInterval);
+    syncPollingInterval = setInterval(checkSyncStatus, 3000);
+}
+
+function checkSyncStatus() {
+    fetch(STATUS_URL)
+    .then(r => r.json())
+    .then(data => {
+        // Statistikani yangilash
+        document.getElementById('statPages').textContent = data.unique_pages;
+        document.getElementById('statChunks').textContent = data.total_chunks;
+
+        if (data.last_sync) {
+            const sync = data.last_sync;
+            
+            if (sync.status === 'running') {
+                updateStatusUI('running');
+            } else {
+                // Sync tugadi — pollingni to'xtatish
+                if (syncPollingInterval) {
+                    clearInterval(syncPollingInterval);
+                    syncPollingInterval = null;
+                }
+
+                const btn = document.getElementById('syncNowBtn');
+                const icon = document.getElementById('syncBtnIcon');
+                const text = document.getElementById('syncBtnText');
+                btn.disabled = false;
+                icon.classList.remove('fa-spin');
+                text.textContent = 'Hoziroq sinxronlash';
+
+                if (sync.status === 'success') {
+                    updateStatusUI('success', sync);
+                    document.getElementById('statStatus').innerHTML = 
+                        '<span class="text-emerald-600 dark:text-emerald-400">✓</span>';
+                } else if (sync.status === 'failed') {
+                    updateStatusUI('failed');
+                    document.getElementById('statStatus').innerHTML = 
+                        '<span class="text-rose-500">✗</span>';
+                } else if (sync.status === 'no_data') {
+                    updateStatusUI('no_data');
+                    document.getElementById('statStatus').innerHTML = 
+                        '<span class="text-slate-400">—</span>';
+                }
+            }
+        }
+    })
+    .catch(() => {});
+}
+
+function updateStatusUI(status, syncData) {
+    const statusText = document.getElementById('syncStatusText');
+    const timeText = document.getElementById('syncTimeText');
+    
+    if (status === 'running') {
+        statusText.innerHTML = '<span class="text-amber-500 font-semibold"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Sinxronizatsiya jarayonda...</span>';
+        timeText.textContent = 'Hozir jarayonda';
+        document.getElementById('statStatus').innerHTML = '<span class="text-amber-500">⏳</span>';
+    } else if (status === 'success' && syncData) {
+        statusText.innerHTML = `<span class="text-emerald-600 dark:text-emerald-400 font-semibold"><i class="fa-solid fa-circle-check mr-1"></i>${syncData.pages_scraped} sahifa, ${syncData.chunks_stored} chunk yangilandi</span>`;
+        timeText.textContent = 'Hozirgina';
+    } else if (status === 'failed') {
+        statusText.innerHTML = '<span class="text-rose-500 font-semibold"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Xatolik yuz berdi</span>';
+        timeText.textContent = 'Hozirgina';
+    } else if (status === 'no_data') {
+        statusText.innerHTML = '<span class="text-slate-400 font-semibold"><i class="fa-solid fa-info-circle mr-1"></i>Ma\'lumot topilmadi</span>';
+        timeText.textContent = 'Hozirgina';
+    }
+}
+
+// Sahifa yuklanganda jarayondagi sync bormi tekshirish
+{% if last_sync and last_sync.status == 'running' %}
+    document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('syncNowBtn');
+        const icon = document.getElementById('syncBtnIcon');
+        const text = document.getElementById('syncBtnText');
+        btn.disabled = true;
+        icon.classList.add('fa-spin');
+        text.textContent = 'Sinxronlanmoqda...';
+        startPolling();
+    });
+{% endif %}
+</script>
 {% endblock %}

@@ -206,3 +206,73 @@ def scrape_website(url, max_pages=MAX_PAGES):
                 sum(len(r['chunks']) for r in results))
 
     return results
+
+
+def scrape_telegram_channel(telegram_input):
+    """
+    Ommaviy Telegram kanalidagi so'nggi xabarlarni (t.me/s/...) web preview orqali scrape qiladi.
+
+    Args:
+        telegram_input: Telegram username yoki URL (masalan: '@kanal', 'https://t.me/kanal', 'kanal')
+
+    Returns:
+        list[dict]: [{'url': '...', 'title': '...', 'chunks': [...]}]
+    """
+    if not telegram_input:
+        return []
+
+    # Username tozalash
+    username = str(telegram_input).strip()
+    username = username.replace('https://t.me/s/', '').replace('https://t.me/', '')
+    username = username.replace('http://t.me/s/', '').replace('http://t.me/', '')
+    username = username.replace('@', '').strip('/')
+
+    if not username or '/' in username or ' ' in username:
+        logger.warning("Telegram username noto'g'ri: %s", telegram_input)
+        return []
+
+    channel_preview_url = f"https://t.me/s/{username}"
+    logger.info("Telegram kanal scrape qilinmoqda: %s (%s)", username, channel_preview_url)
+
+    html = _make_request(channel_preview_url)
+    if not html:
+        logger.warning("Telegram kanal yuklanmadi: %s", channel_preview_url)
+        return []
+
+    soup = BeautifulSoup(html, 'html.parser')
+    
+    # Kanal sarlavhasini olish
+    title_el = soup.find('div', class_='tgme_channel_info_header_title')
+    channel_title = title_el.get_text(strip=True) if title_el else f"Telegram: @{username}"
+
+    # Xabarlar matnini yig'ish
+    msg_divs = soup.find_all('div', class_='tgme_widget_message_text')
+    if not msg_divs:
+        logger.info("Telegram kanalda ochiq xabarlar topilmadi: @%s", username)
+        return []
+
+    posts_text = []
+    for div in msg_divs:
+        txt = div.get_text(separator=' ', strip=True)
+        if txt and len(txt.split()) >= 5:  # Juda qisqa bo'lmagan postlar
+            posts_text.append(txt)
+
+    if not posts_text:
+        return []
+
+    # Barcha postlarni bitta matnga yig'ib chunklarga ajratish
+    combined_text = "\n\n---\n\n".join(posts_text)
+    chunks = _chunk_text(combined_text, chunk_size=CHUNK_SIZE, overlap=CHUNK_OVERLAP)
+
+    if not chunks:
+        return []
+
+    logger.info("Telegram kanal scrape yakunlandi: @%s, %d post, %d chunk",
+                username, len(posts_text), len(chunks))
+
+    return [{
+        'url': f"https://t.me/{username}",
+        'title': f"Telegram Kanal: {channel_title}",
+        'chunks': chunks,
+    }]
+

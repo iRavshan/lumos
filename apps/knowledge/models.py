@@ -60,3 +60,74 @@ class BusinessKnowledge(models.Model):
 
     def __str__(self):
         return f"[{self.business.name}] {self.title or self.source_url} (#{self.chunk_index})"
+
+
+class KnowledgeSyncLog(models.Model):
+    """
+    Bilimlar bazasi sinxronizatsiya tarixi.
+    Har bir scrape jarayoni haqida yozuv saqlaydi.
+    """
+    STATUS_CHOICES = [
+        ('running', 'Jarayonda'),
+        ('success', 'Muvaffaqiyatli'),
+        ('failed', 'Xatolik'),
+        ('no_data', 'Ma\'lumot topilmadi'),
+    ]
+
+    business = models.ForeignKey(
+        Business,
+        on_delete=models.CASCADE,
+        related_name='sync_logs',
+        verbose_name="Biznes",
+        db_index=True,
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='running',
+        verbose_name="Holat",
+    )
+    pages_scraped = models.PositiveIntegerField(
+        default=0,
+        verbose_name="Scrape qilingan sahifalar",
+    )
+    chunks_stored = models.PositiveIntegerField(
+        default=0,
+        verbose_name="Saqlangan chunklar soni",
+    )
+    source_url = models.URLField(
+        max_length=500,
+        blank=True,
+        verbose_name="Manba URL",
+    )
+    error_message = models.TextField(
+        blank=True,
+        verbose_name="Xatolik xabari",
+    )
+    duration_seconds = models.FloatField(
+        default=0,
+        verbose_name="Davomiyligi (soniya)",
+    )
+    triggered_by = models.CharField(
+        max_length=30,
+        default='manual',
+        verbose_name="Kim tomonidan",
+        help_text="manual, auto, onboarding",
+    )
+    started_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Boshlangan vaqt",
+    )
+    completed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Tugagan vaqt",
+    )
+
+    class Meta:
+        verbose_name = "Sinxronizatsiya Logi"
+        verbose_name_plural = "Sinxronizatsiya Loglari"
+        ordering = ['-started_at']
+
+    def __str__(self):
+        return f"[{self.business.name}] {self.get_status_display()} — {self.started_at:%Y-%m-%d %H:%M}"

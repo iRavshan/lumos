@@ -124,7 +124,7 @@ def onboarding_view(request):
             if business.website:
                 try:
                     from apps.knowledge.tasks import scrape_and_embed
-                    scrape_and_embed(business)
+                    scrape_and_embed(business, triggered_by='onboarding')
                 except Exception as e:
                     logger.warning("Onboarding scraping xatolik: %s", e)
 
@@ -208,6 +208,19 @@ def dashboard_view(request):
     total_staff = staff_members.filter(is_active=True).count()
     operators_count = staff_members.filter(role='operator', is_active=True).count()
     supervisors_count = staff_members.filter(role='supervisor', is_active=True).count()
+
+    # Bilimlar bazasi sinxronizatsiya holati
+    from apps.knowledge.models import BusinessKnowledge, KnowledgeSyncLog
+
+    knowledge_total_chunks = BusinessKnowledge.objects.filter(business=business).count()
+    knowledge_unique_pages = (
+        BusinessKnowledge.objects
+        .filter(business=business)
+        .values('source_url')
+        .distinct()
+        .count()
+    )
+    last_sync = KnowledgeSyncLog.objects.filter(business=business).first()
     
     context = {
         'business': business,
@@ -220,6 +233,9 @@ def dashboard_view(request):
         'total_staff': total_staff,
         'operators_count': operators_count,
         'supervisors_count': supervisors_count,
+        'knowledge_total_chunks': knowledge_total_chunks,
+        'knowledge_unique_pages': knowledge_unique_pages,
+        'last_sync': last_sync,
     }
     return render(request, 'businesses/dashboard.html', context)
 

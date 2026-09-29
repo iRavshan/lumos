@@ -318,7 +318,7 @@ def agent_settings_view(request):
                 if business.website:
                     try:
                         from apps.knowledge.tasks import scrape_and_embed
-                        scrape_and_embed(business)
+                        scrape_and_embed(business, triggered_by='manual')
                     except Exception:
                         pass
 
