@@ -337,3 +337,141 @@ def feedback_view(request):
     return render(request, 'businesses/feedback.html', {'business': business})
 
 
+@login_required
+def subscription_view(request):
+    if not hasattr(request.user, 'business'):
+        return redirect('businesses:onboarding')
+
+    business = request.user.business
+    chatbot = getattr(business, 'chatbot_config', None)
+
+    from apps.chatbot.models import ChatSession
+    total_chats = ChatSession.objects.filter(business=business).count() if business else 0
+    total_staff = business.staff_members.count() if hasattr(business, 'staff_members') else 0
+
+    plans = [
+        {
+            'name': 'Starter',
+            'tag': 'Boshlang\'ich',
+            'price': "199 000 so'm",
+            'period': '/oy',
+            'description': 'Kichik biznes va yangi loyihalar uchun',
+            'features': [
+                '1 ta Telegram bot integratsiyasi',
+                'Oylik 1 000 ta AI xabar',
+                '10 tagacha bilimlar bazasi sahifasi',
+                '2 ta operator o\'rni',
+                'Standart texnik qo\'llab-quvvatlash',
+            ],
+            'is_current': False,
+            'is_popular': False,
+            'btn_text': 'Tanlash',
+        },
+        {
+            'name': 'Professional',
+            'tag': 'Eng ommabop',
+            'price': "499 000 so'm",
+            'period': '/oy',
+            'description': 'Faol savdo va o\'sayotgan jamoalar uchun',
+            'features': [
+                'Telegram bot + Vebsayt vidjeti',
+                'Oylik 10 000 ta AI xabar',
+                'Cheksiz bilimlar bazasi va avto-skreyping',
+                '10 ta operator + Supervisor nazorati',
+                'Kengaytirilgan mijozlar tahlili va eksport',
+                '24/7 tezkor qo\'llab-quvvatlash',
+            ],
+            'is_current': True,
+            'is_popular': True,
+            'btn_text': 'Joriy tarif',
+        },
+        {
+            'name': 'Enterprise',
+            'tag': 'Korporativ',
+            'price': "1 290 000 so'm",
+            'period': '/oy',
+            'description': 'Yirik korxonalar va maxsus talablar uchun',
+            'features': [
+                'Barcha platformalar (Telegram, Web, CRM API)',
+                'Cheksiz AI xabarlar va so\'rovlar',
+                'Cheksiz jamoa a\'zolari',
+                'Shaxsiy AI model va trening',
+                'Shaxsiy menejer va SLA kafolati',
+                'Maxsus hisobotlar va xavfsizlik protokollari',
+            ],
+            'is_current': False,
+            'is_popular': False,
+            'btn_text': 'Bog\'lanish',
+        },
+    ]
+
+    return render(request, 'businesses/subscription.html', {
+        'business': business,
+        'chatbot': chatbot,
+        'plans': plans,
+        'total_chats': total_chats,
+        'total_staff': total_staff,
+    })
+
+
+@login_required
+def notifications_view(request):
+    if not hasattr(request.user, 'business'):
+        return redirect('businesses:onboarding')
+
+    business = request.user.business
+    chatbot = getattr(business, 'chatbot_config', None)
+
+    from apps.chatbot.models import ChatSession
+    recent_sessions = ChatSession.objects.filter(business=business).order_by('-updated_at')[:8]
+
+    notifications = []
+    for s in recent_sessions:
+        notifications.append({
+            'id': f"chat_{s.id}",
+            'type': 'inbox',
+            'title': f"Yangi mijoz murojaati: {s.display_name}",
+            'desc': f"Mijoz ({s.channel}) orqali bog'landi. CRM holati: {s.crm_status}.",
+            'time': s.updated_at,
+            'icon': 'fa-comments',
+            'icon_bg': 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400',
+            'link': f"/dashboard/inbox/{s.id}/",
+            'is_read': False,
+        })
+
+    notifications.append({
+        'id': 'sys_1',
+        'type': 'system',
+        'title': "Lumos AI bilimlar bazasi yangilandi",
+        'desc': "Biznesingiz vebsayti va ma'lumotlari muvaffaqiyatli indekslandi va vektorlashtirildi.",
+        'time': business.updated_at,
+        'icon': 'fa-brain',
+        'icon_bg': 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400',
+        'link': '/dashboard/chatbot/agent/',
+        'is_read': True,
+    })
+
+    if chatbot and chatbot.telegram_bot_username:
+        notifications.append({
+            'id': 'sys_2',
+            'type': 'telegram',
+            'title': f"Telegram bot @{chatbot.telegram_bot_username} faol",
+            'desc': "Bot mijozlar bilan avtonom muloqot qilishga va xabarlarni qabul qilishga tayyor.",
+            'time': chatbot.updated_at if hasattr(chatbot, 'updated_at') else business.created_at,
+            'icon': 'fa-paper-plane',
+            'icon_bg': 'bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400',
+            'link': '/dashboard/chatbot/telegram/',
+            'is_read': True,
+        })
+
+    unread_count = len([n for n in notifications if not n['is_read']])
+
+    return render(request, 'businesses/notifications.html', {
+        'business': business,
+        'chatbot': chatbot,
+        'notifications': notifications,
+        'unread_count': unread_count,
+    })
+
+
+

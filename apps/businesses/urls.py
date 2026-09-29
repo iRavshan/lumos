@@ -10,6 +10,8 @@ from .views import (
     terms_view,
     privacy_view,
     feedback_view,
+    subscription_view,
+    notifications_view,
 )
 
 app_name = 'businesses'
@@ -19,6 +21,8 @@ urlpatterns = [
     path('dashboard/', dashboard_view, name='dashboard'),
     path('dashboard/edit/', edit_business_view, name='edit'),
     path('dashboard/analytics/', business_analytics_view, name='analytics'),
+    path('dashboard/subscription/', subscription_view, name='subscription'),
+    path('dashboard/notifications/', notifications_view, name='notifications'),
     path('dashboard/help/', help_view, name='help'),
     path('dashboard/feedback/', feedback_view, name='feedback'),
     path('terms/', terms_view, name='terms'),

@@ -1,0 +1,193 @@
+{% extends 'shared/_base.html' %}
+
+{% block title %}Bildirishnomalar - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+    <!-- 1. Header Card -->
+    <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-[#E7E5E1] dark:border-[#262626] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider font-bold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-900/60">
+                    Xabarnomalar Markazi
+                </span>
+                {% if unread_count > 0 %}
+                <span id="unreadHeaderBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/60">
+                    {{ unread_count }} ta o'qilmagan
+                </span>
+                {% endif %}
+            </div>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight flex items-center gap-2.5">
+                <i class="fa-solid fa-bell text-indigo-600 dark:text-indigo-400"></i> Bildirishnomalar
+            </h1>
+            <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1">
+                Mijozlar murojaatlari, tizim xabarlari va AI agentining so'nggi faoliyatlari.
+            </p>
+        </div>
+
+        <div class="flex items-center gap-2.5 shrink-0">
+            <button type="button" 
+                    onclick="markAllAsRead()" 
+                    id="markAllReadBtn"
+                    class="inline-flex items-center px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1E1E1E] dark:hover:bg-[#262626] text-slate-800 dark:text-[#F5F1E8] border border-[#E7E5E1] dark:border-[#262626] font-bold text-xs shadow-xs transition">
+                <i class="fa-solid fa-check-double mr-1.5 text-indigo-600 dark:text-indigo-400"></i> Barchasini o'qilgan deb belgilash
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. Filter Tabs -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-1 border-b border-[#E7E5E1] dark:border-[#262626]">
+        <button type="button" onclick="filterNotifications('all', this)" class="notif-tab px-4 py-2 rounded-xl text-xs font-bold transition bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs">
+            Barchasi
+        </button>
+        <button type="button" onclick="filterNotifications('unread', this)" class="notif-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1E1E1E] transition">
+            O'qilmaganlar
+        </button>
+        <button type="button" onclick="filterNotifications('inbox', this)" class="notif-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1E1E1E] transition">
+            Murojaatlar
+        </button>
+        <button type="button" onclick="filterNotifications('system', this)" class="notif-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1E1E1E] transition">
+            Tizim xabarlari
+        </button>
+    </div>
+
+    <!-- 3. Notifications List -->
+    <div class="space-y-3" id="notificationsContainer">
+        {% for notif in notifications %}
+        <div class="notif-item bg-white dark:bg-[#141414] rounded-2xl p-4 sm:p-5 border border-[#E7E5E1] dark:border-[#262626] shadow-xs flex items-start gap-4 transition-all hover:border-slate-300 dark:hover:border-zinc-700 relative group"
+             data-type="{{ notif.type }}"
+             data-read="{% if notif.is_read %}true{% else %}false{% endif %}">
+            
+            <!-- Type Icon -->
+            <div class="w-10 h-10 rounded-xl {{ notif.icon_bg }} flex items-center justify-center text-sm shrink-0 border border-current/10">
+                <i class="fa-solid {{ notif.icon }}"></i>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 min-w-0 pr-6">
+                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                    <h3 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F5F1E8]">
+                        {{ notif.title }}
+                    </h3>
+                    <span class="text-[10px] font-mono text-slate-400 dark:text-slate-500">
+                        {{ notif.time|timesince }} oldin
+                    </span>
+                    <span class="notif-dot inline-block w-2 h-2 rounded-full bg-indigo-600 dark:bg-indigo-400 {% if notif.is_read %}hidden{% endif %}"></span>
+                </div>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mb-2">
+                    {{ notif.desc }}
+                </p>
+                {% if notif.link %}
+                <a href="{{ notif.link }}" class="inline-flex items-center text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline gap-1">
+                    <span>Batafsil ko'rish</span>
+                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Action: Read Toggle -->
+            <div class="absolute top-4 right-4">
+                <button type="button" 
+                        onclick="toggleReadStatus(this)" 
+                        title="O'qilgan deb belgilash" 
+                        class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1E1E1E] flex items-center justify-center text-xs transition">
+                    <i class="fa-solid fa-check text-[11px]"></i>
+                </button>
+            </div>
+        </div>
+        {% empty %}
+        <div class="bg-white dark:bg-[#141414] rounded-2xl p-10 border border-[#E7E5E1] dark:border-[#262626] text-center">
+            <i class="fa-solid fa-bell-slash text-3xl text-slate-300 dark:text-zinc-600 mb-3 block"></i>
+            <h3 class="text-sm font-bold text-slate-900 dark:text-[#F5F1E8]">Bildirishnomalar mavjud emas</h3>
+            <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Yangi murojaatlar yoki tizim xabarlari kelganda bu yerda ko'rinadi.</p>
+        </div>
+        {% endfor %}
+
+        <!-- Empty state hidden container when filtering -->
+        <div id="filterEmptyState" class="hidden bg-white dark:bg-[#141414] rounded-2xl p-10 border border-[#E7E5E1] dark:border-[#262626] text-center">
+            <i class="fa-solid fa-filter text-3xl text-slate-300 dark:text-zinc-600 mb-3 block"></i>
+            <h3 class="text-sm font-bold text-slate-900 dark:text-[#F5F1E8]">Bu bo'limda xabarnomalar yo'q</h3>
+            <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Boshqa toifadagi xabarnomalarni ko'rish uchun yuqoridagi tablardan birini tanlang.</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function filterNotifications(type, btn) {
+        // Tab buttons styling
+        document.querySelectorAll('.notif-tab').forEach(function(t) {
+            t.className = 'notif-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1E1E1E] transition';
+        });
+        btn.className = 'notif-tab px-4 py-2 rounded-xl text-xs font-bold transition bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-xs';
+
+        var items = document.querySelectorAll('.notif-item');
+        var visibleCount = 0;
+
+        items.forEach(function(item) {
+            var itemType = item.getAttribute('data-type');
+            var isRead = item.getAttribute('data-read') === 'true';
+
+            var show = false;
+            if (type === 'all') {
+                show = true;
+            } else if (type === 'unread') {
+                show = !isRead;
+            } else if (type === itemType) {
+                show = true;
+            }
+
+            if (show) {
+                item.style.display = 'flex';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        var emptyBox = document.getElementById('filterEmptyState');
+        if (emptyBox) {
+            emptyBox.classList.toggle('hidden', visibleCount > 0);
+        }
+    }
+
+    function toggleReadStatus(btn) {
+        var card = btn.closest('.notif-item');
+        if (!card) return;
+        var dot = card.querySelector('.notif-dot');
+        var wasRead = card.getAttribute('data-read') === 'true';
+
+        if (wasRead) {
+            card.setAttribute('data-read', 'false');
+            if (dot) dot.classList.remove('hidden');
+        } else {
+            card.setAttribute('data-read', 'true');
+            if (dot) dot.classList.add('hidden');
+        }
+        updateUnreadHeader();
+    }
+
+    function markAllAsRead() {
+        document.querySelectorAll('.notif-item').forEach(function(card) {
+            card.setAttribute('data-read', 'true');
+            var dot = card.querySelector('.notif-dot');
+            if (dot) dot.classList.add('hidden');
+        });
+        updateUnreadHeader();
+    }
+
+    function updateUnreadHeader() {
+        var unread = document.querySelectorAll('.notif-item[data-read="false"]').length;
+        var badge = document.getElementById('unreadHeaderBadge');
+        if (badge) {
+            if (unread > 0) {
+                badge.textContent = unread + " ta o'qilmagan";
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+    }
+</script>
+{% endblock %}

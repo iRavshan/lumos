@@ -107,6 +107,24 @@
 
         <!-- Settings & Help Group -->
         <div class="sidebar-group-divider space-y-1 pt-3 border-t border-[#EAE8E4] dark:border-[#222222]">
+            <!-- Subscription (Tarif & Obuna) -->
+            <a href="{% url 'businesses:subscription' %}" 
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all group {% if request.resolver_match.url_name == 'subscription' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-sm font-bold{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}"
+               title="Subscription (Tarif & Obuna)">
+                <i class="fa-solid fa-credit-card w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
+                <span class="sidebar-text flex-1">Subscription</span>
+                <span class="sidebar-text px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 leading-none">PRO</span>
+            </a>
+
+            <!-- Bildirishnomalar -->
+            <a href="{% url 'businesses:notifications' %}" 
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all group {% if request.resolver_match.url_name == 'notifications' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-sm font-bold{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}"
+               title="Bildirishnomalar">
+                <i class="fa-solid fa-bell w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
+                <span class="sidebar-text flex-1">Bildirishnomalar</span>
+                <span class="sidebar-text px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-indigo-600 text-white leading-none">3</span>
+            </a>
+
             <!-- Sozlamalar (Yagona tugma) -->
             <a href="{% url 'chatbot:agent_settings' %}" 
                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all group {% if request.resolver_match.url_name in 'agent_settings settings telegram_settings edit' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] shadow-sm font-bold{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}"
@@ -137,18 +155,18 @@
 
                 <!-- Theme / Rejim Toggle Switch Button -->
                 <div class="space-y-1">
-                    <span class="px-2.5 pt-1 text-[9px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold block">Rejim</span>
+                    <span class="px-3 pt-1 text-[9px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold block">Rejim</span>
                     
                     <button type="button" 
                             onclick="handleThemeToggle()" 
-                            class="w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition group"
+                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#222222] transition group"
                             title="Mavzuni almashtirish (Kunduzgi / Tungi)">
-                        <span class="flex items-center gap-2.5">
-                            <i class="themeMenuIcon fa-solid fa-moon text-xs w-4 text-center text-slate-500 dark:text-indigo-400"></i>
+                        <span class="flex items-center gap-3">
+                            <i class="themeMenuIcon fa-solid fa-moon w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
                             <span class="themeMenuText">Tungi rejim</span>
                         </span>
                         <!-- Toggle Switch Pill -->
-                        <div class="w-9 h-5 rounded-full bg-slate-300 dark:bg-indigo-600 p-0.5 transition-colors relative flex items-center">
+                        <div class="w-9 h-5 rounded-full bg-slate-300 dark:bg-indigo-600 p-0.5 transition-colors relative flex items-center shrink-0">
                             <div class="w-4 h-4 rounded-full bg-white shadow-xs transform transition-transform duration-200 ease-in-out translate-x-0 dark:translate-x-4 flex items-center justify-center">
                                 <i class="fa-solid fa-sun text-[8px] text-amber-500 dark:hidden"></i>
                                 <i class="fa-solid fa-moon text-[8px] text-indigo-600 hidden dark:inline"></i>
@@ -162,30 +180,30 @@
 
                 <!-- Yordam markazi -->
                 <a href="{% url 'businesses:help' %}" 
-                   class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition group">
-                    <i class="fa-solid fa-circle-question text-xs w-4 text-center text-indigo-600 dark:text-indigo-400"></i>
+                   class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#222222] transition group">
+                    <i class="fa-solid fa-circle-question w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
                     <span>Yordam</span>
                 </a>
 
                 <!-- Foydalanish shartlari -->
                 <a href="{% url 'businesses:terms' %}" 
-                   class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition group">
-                    <i class="fa-solid fa-file-contract text-xs w-4 text-center text-slate-500 dark:text-slate-400"></i>
+                   class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#222222] transition group">
+                    <i class="fa-solid fa-file-contract w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
                     <span>Foydalanish shartlari</span>
                 </a>
 
                 <!-- Maxfiylik siyosati -->
                 <a href="{% url 'businesses:privacy' %}" 
-                   class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition group">
-                    <i class="fa-solid fa-shield-halved text-xs w-4 text-center text-slate-500 dark:text-slate-400"></i>
+                   class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#222222] transition group">
+                    <i class="fa-solid fa-shield-halved w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
                     <span>Maxfiylik siyosati</span>
                 </a>
 
                 <!-- Feedback -->
                 <button type="button" 
                         onclick="openFeedbackModal()" 
-                        class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition group text-left">
-                    <i class="fa-solid fa-comment-dots text-xs w-4 text-center text-amber-500"></i>
+                        class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#222222] transition group text-left">
+                    <i class="fa-solid fa-comment-dots w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
                     <span>Feedback</span>
                 </button>
 
@@ -194,8 +212,8 @@
 
                 <!-- Chiqish (Logout) -->
                 <a href="{% url 'accounts:logout' %}" 
-                   class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition">
-                    <i class="fa-solid fa-arrow-right-from-bracket text-xs w-4 text-center"></i>
+                   class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition group">
+                    <i class="fa-solid fa-arrow-right-from-bracket w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
                     <span>Chiqish</span>
                 </a>
 
@@ -321,6 +339,20 @@
         </div>
 
         <div class="space-y-1 pt-3 border-t border-[#EAE8E4] dark:border-[#222222]">
+            <a href="{% url 'businesses:subscription' %}" 
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition {% if request.resolver_match.url_name == 'subscription' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}">
+                <i class="fa-solid fa-credit-card w-4 text-center"></i>
+                <span class="flex-1">Subscription</span>
+                <span class="px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 leading-none">PRO</span>
+            </a>
+
+            <a href="{% url 'businesses:notifications' %}" 
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition {% if request.resolver_match.url_name == 'notifications' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}">
+                <i class="fa-solid fa-bell w-4 text-center"></i>
+                <span class="flex-1">Bildirishnomalar</span>
+                <span class="px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-indigo-600 text-white leading-none">3</span>
+            </a>
+
             <a href="{% url 'chatbot:agent_settings' %}" 
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition {% if request.resolver_match.url_name in 'agent_settings settings telegram_settings edit' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}">
                 <i class="fa-solid fa-gear w-4 text-center"></i>
@@ -354,18 +386,18 @@
 
                 <!-- Theme / Rejim Toggle Switch Button -->
                 <div class="space-y-1">
-                    <span class="px-2.5 pt-1 text-[9px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold block">Rejim</span>
+                    <span class="px-3 pt-1 text-[9px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold block">Rejim</span>
                     
                     <button type="button" 
                             onclick="handleThemeToggle()" 
-                            class="w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition group"
+                            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#222222] transition group"
                             title="Mavzuni almashtirish (Kunduzgi / Tungi)">
-                        <span class="flex items-center gap-2.5">
-                            <i class="themeMenuIcon fa-solid fa-moon text-xs w-4 text-center text-slate-500 dark:text-indigo-400"></i>
+                        <span class="flex items-center gap-3">
+                            <i class="themeMenuIcon fa-solid fa-moon w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
                             <span class="themeMenuText">Tungi rejim</span>
                         </span>
                         <!-- Toggle Switch Pill -->
-                        <div class="w-9 h-5 rounded-full bg-slate-300 dark:bg-indigo-600 p-0.5 transition-colors relative flex items-center">
+                        <div class="w-9 h-5 rounded-full bg-slate-300 dark:bg-indigo-600 p-0.5 transition-colors relative flex items-center shrink-0">
                             <div class="w-4 h-4 rounded-full bg-white shadow-xs transform transition-transform duration-200 ease-in-out translate-x-0 dark:translate-x-4 flex items-center justify-center">
                                 <i class="fa-solid fa-sun text-[8px] text-amber-500 dark:hidden"></i>
                                 <i class="fa-solid fa-moon text-[8px] text-indigo-600 hidden dark:inline"></i>
@@ -378,38 +410,38 @@
 
                 <!-- Yordam markazi -->
                 <a href="{% url 'businesses:help' %}" 
-                   class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition group">
-                    <i class="fa-solid fa-circle-question text-xs w-4 text-center text-indigo-600 dark:text-indigo-400"></i>
+                   class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#222222] transition group">
+                    <i class="fa-solid fa-circle-question w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
                     <span>Yordam</span>
                 </a>
 
                 <!-- Foydalanish shartlari -->
                 <a href="{% url 'businesses:terms' %}" 
-                   class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition group">
-                    <i class="fa-solid fa-file-contract text-xs w-4 text-center text-slate-500 dark:text-slate-400"></i>
+                   class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#222222] transition group">
+                    <i class="fa-solid fa-file-contract w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
                     <span>Foydalanish shartlari</span>
                 </a>
 
                 <!-- Maxfiylik siyosati -->
                 <a href="{% url 'businesses:privacy' %}" 
-                   class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition group">
-                    <i class="fa-solid fa-shield-halved text-xs w-4 text-center text-slate-500 dark:text-slate-400"></i>
+                   class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#222222] transition group">
+                    <i class="fa-solid fa-shield-halved w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
                     <span>Maxfiylik siyosati</span>
                 </a>
 
                 <!-- Feedback -->
                 <button type="button" 
                         onclick="openFeedbackModal()" 
-                        class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#222222] transition group text-left">
-                    <i class="fa-solid fa-comment-dots text-xs w-4 text-center text-amber-500"></i>
+                        class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F5F1E8] hover:bg-slate-100 dark:hover:bg-[#222222] transition group text-left">
+                    <i class="fa-solid fa-comment-dots w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
                     <span>Feedback</span>
                 </button>
 
                 <div class="my-1.5 border-t border-[#EAE8E4] dark:border-[#262626]"></div>
 
                 <a href="{% url 'accounts:logout' %}" 
-                   class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition">
-                    <i class="fa-solid fa-arrow-right-from-bracket text-xs w-4 text-center"></i>
+                   class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition group">
+                    <i class="fa-solid fa-arrow-right-from-bracket w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
                     <span>Chiqish</span>
                 </a>
             </div>
@@ -495,9 +527,9 @@
         });
         document.querySelectorAll('.themeMenuIcon').forEach(function(el) {
             if (isDark) {
-                el.className = 'themeMenuIcon fa-solid fa-moon text-xs w-4 text-center text-indigo-400';
+                el.className = 'themeMenuIcon fa-solid fa-moon w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0';
             } else {
-                el.className = 'themeMenuIcon fa-solid fa-sun text-xs w-4 text-center text-amber-500';
+                el.className = 'themeMenuIcon fa-solid fa-sun w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0';
             }
         });
     }
