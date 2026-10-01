@@ -284,33 +284,29 @@ def business_analytics_view(request):
     })
 
 
-@login_required
 def help_view(request):
-    if not hasattr(request.user, 'business'):
-        return redirect('businesses:onboarding')
-
-    business = request.user.business
-    chatbot = getattr(business, 'chatbot_config', None)
+    business = getattr(request.user, 'business', None) if request.user.is_authenticated else None
+    chatbot = getattr(business, 'chatbot_config', None) if business else None
 
     return render(request, 'businesses/help.html', {
         'business': business,
         'chatbot': chatbot,
+        'no_sidebar': True,
     })
 
 
 def terms_view(request):
     business = getattr(request.user, 'business', None) if request.user.is_authenticated else None
-    return render(request, 'businesses/terms.html', {'business': business})
+    return render(request, 'businesses/terms.html', {'business': business, 'no_sidebar': True})
 
 
 def privacy_view(request):
     business = getattr(request.user, 'business', None) if request.user.is_authenticated else None
-    return render(request, 'businesses/privacy.html', {'business': business})
+    return render(request, 'businesses/privacy.html', {'business': business, 'no_sidebar': True})
 
 
-@login_required
 def feedback_view(request):
-    business = getattr(request.user, 'business', None)
+    business = getattr(request.user, 'business', None) if request.user.is_authenticated else None
     if request.method == 'POST':
         import json
         if request.content_type == 'application/json':
@@ -326,28 +322,29 @@ def feedback_view(request):
             message = request.POST.get('message', '').strip()
             rating = request.POST.get('rating', 5)
 
-        logger.info(f"Feedback from {request.user.username} (biz: {getattr(business, 'name', 'N/A')}): cat={category}, rating={rating}, msg={message}")
+        user_str = request.user.username if request.user.is_authenticated else 'Mehmon'
+        logger.info(f"Feedback from {user_str} (biz: {getattr(business, 'name', 'N/A')}): cat={category}, rating={rating}, msg={message}")
 
         if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json':
             return JsonResponse({'status': 'success', 'message': "Fikr-mulohazangiz muvaffaqiyatli qabul qilindi. Tashakkur!"})
 
         messages.success(request, "Fikr-mulohazangiz muvaffaqiyatli qabul qilindi. Tashakkur!")
-        return redirect('businesses:dashboard')
+        if request.user.is_authenticated:
+            return redirect('businesses:dashboard')
+        return redirect('businesses:feedback')
 
-    return render(request, 'businesses/feedback.html', {'business': business})
+    return render(request, 'businesses/feedback.html', {'business': business, 'no_sidebar': True})
 
 
-@login_required
 def subscription_view(request):
-    if not hasattr(request.user, 'business'):
-        return redirect('businesses:onboarding')
-
-    business = request.user.business
-    chatbot = getattr(business, 'chatbot_config', None)
+    business = getattr(request.user, 'business', None) if request.user.is_authenticated else None
+    chatbot = getattr(business, 'chatbot_config', None) if business else None
 
     from apps.chatbot.models import ChatSession
     total_chats = ChatSession.objects.filter(business=business).count() if business else 0
-    total_staff = business.staff_members.count() if hasattr(business, 'staff_members') else 0
+    total_staff = business.staff_members.count() if hasattr(business, 'staff_members') and business else 0
+
+    has_active_sub = bool(business)
 
     plans = [
         {
@@ -381,9 +378,9 @@ def subscription_view(request):
                 'Kengaytirilgan mijozlar tahlili va eksport',
                 '24/7 tezkor qo\'llab-quvvatlash',
             ],
-            'is_current': True,
+            'is_current': has_active_sub,
             'is_popular': True,
-            'btn_text': 'Joriy tarif',
+            'btn_text': 'Joriy tarif' if has_active_sub else 'Boshlash',
         },
         {
             'name': 'Enterprise',
@@ -414,57 +411,55 @@ def subscription_view(request):
     })
 
 
-@login_required
 def notifications_view(request):
-    if not hasattr(request.user, 'business'):
-        return redirect('businesses:onboarding')
-
-    business = request.user.business
-    chatbot = getattr(business, 'chatbot_config', None)
-
-    from apps.chatbot.models import ChatSession
-    recent_sessions = ChatSession.objects.filter(business=business).order_by('-updated_at')[:8]
+    business = getattr(request.user, 'business', None) if request.user.is_authenticated else None
+    chatbot = getattr(business, 'chatbot_config', None) if business else None
 
     notifications = []
-    for s in recent_sessions:
-        notifications.append({
-            'id': f"chat_{s.id}",
-            'type': 'inbox',
-            'title': f"Yangi mijoz murojaati: {s.display_name}",
-            'desc': f"Mijoz ({s.channel}) orqali bog'landi. CRM holati: {s.crm_status}.",
-            'time': s.updated_at,
-            'icon': 'fa-comments',
-            'icon_bg': 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400',
-            'link': f"/dashboard/inbox/{s.id}/",
-            'is_read': False,
-        })
+    unread_count = 0
+    if business:
+        from apps.chatbot.models import ChatSession
+        recent_sessions = ChatSession.objects.filter(business=business).order_by('-updated_at')[:8]
 
-    notifications.append({
-        'id': 'sys_1',
-        'type': 'system',
-        'title': "Lumos AI bilimlar bazasi yangilandi",
-        'desc': "Biznesingiz vebsayti va ma'lumotlari muvaffaqiyatli indekslandi va vektorlashtirildi.",
-        'time': business.updated_at,
-        'icon': 'fa-brain',
-        'icon_bg': 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400',
-        'link': '/dashboard/chatbot/agent/',
-        'is_read': True,
-    })
+        for s in recent_sessions:
+            notifications.append({
+                'id': f"chat_{s.id}",
+                'type': 'inbox',
+                'title': f"Yangi mijoz murojaati: {s.display_name}",
+                'desc': f"Mijoz ({s.channel}) orqali bog'landi. CRM holati: {s.crm_status}.",
+                'time': s.updated_at,
+                'icon': 'fa-comments',
+                'icon_bg': 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400',
+                'link': f"/dashboard/inbox/{s.id}/",
+                'is_read': False,
+            })
 
-    if chatbot and chatbot.telegram_bot_username:
         notifications.append({
-            'id': 'sys_2',
-            'type': 'telegram',
-            'title': f"Telegram bot @{chatbot.telegram_bot_username} faol",
-            'desc': "Bot mijozlar bilan avtonom muloqot qilishga va xabarlarni qabul qilishga tayyor.",
-            'time': chatbot.updated_at if hasattr(chatbot, 'updated_at') else business.created_at,
-            'icon': 'fa-paper-plane',
-            'icon_bg': 'bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400',
-            'link': '/dashboard/chatbot/telegram/',
+            'id': 'sys_1',
+            'type': 'system',
+            'title': "Lumos AI bilimlar bazasi yangilandi",
+            'desc': "Biznesingiz vebsayti va ma'lumotlari muvaffaqiyatli indekslandi va vektorlashtirildi.",
+            'time': business.updated_at,
+            'icon': 'fa-brain',
+            'icon_bg': 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400',
+            'link': '/dashboard/chatbot/agent/',
             'is_read': True,
         })
 
-    unread_count = len([n for n in notifications if not n['is_read']])
+        if chatbot and chatbot.telegram_bot_username:
+            notifications.append({
+                'id': 'sys_2',
+                'type': 'telegram',
+                'title': f"Telegram bot @{chatbot.telegram_bot_username} faol",
+                'desc': "Bot mijozlar bilan avtonom muloqot qilishga va xabarlarni qabul qilishga tayyor.",
+                'time': chatbot.updated_at if hasattr(chatbot, 'updated_at') else business.created_at,
+                'icon': 'fa-paper-plane',
+                'icon_bg': 'bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400',
+                'link': '/dashboard/chatbot/telegram/',
+                'is_read': True,
+            })
+
+        unread_count = len([n for n in notifications if not n['is_read']])
 
     return render(request, 'businesses/notifications.html', {
         'business': business,

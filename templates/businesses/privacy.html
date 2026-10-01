@@ -7,8 +7,8 @@
 
     <!-- Header Card -->
     <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 sm:p-8 border border-[#E7E5E1] dark:border-[#262626] shadow-xs">
-        <a href="{% url 'businesses:dashboard' %}" class="inline-flex items-center text-xs font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-white mb-3">
-            <i class="fa-solid fa-arrow-left mr-1.5 text-[10px]"></i> Bosh sahifaga qaytish
+        <a href="{% if user.is_authenticated %}{% url 'businesses:dashboard' %}{% else %}{% url 'home' %}{% endif %}" class="inline-flex items-center text-xs font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-white mb-3">
+            <i class="fa-solid fa-arrow-left mr-1.5 text-[10px]"></i> {% if user.is_authenticated %}Boshqaruv paneliga qaytish{% else %}Bosh sahifaga qaytish{% endif %}
         </a>
         <div class="flex items-center gap-2 mb-2">
             <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/60">

@@ -113,7 +113,6 @@
                title="Subscription (Tarif & Obuna)">
                 <i class="fa-solid fa-credit-card w-4 text-center text-xs opacity-80 group-hover:opacity-100 shrink-0"></i>
                 <span class="sidebar-text flex-1">Subscription</span>
-                <span class="sidebar-text px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 leading-none">PRO</span>
             </a>
 
             <!-- Bildirishnomalar -->
@@ -343,7 +342,6 @@
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition {% if request.resolver_match.url_name == 'subscription' %}bg-[#0A0A0A] text-white dark:bg-[#F5F1E8] dark:text-[#0A0A0A] font-bold shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1A1A1A]{% endif %}">
                 <i class="fa-solid fa-credit-card w-4 text-center"></i>
                 <span class="flex-1">Subscription</span>
-                <span class="px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 leading-none">PRO</span>
             </a>
 
             <a href="{% url 'businesses:notifications' %}" 

@@ -52,7 +52,6 @@ class AgentConfigForm(forms.ModelForm):
             'first_message_delay_seconds', 
             'subsequent_message_delay_seconds', 
             'split_messages',
-            'extra_knowledge',
         ]
         widgets = {
             'bot_name': forms.TextInput(attrs={
@@ -83,11 +82,6 @@ class AgentConfigForm(forms.ModelForm):
             'split_messages': forms.CheckboxInput(attrs={
                 'class': 'sr-only peer',
                 'id': 'splitMessagesToggle',
-            }),
-            'extra_knowledge': forms.Textarea(attrs={
-                'class': 'w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 text-xs sm:text-sm',
-                'rows': 5,
-                'placeholder': "Masalan:\n- Ish vaqti: Har kuni 09:00 dan 20:00 gacha\n- Toshkent bo'ylab yetkazib berish: 20 000 so'm yoki 300 000 dan ortiq xaridda bepul\n- Kafolat: 1 yil"
             }),
         }
 

@@ -11,7 +11,7 @@
             <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F5F1E8] tracking-tight flex items-center gap-2">
                 <i class="fa-solid fa-robot text-indigo-600 dark:text-indigo-400"></i> Savdo Agenti Sozlamalari
             </h1>
-            <p class="text-slate-500 dark:text-slate-400 text-xs mt-2">«{{ business.name }}» AI savdo agenti xarakteristikalari, insoniy kechikish va bilimlar bazasini boshqaring</p>
+            <p class="text-slate-500 dark:text-slate-400 text-xs mt-2">«{{ business.name }}» AI savdo agenti xarakteristikalari va insoniy muloqot kechikishini boshqaring</p>
         </div>
 
         <a href="{% url 'chatbot:demo_page' chatbot.api_key %}" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#18181B] dark:bg-[#F5F1E8] dark:text-[#0A0A0A] text-white font-bold text-xs shadow-xs transition shrink-0">
@@ -49,7 +49,6 @@
                         <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm flex items-center">
                             <i class="fa-solid fa-user-tie text-indigo-600 dark:text-indigo-400 mr-2"></i> Agent Shaxsi va Salomlashish
                         </h3>
-                        <span class="text-xs text-slate-400 dark:text-slate-500">Mijozlar ko'radigan ma'lumotlar</span>
                     </div>
 
                     <div>
@@ -71,7 +70,6 @@
                             <label for="{{ form.welcome_message.id_for_label }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                                 <i class="fa-regular fa-comment-dots text-indigo-500 mr-1"></i> Ilk chiqib turadigan xabar (Salomlashish matni) <span class="text-rose-500">*</span>
                             </label>
-                            <span class="text-[11px] text-slate-400 dark:text-slate-500 font-normal">Vidjet va Telegram Bot</span>
                         </div>
                         {{ form.welcome_message }}
                         {% if form.welcome_message.errors %}
@@ -210,43 +208,6 @@
                     </div>
                 </div>
 
-                <!-- Card 4: RAG Bilimlar Bazasi (O'qitish ma'lumotlari) -->
-                <div class="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-[#E7E5E1] dark:border-[#262626] shadow-xs space-y-4">
-                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-[#262626] pb-3">
-                        <h3 class="font-bold text-slate-900 dark:text-[#F5F1E8] text-sm flex items-center">
-                            <i class="fa-solid fa-brain text-indigo-600 dark:text-indigo-400 mr-2"></i> AI Bilimlar Bazasi va Maxsus FAQ
-                        </h3>
-                    </div>
-
-                    <!-- Website URL -->
-                    <div>
-                        <label for="websiteInput" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                            <i class="fa-solid fa-globe mr-1 text-indigo-500"></i> Vebsayt havolasi
-                        </label>
-                        <input type="url" name="website" id="websiteInput" 
-                            value="{{ business.website|default:'' }}"
-                            placeholder="https://misol.uz"
-                            class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-slate-50 dark:bg-[#1E1E1E] text-slate-900 dark:text-[#F5F1E8] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition duration-200 text-sm">
-                        <p class="text-slate-400 dark:text-slate-500 text-xs mt-1.5">
-                            Agent ushbu saytdagi sahifalar, xizmatlar va mahsulotlarni o'rganib oladi.
-                        </p>
-                    </div>
-
-                    <!-- Extra Knowledge / FAQ -->
-                    <div>
-                        <label for="{{ form.extra_knowledge.id_for_label }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                            <i class="fa-solid fa-file-lines mr-1 text-indigo-500"></i> Maxsus narxlar, qoidalar va tez-tez beriladigan savollar
-                        </label>
-                        {{ form.extra_knowledge }}
-                        {% if form.extra_knowledge.errors %}
-                            <p class="text-rose-500 text-xs mt-1">{{ form.extra_knowledge.errors.0 }}</p>
-                        {% endif %}
-                        <p class="text-slate-400 dark:text-slate-500 text-xs mt-1.5">
-                            Ish vaqti, yetkazib berish shartlari, to'lov usullari va kafolatlar haqida yozing. Bot mijozlar so'raganda ushbu ma'lumotlar asosida aniq javob beradi.
-                        </p>
-                    </div>
-                </div>
-
                 <!-- Action Buttons -->
                 <div class="bg-white dark:bg-[#141414] rounded-2xl p-4 border border-[#E7E5E1] dark:border-[#262626] shadow-xs flex items-center justify-between">
                     <a href="{% url 'businesses:dashboard' %}" class="px-5 py-2.5 rounded-xl border border-[#E7E5E1] dark:border-[#262626] text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-50 dark:hover:bg-[#1E1E1E] transition">
@@ -315,7 +276,7 @@
                         </div>
                         <div class="flex items-start space-x-2">
                             <i class="fa-solid fa-check text-emerald-600 dark:text-emerald-400 mt-0.5 text-xs"></i>
-                            <span>Bilimlar bazasiga tez-tez so'raladigan narx va yetkazib berish shartlarini kiriting.</span>
+                            <span>Xabarlarni bo'laklab yuborish muloqotni yanada samimiy va jonli ko'rsatadi.</span>
                         </div>
                     </div>
                 </div>
